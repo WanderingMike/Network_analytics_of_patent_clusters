@@ -5,3 +5,8 @@ plots
 __pycache__
 literature/
 hist
+venv
+output_tables
+overleaf
+.ipynb_checkpoints
+
