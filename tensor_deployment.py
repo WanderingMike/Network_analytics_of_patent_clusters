@@ -3,7 +3,7 @@ from multiprocessing import Process
 import numpy as np
 import pickle
 from random import shuffle
-from functions.functions_data_preprocessing import *
+from functions.functions_tensor_deployment import *
 
 pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)

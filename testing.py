@@ -1,8 +1,8 @@
 import pandas as pd
 
-a = None
-if type(a) is list:
-    print("ok")
+a = [1,2,9,4,5,6]
+df = pd.DataFrame(index=a, columns=["patent_id"])
+print(df)
 
 def test():
     a = 0b1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

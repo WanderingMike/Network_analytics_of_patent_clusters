@@ -1,121 +1,115 @@
+import multiprocessing
+from multiprocessing import Process
 import pandas as pd
-import os
+import numpy as np
+from datetime import datetime, timedelta
+import sys
+import pickle
 
-pd.set_option('display.max_rows', 10)
+pd.set_option('display.max_rows', 25)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', None)
-
-def list_file_column_names(file_path):
-    '''Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns.
-    '''
-
-    file = open(file_path, 'r', encoding='utf8')
-    file_name = os.path.basename(file_path)
-
-    first_line = file.readline()
-    second_line = file.readline()
-    column_names = first_line.split("\t")
-
-    print("File {} has the following columns: \n\t{}\t{}".format(file_name, first_line, second_line))
-
-    file.close()
-
-    return column_names
-
-def drop_columns(file, selected_columns = False, d_type = None):
-    '''Downsizing data frames by dropping columns, either by preselection or via input
-    '''
-
-    original_file_path = "data/patentsview_data/{}.tsv".format(file)
-
-    # Print columns to choose from
-    list_file_column_names(original_file_path)
-
-    if not selected_columns:
-        selected_columns = input("Which columns should be kept? (Number them) ")
-        selected_columns = selected_columns.split()
-        selected_columns = [int(element) for element in selected_columns]
-
-    cleaned_df = pd.read_csv(original_file_path, delimiter='\t', usecols=selected_columns, dtype=d_type)
-
-    return cleaned_df
-
-def clean_assignee():
-    '''Cleaning assignee.tsv data'''
-
-    patent_columns = [0, 4]
-    assignee_df = drop_columns("assignee", selected_columns=patent_columns, d_type={"patent_id": "string"})
-    assignee_df.columns = ["assignee_id", "organisation"]
-
-    return assignee_df
-
-def clean_cpc_current():
-    '''Cleaning cpc_current.tsv data'''
-
-    cpc_current_columns = [1, 4]
-    cpc_current = drop_columns("cpc_current", selected_columns=cpc_current_columns, d_type={"patent_id": "string"})
-    cpc_current.columns = ["patent_id", "cpc_group"]
-
-    return cpc_current
-
-def clean_otherreference():
-    '''Cleaning otherreference.tsv data'''
-
-    otherreference_columns = [1]
-    otherreference = drop_columns("otherreference", selected_columns=otherreference_columns, d_type={"patent_id": "string"})
-    otherreference = otherreference['patent_id'].value_counts().to_frame()
-    otherreference.reset_index(level=0, inplace=True)
-    otherreference.columns = ["patent_id", "otherreference"]
-
-    return otherreference
-
-def clean_patent():
-    '''Cleaning patent.tsv data'''
-
-    patent_columns = [0, 4, 5, 8]
-    patent = drop_columns("patent", selected_columns=patent_columns, d_type={"patent_id": "string", "abstract": "string"})
-    patent.columns = ["patent_id", "date", "abstract", "num_claims"]
-
-    return patent
-
-def clean_patent_assignee():
-    '''Cleaning patent_assignee.tsv data'''
-
-    patent_assignee_columns = [0,1]
-    patent_assignee = drop_columns("patent_assignee", selected_columns=patent_assignee_columns, d_type={"patent_id": "string"})
-    patent_assignee.columns = ["patent_id", "assignee_id"]
-
-    return patent_assignee
-
-def clean_patent_inventor():
-    '''Cleaning patent_inventor.tsv data'''
-
-    patent_inventor_columns = [0]
-    patent_inventor = drop_columns("patent_inventor", selected_columns=patent_inventor_columns, d_type={"patent_id": "string"})
-    patent_inventor = patent_inventor['patent_id'].value_counts().to_frame()
-    patent_inventor.reset_index(level=0, inplace=True)
-    patent_inventor.columns = ["patent_id", "inventors"]
-
-    return patent_inventor
-
-def clean_uspatentcitation():
-    '''Cleaning uspatentcitation.tsv data'''
-
-    uspatentcitation_columns = [1, 2, 3]
-    uspatentcitation = drop_columns("uspatentcitation", selected_columns=uspatentcitation_columns)
-    uspatentcitation.columns = ["patent_id", "citation_id", "date"]
+pd.set_option('display.max_colwidth', 25)
+np.set_printoptions(threshold=sys.maxsize)
 
 
-    return uspatentcitation
+def fill_forward_citations(cluster, tensor_forward_citation, tensor_patent):
+    years = 5
+    period = timedelta(365*years)
+
+    for index, row in cluster.iterrows():
+        patent_date = tensor_patent[index]["date"]
+        citedby_patent_num = 0
+        for citedby_patent in tensor_forward_citation[index]:
+            if citedby_patent["date"] - patent_date < period:
+                citedby_patent_num += 1
+
+        row["forward_citations"] = citedby_patent_num
 
 
-dispatch = {
-    'assignee': clean_assignee,
-    'cpc_current': clean_cpc_current,
-    'otherreference': clean_otherreference,
-    'patent': clean_patent,
-    'patent_assignee': clean_patent_assignee,
-    'patent_inventor': clean_patent_inventor,
-    'uspatentcitation': clean_uspatentcitation
-}
+def fill_cto(cluster):
+
+
+def fill_pk(cluster, tensor_backward_citation):
+
+    cluster["PK"] = cluster.index.apply(lambda patent_id: len(tensor_backward_citation[patent_id]))
+
+
+def fill_sk(cluster, tensor_otherreference):
+
+    cluster["SK"] = cluster.index.apply(lambda patent_id: tensor_otherreference[patent_id])
+
+
+def fill_tct(cluster):
+
+
+def fill_mf(cluster, tensor_patent_cpc):
+
+    cluster["MF"] = cluster.index.apply(lambda patent_id: tensor_patent_cpc[patent_id]) # $ Main class or all classes? $
+
+
+def fill_ts(cluster, tensor_patent_cpc):
+
+    cluster["TS"] = cluster.index.apply(lambda patent_id: len(tensor_patent_cpc[patent_id]))
+
+
+def fill_pcd(cluster, tensor_patent):
+
+    cluster["PCD"] = cluster.index.apply(lambda patent_id: tensor_patent[patent_id]["num_claims"])
+
+
+def fill_col(cluster, tensor_patent_assignee):
+
+    cluster["COL"] = cluster.index.apply(lambda patent_id: 1 if len(tensor_patent_assignee[patent_id]) > 1 else 0)
+
+
+def fill_inv(cluster, tensor_inventor):
+
+    cluster["INV"] = cluster.index.apply(lambda patent_id: len(tensor_inventor[patent_id]))
+
+
+def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent, tensor_cpc_patent, tensor_forward_citation, category):
+
+    def search(patent_id):
+
+        # Setting up variables
+        total_know_how = 0
+        core_know_how = 0
+        total_strength = 0
+        core_strength = 0
+
+        assignee_list = tensor_patent_assignee[patent_id]
+
+        # Looping through all patents
+        for assignee in assignee_list:
+            total_know_how += len(tensor_assignee_patent[assignee])
+
+            for patent in tensor_assignee_patent[assignee]:  # $ do more efficient way? $
+                if patent in tensor_cpc_patent[category]:
+                    core_know_how += 1
+                    core_strength += len(tensor_forward_citation[patent_id])
+                total_strength += len(tensor_forward_citation[patent_id]) # $ risk of assignees collision? Create a set of patents?$
+
+        return total_know_how, core_know_how, total_strength, core_strength
+
+
+    cluster["TKH"], cluster["CKH"], cluster["TTS"], cluster["CTS"] = cluster.index.apply(lambda patent_id: search(patent_id))
+
+
+def fill_pkh(cluster):
+
+    cluster["PKH"] = cluster.apply(lambda row: row["TKH"] - row["CKH"])
+
+
+def fill_pts(cluster):
+
+    cluster["PTS"] = cluster.apply(lambda row: row["TTS"] - row["CTS"])
+
+
+# maybe you can make it more efficient by calling assignees only once? Fewer functions basically...
+
+
+
+
+
+
