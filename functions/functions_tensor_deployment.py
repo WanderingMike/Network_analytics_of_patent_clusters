@@ -74,8 +74,11 @@ def clean_patent():
     '''Cleaning patent.tsv data'''
 
     patent_columns = [0, 4, 5, 8]
-    patent = drop_columns("patent", selected_columns=patent_columns, d_type={"patent_id": "string", "abstract": "string"})
+    patent = drop_columns("patent", selected_columns=patent_columns, d_type={"id": "string", "abstract": "string"})
     patent.columns = ["patent_id", "date", "abstract", "num_claims"]
+    patent["date"] = pd.to_datetime(patent["date"])
+
+    print(patent.dtypes)
 
     return patent
 
@@ -105,7 +108,8 @@ def clean_uspatentcitation():
     uspatentcitation_columns = [1, 2, 3]
     uspatentcitation = drop_columns("uspatentcitation", selected_columns=uspatentcitation_columns)
     uspatentcitation.columns = ["patent_id", "citation_id", "date"]
-
+    uspatentcitation["date"] = pd.to_datetime(uspatentcitation["date"])
+    print(uspatentcitation.dtypes)
 
     return uspatentcitation
 

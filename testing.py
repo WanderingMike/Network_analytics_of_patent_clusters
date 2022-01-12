@@ -1,8 +1,8 @@
-import pandas as pd
+keys = [1,2,3,4]
+my_pid = d = {k: [] for k in keys}
+my_pid[1].append("esafd")
+print(my_pid)
 
-a = [1,2,9,4,5,6]
-df = pd.DataFrame(index=a, columns=["patent_id"])
-print(df)
 
 def test():
     a = 0b1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
