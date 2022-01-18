@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from datetime import datetime
 
 pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)
@@ -45,7 +46,9 @@ def clean_assignee():
     '''Cleaning assignee.tsv data'''
 
     patent_columns = [0, 4]
-    assignee_df = drop_columns("assignee", selected_columns=patent_columns, d_type={"patent_id": "string"})
+    assignee_df = drop_columns("assignee",
+                               selected_columns=patent_columns,
+                               d_type={"patent_id": "string"})
     assignee_df.columns = ["assignee_id", "organisation"]
 
     return assignee_df
@@ -54,8 +57,11 @@ def clean_cpc_current():
     '''Cleaning cpc_current.tsv data'''
 
     cpc_current_columns = [1, 4]
-    cpc_current = drop_columns("cpc_current", selected_columns=cpc_current_columns, d_type={"patent_id": "string"})
+    cpc_current = drop_columns("cpc_current",
+                               selected_columns=cpc_current_columns,
+                               d_type={"patent_id": "string"})
     cpc_current.columns = ["patent_id", "cpc_group"]
+    cpc_current.drop_duplicates(inplace=True)
 
     return cpc_current
 
@@ -63,7 +69,8 @@ def clean_otherreference():
     '''Cleaning otherreference.tsv data'''
 
     otherreference_columns = [1]
-    otherreference = drop_columns("otherreference", selected_columns=otherreference_columns, d_type={"patent_id": "string"})
+    otherreference = drop_columns("otherreference", selected_columns=otherreference_columns,
+                                  d_type={"patent_id": "string"})
     otherreference = otherreference['patent_id'].value_counts().to_frame()
     otherreference.reset_index(level=0, inplace=True)
     otherreference.columns = ["patent_id", "otherreference"]
@@ -74,19 +81,21 @@ def clean_patent():
     '''Cleaning patent.tsv data'''
 
     patent_columns = [0, 4, 5, 8]
-    patent = drop_columns("patent", selected_columns=patent_columns, d_type={"id": "string", "abstract": "string"})
+    patent = drop_columns("patent",
+                          selected_columns=patent_columns,
+                          d_type={"id": "string", "abstract": "string"})
     patent.columns = ["patent_id", "date", "abstract", "num_claims"]
     patent["date"] = pd.to_datetime(patent["date"])
-
-    print(patent.dtypes)
 
     return patent
 
 def clean_patent_assignee():
     '''Cleaning patent_assignee.tsv data'''
 
-    patent_assignee_columns = [0,1]
-    patent_assignee = drop_columns("patent_assignee", selected_columns=patent_assignee_columns, d_type={"patent_id": "string"})
+    patent_assignee_columns = [0, 1]
+    patent_assignee = drop_columns("patent_assignee",
+                                   selected_columns=patent_assignee_columns,
+                                   d_type={"patent_id": "string"})
     patent_assignee.columns = ["patent_id", "assignee_id"]
 
     return patent_assignee
@@ -95,7 +104,9 @@ def clean_patent_inventor():
     '''Cleaning patent_inventor.tsv data'''
 
     patent_inventor_columns = [0]
-    patent_inventor = drop_columns("patent_inventor", selected_columns=patent_inventor_columns, d_type={"patent_id": "string"})
+    patent_inventor = drop_columns("patent_inventor",
+                                   selected_columns=patent_inventor_columns,
+                                   d_type={"patent_id": "string"})
     patent_inventor = patent_inventor['patent_id'].value_counts().to_frame()
     patent_inventor.reset_index(level=0, inplace=True)
     patent_inventor.columns = ["patent_id", "inventors"]
@@ -105,11 +116,11 @@ def clean_patent_inventor():
 def clean_uspatentcitation():
     '''Cleaning uspatentcitation.tsv data'''
 
-    uspatentcitation_columns = [1, 2, 3]
-    uspatentcitation = drop_columns("uspatentcitation", selected_columns=uspatentcitation_columns)
-    uspatentcitation.columns = ["patent_id", "citation_id", "date"]
-    uspatentcitation["date"] = pd.to_datetime(uspatentcitation["date"])
-    print(uspatentcitation.dtypes)
+    uspatentcitation_columns = [1, 2]
+    uspatentcitation = drop_columns("uspatentcitation",
+                                    selected_columns=uspatentcitation_columns,
+                                    d_type={"patent_id": "string", "citation_id": "string"})
+    uspatentcitation.columns = ["patent_id", "citation_id"]
 
     return uspatentcitation
 

@@ -10,7 +10,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
-number_of_cores = 16
+number_of_cores = 6
 
 tensors = {"assignee": {"tensor": None,
                             "dataset": "assignee",
@@ -31,7 +31,7 @@ tensors = {"assignee": {"tensor": None,
                "patent": {"tensor": None,
                           "dataset": "patent",
                           "leading_column": "patent_id",
-                          "tensor_value_format": {"date": None, "num_claims": None, "abstract": None}},
+                          "tensor_value_format": dict()},
                "patent_assignee": {"tensor": None,
                                    "dataset": "patent_assignee",
                                    "leading_column": "patent_id",
@@ -47,11 +47,11 @@ tensors = {"assignee": {"tensor": None,
                "forward_citation": {"tensor": None,
                                     "dataset": "uspatentcitation",
                                     "leading_column": "citation_id",
-                                    "tensor_value_format": [{"patent_id": None, "date": None}]},
+                                    "tensor_value_format": list()},
                "backward_citation": {"tensor": None,
                                      "dataset": "uspatentcitation",
                                      "leading_column": "patent_id",
-                                     "tensor_value_format": [{"citation_id": None, "date": None}]}}
+                                     "tensor_value_format": list()}}
 
 class Worker(Process):
     '''Each Worker process will create part of the tensor. This tensor (Python dictionary) will have as keys a subset of
@@ -100,7 +100,7 @@ class Worker(Process):
             tensor = {k: [] for k in self.entities_lst}
             self.append_values(df_subset, tensor, remaining_cols, total, count)
         else:
-            tensor = {k: self.tensor_value_format for k in self.entities_lst}
+            tensor = {k: {col: None for col in remaining_cols} for k in self.entities_lst}
             self.populate_dictionary(df_subset, tensor, remaining_cols, total, count)
 
         return tensor
@@ -115,7 +115,7 @@ class Worker(Process):
         '''
 
         for index, row in df_subset.iterrows():
-            if (count % 200000 == 0):
+            if count % 1000000 == 0:
                 print("> > Process {}: {}/{}".format(self.my_pid, count, total))
             count += 1
 
@@ -132,7 +132,7 @@ class Worker(Process):
 
         for index, row in df_subset.iterrows():
 
-            if count % 200000 == 0:
+            if count % 1000000 == 0:
                 print("> > Process {}: {}/{}".format(self.my_pid, count, total))
             count += 1
 
@@ -158,7 +158,7 @@ class Worker(Process):
         '''
 
         for index, row in df_subset.iterrows():
-            if (count % 200000 == 0):
+            if count % 1000000 == 0:
                 print("> > Process {}: {}/{}".format(self.my_pid, count, total))
             count += 1
 
@@ -168,9 +168,6 @@ class Worker(Process):
 
             except Exception as e:
                 print("Problem with Process {}:{}-{}".format(self.pid, index, row) + e)
-
-        print(answer)
-        print("jey")
 
         return answer
 
@@ -198,8 +195,8 @@ def parallelisation(tensor_name, dataset, leading_column, tensor_value_format):
     print("There are {} entities".format(len(unique_entities)))
 
     ## Preparing return objects
-    tmp_dic = {}
-    multiplex_dic = dict()
+    process_id = dict()
+    final_tensor = dict()
 
     ## Processes
     no_processes = number_of_cores
@@ -214,20 +211,22 @@ def parallelisation(tensor_name, dataset, leading_column, tensor_value_format):
     for i in range(len(data_split)):
         p = Worker(data_split[i], i, return_dict, tensor_df, leading_column, tensor_value_format)
         p.start()
-        tmp_dic[i] = p
+        process_id[i] = p
 
     # Merging thread
-    for i in range(len(tmp_dic)):
-        tmp_dic[i].join()
+    for i in range(len(process_id)):
+        process_id[i].join()
 
     print("Merging all thread dictionaries")
-    for el in return_dict.values():
-        tensor = dict(multiplex_dic, **el)
+    for process_dictionary in return_dict.values():
+        print(process_dictionary)
+        final_tensor = {**final_tensor, **process_dictionary}
 
     # Saving tensor as compressed pickle file
-    save_tensor(tensor_name, tensor)
+    save_tensor(tensor_name, final_tensor)
+    print("Tensor saved.")
 
-    return tensor
+    return final_tensor
 
 def save_tensor(tensor_name, tensor):
     a_file = open("data/patentsview_cleaned/{}.pkl".format(tensor_name), "wb")
@@ -245,8 +244,9 @@ def make_tensors():
         tensors[tensor_name]["tensor"] = parallelisation(tensor_name, value["dataset"], value["leading_column"], value["tensor_value_format"])
 
 if __name__ == "__main__":
-    value = tensors["patent_cpc"]
-    tensor = parallelisation("patent_cpc", value["dataset"], value["leading_column"], value["tensor_value_format"])
+    name = "cpc_patent"
+    value = tensors[name]
+    tensor = parallelisation(name, value["dataset"], value["leading_column"], value["tensor_value_format"])
     print(tensor)
     #clean_patent()
     #list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
