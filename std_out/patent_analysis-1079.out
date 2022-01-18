@@ -1,0 +1,169 @@
+/cluster/raid/home/michael.tsesmelis/SideProject
+No devices were found
+
+2022-01-18 15:20:21.684477
+Tensors loaded.
+         forward_citations  CTO   PK   SK  TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518               NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771               NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758               NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167               NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                    ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211               NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:22.283234
+          forward_citations  CTO   PK   SK  TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:22.826897
+          forward_citations      CTO   PK   SK  TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:23.692304
+          forward_citations      CTO  PK   SK  TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:23.840169
+          forward_citations      CTO  PK   SK  TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:24.014360
+          forward_citations      CTO  PK   SK     TCT   MF   TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  4592.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  2800.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0     NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  1365.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...     ...  ...  ...  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  1078.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  5530.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3     NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  2191.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  6020.0  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:27.567593
+          forward_citations      CTO  PK   SK     TCT                        MF  TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5              [H04L, G06F]   2  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  4592.0  [H04L, H04B, Y02D, H04W]   4  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  2800.0                    [H04L]   1  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0     NaN                    [H04L]   1  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  1365.0              [H04L, H04W]   2  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...     ...                       ...  ..  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  1078.0        [H04B, H04W, H04L]   3  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  5530.0  [G05D, G01C, G06K, G0...  10  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3     NaN        [H04W, Y02D, H04L]   3  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  2191.0        [H04W, G06Q, H04L]   3  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  6020.0  [H05K, H04B, G06F, H04L]   4  NaN  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:27.737944
+          forward_citations      CTO  PK   SK     TCT                        MF  TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5              [H04L, G06F]   2   12  NaN  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  4592.0  [H04L, H04B, Y02D, H04W]   4   30  NaN  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  2800.0                    [H04L]   1   20  NaN  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0     NaN                    [H04L]   1   21  NaN  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  1365.0              [H04L, H04W]   2   20  NaN  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...     ...                       ...  ..  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  1078.0        [H04B, H04W, H04L]   3   17  NaN  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  5530.0  [G05D, G01C, G06K, G0...  10   20  NaN  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3     NaN        [H04W, Y02D, H04L]   3    8  NaN  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  2191.0        [H04W, G06Q, H04L]   3   20  NaN  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  6020.0  [H05K, H04B, G06F, H04L]   4    7  NaN  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:27.898597
+          forward_citations      CTO  PK   SK     TCT                        MF  TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5              [H04L, G06F]   2   12    0  NaN  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  4592.0  [H04L, H04B, Y02D, H04W]   4   30    0  NaN  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  2800.0                    [H04L]   1   20    0  NaN  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0     NaN                    [H04L]   1   21    0  NaN  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  1365.0              [H04L, H04W]   2   20    0  NaN  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...     ...                       ...  ..  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  1078.0        [H04B, H04W, H04L]   3   17    0  NaN  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  5530.0  [G05D, G01C, G06K, G0...  10   20    0  NaN  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3     NaN        [H04W, Y02D, H04L]   3    8    0  NaN  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  2191.0        [H04W, G06Q, H04L]   3   20    0  NaN  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  6020.0  [H05K, H04B, G06F, H04L]   4    7    0  NaN  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:28.056007
+          forward_citations      CTO  PK   SK     TCT                        MF  TS  PCD  COL  INV  TKH  CKH  TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5              [H04L, G06F]   2   12    0    7  NaN  NaN  NaN  NaN
+10135771                NaN  0.75800  52    4  4592.0  [H04L, H04B, Y02D, H04W]   4   30    0    4  NaN  NaN  NaN  NaN
+9894143                 NaN  0.71605   6    1  2800.0                    [H04L]   1   20    0    1  NaN  NaN  NaN  NaN
+10033758                NaN  0.00000   0    0     NaN                    [H04L]   1   21    0    6  NaN  NaN  NaN  NaN
+10028167                NaN  0.50000   1    1  1365.0              [H04L, H04W]   2   20    0    2  NaN  NaN  NaN  NaN
+...                     ...      ...  ..  ...     ...                       ...  ..  ...  ...  ...  ...  ...  ...  ...
+9907077                 NaN  0.67284   8    5  1078.0        [H04B, H04W, H04L]   3   17    0    4  NaN  NaN  NaN  NaN
+9946260                 NaN  0.80000   1    1  5530.0  [G05D, G01C, G06K, G0...  10   20    0    5  NaN  NaN  NaN  NaN
+10149211                NaN  0.00000   0    3     NaN        [H04W, Y02D, H04L]   3    8    0    6  NaN  NaN  NaN  NaN
+9906954                 NaN  0.75556   6  122  2191.0        [H04W, G06Q, H04L]   3   20    0    4  NaN  NaN  NaN  NaN
+9864398                 NaN  0.86111   8    0  6020.0  [H05K, H04B, G06F, H04L]   4    7    0    1  NaN  NaN  NaN  NaN
+
+[33128 rows x 14 columns]
+2022-01-18 15:20:30.736328
+          forward_citations      CTO  PK   SK     TCT                        MF  TS  PCD  COL  INV       TKH  CKH       TTS  CTS
+10110518                NaN  0.60156  14    2  3720.5              [H04L, G06F]   2   12    0    7     361.0  0.0    2087.0  0.0
+10135771                NaN  0.75800  52    4  4592.0  [H04L, H04B, Y02D, H04W]   4   30    0    4     274.0  0.0    4632.0  0.0
+9894143                 NaN  0.71605   6    1  2800.0                    [H04L]   1   20    0    1   14862.0  0.0  120528.0  0.0
+10033758                NaN  0.00000   0    0     NaN                    [H04L]   1   21    0    6      83.0  0.0    1191.0  0.0
+10028167                NaN  0.50000   1    1  1365.0              [H04L, H04W]   2   20    0    2    6280.0  0.0   28969.0  0.0
+...                     ...      ...  ..  ...     ...                       ...  ..  ...  ...  ...       ...  ...       ...  ...
+9907077                 NaN  0.67284   8    5  1078.0        [H04B, H04W, H04L]   3   17    0    4    3646.0  0.0   42842.0  0.0
+9946260                 NaN  0.80000   1    1  5530.0  [G05D, G01C, G06K, G0...  10   20    0    5     192.0  0.0    1907.0  0.0
+10149211                NaN  0.00000   0    3     NaN        [H04W, Y02D, H04L]   3    8    0    6  100219.0  0.0  696210.0  0.0
+9906954                 NaN  0.75556   6  122  2191.0        [H04W, G06Q, H04L]   3   20    0    4       9.0  0.0      80.0  0.0
+9864398                 NaN  0.86111   8    0  6020.0  [H05K, H04B, G06F, H04L]   4    7    0    1   25222.0  0.0  417988.0  0.0
+
+[33128 rows x 14 columns]

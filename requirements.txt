@@ -1,0 +1,7 @@
+tensorflow
+pandas
+sklearn
+multiprocessing
+pickle
+datetime
+autokeras
