@@ -27,7 +27,7 @@ def generate_dataframe(tensor_cpc_patent, tensor_patent, category, start_date=No
             pass
 
     cluster = pd.DataFrame(index=indexed_patents,
-                           columns=['forward_citations', 'CTO', 'PK', 'SK', 'TCT', 'MF', 'TS',
+                           columns=['date', 'forward_citations', 'CTO', 'PK', 'SK', 'TCT', 'MF', 'TS',
                                     'PCD', 'COL', 'INV', 'TKH', 'CKH', 'TTS', 'CTS'])
 
     return cluster
@@ -37,12 +37,9 @@ def fill_dataframe(category, tensors, cluster):
     '''This function fills in every column of the final ML-readable dataframe. Each datapoint is sourced from the
     tensors given as parameters to the functions. Finally, missing values are replaced by the median for the each
     indicator/column in the dataframe.'''
-    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc"], tensors["forward_citation"], category)
+    
     print(datetime.now())
-    print(cluster)
-    return cluster
-    cluster = fill_forward_citations(cluster, tensors["forward_citation"], tensors["patent"])
-    print(cluster)
+    cluster = fill_date_forward_citations(cluster, tensors["forward_citation"], tensors["patent"])
 
     print(datetime.now())
     cluster = fill_cto(cluster, tensors["patent_cpc"], tensors["backward_citation"])
@@ -76,14 +73,12 @@ def fill_dataframe(category, tensors, cluster):
     cluster = fill_inv(cluster, tensors["inventor"])
     print(cluster)
     
-    #cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["cpc_patent"],
-    #                                tensors["forward_citation"], category)
-    #print(cluster)
-
-
+    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["cpc_patent"], tensors["forward_citation"], category)
+    print(datetime.now())
+    print(cluster)
 
     # Encode mainclass column using one-hot-encoding
-    cpc_to_labels = tensors["cpc_patent"].keys()
+    cpc_to_labels = list(tensors["cpc_patent"].keys())
     le = LabelEncoder()
     le.fit(cpc_to_labels)
     cluster["MF"] = cluster["MF"].apply(lambda cpc_groups: le.transform(cpc_groups))
@@ -95,7 +90,7 @@ def fill_dataframe(category, tensors, cluster):
     cluster = cluster.drop(["MF"], axis=1)
 
     # Categorise output variables
-    cluster["forward_citations"] = cluster["forward_citations"].apply(categorise_output, axis=1)
+    cluster.to_csv("data/dataframes/test2.csv")
 
     return cluster
 
@@ -144,8 +139,8 @@ def data_preparation(categories, period_start, period_end):
 
 if __name__ == "__main__":
     categories = ["H04L"]
-    period_start = datetime(2018, 1, 1)
-    period_end = datetime(2018, 12, 31)
+    period_start = datetime(2013, 1, 1)
+    period_end = datetime(2013, 12, 31)
     df = data_preparation(categories, period_start, period_end)
 
 

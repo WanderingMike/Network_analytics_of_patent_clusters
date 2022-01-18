@@ -12,16 +12,16 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def fill_forward_citations(cluster, tensor_forward_citation, tensor_patent):
-    '''This function calculates the forward citation count after a defined time period.
-    This will become the output variable for the ML algorithm.
+def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent):
+    '''This function fetches the date and calculates the forward citation count after a
+    defined time period. This will become the output variable for the ML algorithm.
     :cluster: ML-readable data-frame
     :tensor_forward_citation: tells us which patents have cited a specific patent
     :tensor_patent: gives us the date of publication of all patents'''
 
     # Initial time conditions
     years = 5
-    period = timedelta(365*years)
+    period = 365*years
     data_upload_date = datetime(2021, 10, 8)
     
     # This function is applied to every patent in the dataframe
@@ -33,15 +33,15 @@ def fill_forward_citations(cluster, tensor_forward_citation, tensor_patent):
         patent_date = tensor_patent[patent_id]["date"]
 
         if patent_date > data_upload_date - relativedelta(years = years):
-            return np.nan
+            return patent_date, np.nan
 
         # Get patents that cited patent_id
         citedby_patent_num = 0
         try:
             forward_citations = tensor_forward_citation[patent_id]
         except:
-            return 0
-        
+            return patent_date, 0
+
         # For each retrieved patent, check if it was published within the desired timeframe
         for citedby_patent in forward_citations:
             try:
@@ -50,10 +50,10 @@ def fill_forward_citations(cluster, tensor_forward_citation, tensor_patent):
             except:
                 pass
 
-        return citedby_patent_num
+        return patent_date, citedby_patent_num
     
     # Applying function to all rows
-    cluster["forward_citations"] = cluster.apply(get_forward_citations, axis=1)
+    cluster["date"], cluster["forward_citations"] = zip(*cluster.apply(get_forward_citations, axis=1))
 
     return cluster
 
@@ -328,19 +328,6 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
     cluster["TKH"], cluster["CKH"], cluster["TTS"], cluster["CTS"] = zip(*cluster.apply(search, axis=1))
 
     return cluster
-
-
-def categorise_output(citations):
-    '''This functions categorises the ML-readable output column forward citations'''
-
-    if citations >= 20:
-        return 3
-    elif 10 <= citations <= 19:
-        return 2
-    elif 2 <= citations <= 9:
-        return 1
-    else:
-        return 0
 
 
 # maybe you can make it more efficient by calling assignees only once? Fewer functions basically...
