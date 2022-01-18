@@ -1,9 +1,14 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 
 start = datetime(2018, 1, 1)
 end = datetime(2020, 1, 1)
+ok = (end-start).days
+if ok < 900:
+    print("ok")
 time_series = {k: None for k in ["a", "b", "c"]}
+print(start, list(time_series.keys()))
+input()
 
 for cpc_group in time_series.keys():
     indicators = {"patent_count": None,
