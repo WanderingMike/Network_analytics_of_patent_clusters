@@ -219,7 +219,6 @@ def parallelisation(tensor_name, dataset, leading_column, tensor_value_format):
 
     print("Merging all thread dictionaries")
     for process_dictionary in return_dict.values():
-        print(process_dictionary)
         final_tensor = {**final_tensor, **process_dictionary}
 
     # Saving tensor as compressed pickle file

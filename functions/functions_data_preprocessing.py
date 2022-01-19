@@ -97,7 +97,7 @@ def fill_cto(cluster, tensor_patent_cpc, tensor_backward_citation):
         for v in count.values():
             herfindahl_index -= (v / counter) ** 2
 
-        return round(herfindahl_index,5)
+        return round(herfindahl_index, 5)
 
     # Applying to every row
     cluster["CTO"] = cluster.apply(calculate_herfindahl, axis=1)
