@@ -248,7 +248,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
     Total Know-How (TKH): number of patents issued by an assignee
     Core Know-How (CKH): number of patents in chosen cpc subgroup issued by an assignee
     Total Technological Strength (TTS): Number of forward citations of patents issued by an assignee
-    Core Technological Strength (CTS): Number of forward citations of patents in chosen cpc group issued by an assignee'''
+    Core Technological Strength (CTS): Number of forward citations of patents in cpc group issued by an assignee'''
     
     # Get the four indicators for a specific assignee
     def get_assignee_info(assignee):

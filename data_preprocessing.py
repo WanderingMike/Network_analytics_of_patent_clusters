@@ -73,7 +73,7 @@ def fill_dataframe(category, tensors, cluster):
     cluster = fill_inv(cluster, tensors["inventor"])
     print(cluster)
     
-    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["cpc_patent"], tensors["forward_citation"], category)
+    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc"], tensors["forward_citation"], category)
     print(datetime.now())
     print(cluster)
 
