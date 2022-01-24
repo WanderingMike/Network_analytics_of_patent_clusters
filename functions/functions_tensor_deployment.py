@@ -86,6 +86,7 @@ def clean_patent():
                           d_type={"id": "string", "abstract": "string"})
     patent.columns = ["patent_id", "date", "abstract", "num_claims"]
     patent["date"] = pd.to_datetime(patent["date"])
+    patent["year"] = patent["date"].apply(lambda x: x.year)
 
     return patent
 

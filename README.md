@@ -77,7 +77,7 @@ Short description of the files:
 | File name        | Short Description  | Columns |  Last updated |
 | ------------- |:-------------:|-------------:|-------------:|
 | application.tsv  | Information on the applications for granted patent | id, patent_id, series_code, number, country, date | 08.10.2021 |
-| assignee.tsv  | Disambiguated assignee data for granted patents and pre-granted applications | | 08.10.2021 |
+| assignee.tsv  | a | | 08.10.2021 |
 | cpc_current.tsv  | Current CPC classification data for all patents (applied retrospectively to all patents) | uuid, patent_id, section_id, subsection_id, group_id, subgroup_id, category, sequence | 08.10.2021 |
 | patent.tsv | Data on granted patents |  | 08.10.2021 |
 | patent_assignee.tsv  | Metadata table for many-to-many relationships | patent_id, assignee_id, location_id | 08.10.2021 |
@@ -93,4 +93,3 @@ https://dl.acm.org/doi/10.1145/2675133.2675286 \
 code: https://github.com/wazaahhh/wiki_econ_capability
 
 Please find the complete list on the bibliography of [the master thesis](TechRank_thesis.pdf). 
-

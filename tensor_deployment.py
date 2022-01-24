@@ -4,54 +4,13 @@ import numpy as np
 import pickle
 from random import shuffle
 from functions.functions_tensor_deployment import *
+from functions.config_tensor_deployment import *
 
 pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
-number_of_cores = 6
-
-tensors = {"assignee": {"tensor": None,
-                            "dataset": "assignee",
-                            "leading_column": "assignee_id",
-                            "tensor_value_format": None},
-               "cpc_patent": {"tensor": None,
-                              "dataset": "cpc_current",
-                              "leading_column": "cpc_group",
-                              "tensor_value_format": list()},
-               "patent_cpc": {"tensor": None,
-                              "dataset": "cpc_current",
-                              "leading_column": "patent_id",
-                              "tensor_value_format": list()},
-               "otherreference": {"tensor": None,
-                                  "dataset": "otherreference",
-                                  "leading_column": "patent_id",
-                                  "tensor_value_format": None},
-               "patent": {"tensor": None,
-                          "dataset": "patent",
-                          "leading_column": "patent_id",
-                          "tensor_value_format": dict()},
-               "patent_assignee": {"tensor": None,
-                                   "dataset": "patent_assignee",
-                                   "leading_column": "patent_id",
-                                   "tensor_value_format": list()},
-               "assignee_patent": {"tensor": None,
-                                   "dataset": "patent_assignee",
-                                   "leading_column": "assignee_id",
-                                   "tensor_value_format": list()},
-               "inventor": {"tensor": None,
-                            "dataset": "patent_inventor",
-                            "leading_column": "patent_id",
-                            "tensor_value_format": None},
-               "forward_citation": {"tensor": None,
-                                    "dataset": "uspatentcitation",
-                                    "leading_column": "citation_id",
-                                    "tensor_value_format": list()},
-               "backward_citation": {"tensor": None,
-                                     "dataset": "uspatentcitation",
-                                     "leading_column": "patent_id",
-                                     "tensor_value_format": list()}}
 
 class Worker(Process):
     '''Each Worker process will create part of the tensor. This tensor (Python dictionary) will have as keys a subset of
@@ -63,13 +22,14 @@ class Worker(Process):
          ...}
      '''
 
-    def __init__(self, entities_lst, pid, return_dict, tensor_df, leading_column, tensor_value_format):
+    def __init__(self, entities_lst, pid, return_dict, tensor_df, leading_column, remaining_columns, tensor_value_format):
         Process.__init__(self)
         self.entities_lst = entities_lst
         self.my_pid = pid
         self.return_dict = return_dict
         self.tensor_df = tensor_df
         self.leading_column = leading_column
+        self.remaining_cols = remaining_columns
         self.tensor_value_format = tensor_value_format
 
     def run(self):
@@ -89,19 +49,18 @@ class Worker(Process):
         {key: {key: value, key: value,...}} -> self.populate_dictionary()
         '''
 
-        remaining_cols = [x for x in list(df_subset.columns) if x != self.leading_column]
         total = len(df_subset.index)
         count = 0
 
         if self.tensor_value_format is None:
             tensor = {k: None for k in self.entities_lst}
-            self.add_unique_value(df_subset, tensor, remaining_cols, total, count)
+            self.add_unique_value(df_subset, tensor, self.remaining_cols, total, count)
         elif type(self.tensor_value_format) is list:
             tensor = {k: [] for k in self.entities_lst}
-            self.append_values(df_subset, tensor, remaining_cols, total, count)
+            self.append_values(df_subset, tensor, self.remaining_cols, total, count)
         else:
-            tensor = {k: {col: None for col in remaining_cols} for k in self.entities_lst}
-            self.populate_dictionary(df_subset, tensor, remaining_cols, total, count)
+            tensor = {k: {col: None for col in self.remaining_cols} for k in self.entities_lst}
+            self.populate_dictionary(df_subset, tensor, self.remaining_cols, total, count)
 
         return tensor
 
@@ -146,7 +105,6 @@ class Worker(Process):
 
                 answer[row[self.leading_column]].append(tmp)
 
-
             except Exception as e:
                 print("Problem with Process {}:{}-{}".format(self.pid, index, row) + e)
 
@@ -171,7 +129,8 @@ class Worker(Process):
 
         return answer
 
-def parallelisation(tensor_name, dataset, leading_column, tensor_value_format):
+
+def parallelisation(tensor_name, dataset, leading_column, remaining_columns, tensor_value_format):
     '''
     We want to build a tensor for each of our dataframes. Step-by-step run-through
     1) Load appropriate dataframe
@@ -209,7 +168,7 @@ def parallelisation(tensor_name, dataset, leading_column, tensor_value_format):
     # Starting up each thread with its share of the assignees to analyse
     print("Splitting")
     for i in range(len(data_split)):
-        p = Worker(data_split[i], i, return_dict, tensor_df, leading_column, tensor_value_format)
+        p = Worker(data_split[i], i, return_dict, tensor_df, leading_column, remaining_columns, tensor_value_format)
         p.start()
         process_id[i] = p
 
@@ -239,8 +198,12 @@ def make_tensors():
     '''
 
     for tensor_name, value in tensors.items():
-        print("*"*30+"\nBuilding {} tensor\n".format(tensor_name) + "*"*30)
-        tensors[tensor_name]["tensor"] = parallelisation(tensor_name, value["dataset"], value["leading_column"], value["tensor_value_format"])
+        print("*"*30 + "\nBuilding {} tensor\n".format(tensor_name) + "*"*30)
+        tensors[tensor_name]["tensor"] = parallelisation(tensor_name,
+                                                         value["dataset"],
+                                                         value["leading_column"],
+                                                         value["remaining_columns"],
+                                                         value["tensor_value_format"])
 
 if __name__ == "__main__":
     name = "cpc_patent"

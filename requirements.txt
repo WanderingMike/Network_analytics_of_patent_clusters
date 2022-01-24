@@ -5,3 +5,4 @@ multiprocessing
 pickle
 datetime
 autokeras
+networkx

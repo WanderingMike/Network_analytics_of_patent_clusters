@@ -115,10 +115,6 @@ class Worker(Process):
         self.time_series = {category: None for category in cpc_groups}
 
     def run(self):
-        # tensors["assignee_patent"] = load_tensor("assignee_patent")
-        # tensors["patent_assignee"] = load_tensor("patent_assignee")
-        # tensors["patent"] = load_tensor("patent")
-        # tensors["forward_citation"] = load_tensor("forward_citation")
 
         for key in self.tensors.keys():
             self.tensors[key] = load_tensor(key)
@@ -146,9 +142,8 @@ def prepare_time_series(period_start, period_end):
     citations.
     '''
 
-    #cpc_tensor = load_tensor("cpc_patent")
-    #categories = cpc_tensor.keys()
-    categories = ["H04L"]
+    cpc_tensor = load_tensor("cpc_patent")
+    categories = cpc_tensor.keys()
 
     shuffle(categories)
     print("There are {} entities".format(len(categories)))
@@ -182,13 +177,4 @@ def prepare_time_series(period_start, period_end):
 
     return time_series_final
 
-
-if __name__ == "__main__":
-    category = "H04L"
-    period_start = datetime(1980, 1, 1)
-    period_end = datetime(2020, 12, 31)
-    df = pd.read_csv("data/dataframes/test2.csv", index_col=0)
-    print(df)
-    calculate_indicators(df, period_start, period_end, category)
-    #time_series = prepare_time_series(period_start, period_end)
 
