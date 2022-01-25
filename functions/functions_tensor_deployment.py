@@ -7,6 +7,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
+
 def list_file_column_names(file_path):
     '''Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns.
     '''
@@ -23,6 +24,7 @@ def list_file_column_names(file_path):
     file.close()
 
     return column_names
+
 
 def drop_columns(file, selected_columns = None, d_type = None):
     '''Downsizing data frames by dropping columns, either by preselection or via input
@@ -42,6 +44,7 @@ def drop_columns(file, selected_columns = None, d_type = None):
 
     return cleaned_df
 
+
 def clean_assignee():
     '''Cleaning assignee.tsv data'''
 
@@ -52,6 +55,7 @@ def clean_assignee():
     assignee_df.columns = ["assignee_id", "organisation"]
 
     return assignee_df
+
 
 def clean_cpc_current():
     '''Cleaning cpc_current.tsv data'''
@@ -65,6 +69,7 @@ def clean_cpc_current():
 
     return cpc_current
 
+
 def clean_otherreference():
     '''Cleaning otherreference.tsv data'''
 
@@ -76,6 +81,7 @@ def clean_otherreference():
     otherreference.columns = ["patent_id", "otherreference"]
 
     return otherreference
+
 
 def clean_patent():
     '''Cleaning patent.tsv data'''
@@ -90,6 +96,7 @@ def clean_patent():
 
     return patent
 
+
 def clean_patent_assignee():
     '''Cleaning patent_assignee.tsv data'''
 
@@ -100,6 +107,7 @@ def clean_patent_assignee():
     patent_assignee.columns = ["patent_id", "assignee_id"]
 
     return patent_assignee
+
 
 def clean_patent_inventor():
     '''Cleaning patent_inventor.tsv data'''
@@ -113,6 +121,7 @@ def clean_patent_inventor():
     patent_inventor.columns = ["patent_id", "inventors"]
 
     return patent_inventor
+
 
 def clean_uspatentcitation():
     '''Cleaning uspatentcitation.tsv data'''
@@ -135,3 +144,7 @@ dispatch = {
     'patent_inventor': clean_patent_inventor,
     'uspatentcitation': clean_uspatentcitation
 }
+
+list_file_column_names("../data/patentsview_data/otherreference.tsv")
+list_file_column_names("../data/patentsview_data/patent_inventor.tsv")
+list_file_column_names("../data/patentsview_data/patent.tsv")

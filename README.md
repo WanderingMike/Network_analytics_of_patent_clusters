@@ -11,7 +11,7 @@ The cybersecurity technological landscape is a complex ecosystem in which entiti
 
 To recognize the mutual influence of companies and technologies in cybersecurity, we consider a bi-partite graph that links companies and technologies. Then, we weight nodes by applying a recursive algorithm based on the method of reflection. This endeavour helps to assign a measure of how an entity impacts the cybersecurity market. Our results help (i) to measure the magnitude of influence of each entity, (ii) decision-makers to address more informed investment strategies, according to their preferences. 
 
-Investors can customzse the algorithm by indicating which external factors --such as previous investments and geographical positions-- are relevant for them. They can select their interests among a list of properties about companies and technologies and weights them according to their needs. This preferences are automatically included in the algorithm and the TechRank's scores changes accordingly.
+Investors can customise the algorithm by indicating which external factors --such as previous investments and geographical positions-- are relevant for them. They can select their interests among a list of properties about companies and technologies and weights them according to their needs. This preferences are automatically included in the algorithm and the TechRank's scores changes accordingly.
 
 ------
 ## Documents
@@ -23,12 +23,13 @@ For more information please refer to:
 ------
 ## Code
 
-The code is a mix of notebooks and `py` files: 
+The code comes in the form of `py` files: 
 - the _py files_ contain the functions needed in the notebook and the declaration of the classes;
 - the _notebooks_ explain all the steps.
 
 **Data**:
-[Crunchbase (CB) pro](https://www.crunchbase.com/home).
+[Patentsview](https://www.patentsview.org).
+The data is freely available from the bulk data download page (https://patentsview.org/download/data-download-tables)
 
 **Classes** :
 We work with 3 dataclasses: `Companies`, `Technologies` and `Investors`.
@@ -44,30 +45,20 @@ Short description of the files:
 
 | File name        | Short Description  |  
 | ------------- |:-------------:| 
-| classes.py                   | C, T and I dataclasses declaration |
-| create_dictionaries(1).ipynb | Creation of the Cs and Ts classes, saved as  dictionaries (c_name:class_c and t_name:class_t)| 
-| investments_graph(2).ipynb   | Creation of the Is classes, saved as dictionary (i_name:class_i) |
-| main(3).ipynb                | TechRank algorithm (both parameters' optimization and random walker)  |  
-| plots(4).ipynb               | Bi-partite network plots      |  
-| create_useful_dataset.ipynb | Creation .CSV where TechRank results are saved      |  
-| analysis_results.ipynb      | Analysis of the TechRank results     |  
-| analysis_investors.ipynb    | Analysis of the investors on CB      |  
-| crunchbase_api.ipynb        | How make queries and extract data using the CB API      |  
-|country_distance.ipynb       | Extraction Cs position and calculation distance from Is|
-|to_run.py                    | Step (3) implemented as a loop |
-| functions/fun.py            | Implementation of all the functions needed before running TechRank (data cleaning, creation classes, plots...) |
-| functions/fun_meth_reflections.py  | Implementation of all the functions for the random walk step |
-| functions/fun_external_factors.py  | Implementation of all the functions for the inclusion of the exogenous factors |
-| docs/...  | Material for creating the documentation |
-| docs/build/html/index.html  | Documentation in HTML |
-| plots/... | All the plots |
-| savings/... | Results savings |
-| data/sample_CB_date | Sample of CB data|
+| data_preprocessing.py                   	| Creates Machine-Learning inputs from the dictionaries created in tensor_deployment.py |
+| ML.py						| Applies classification algorithms to determine forward citation count & applies NLP to abstracts |
+| network_analysis.py				| Builds the network of CPC clusters and assignees |
+| main.py					| Runs the entire system and processes high-level system outputs |
+| tensor_deployment.py				| Loads and flattens data frames into lightweight dictionaries |
+| functions/config_tensor_deployment.py		| Configuration file for tensor formatting |
+| functions/functions_data_preprocessing.py	| Contains functions that compute the indicators for the ML algorithms |
+| functions/functions_ML.py			| Contains the NLP keyword extraction and topic modeling functions |
+| functions/functions_network_analysis.py	| Contains network-construction functions |
+| functions/functions_tensor_deployment.py 	| Contains functions to load tsv files and reduce their size |
+
 
 
 Each file contains more details and comments. 
-
-Please note that data (also the classes) are not available because they are released by Crunchbase to the CYD Campus with a proprietary licence that does not allow us to share them. However, we plovide a sample of the data. 
 
 ------
 ## Data sources:
@@ -76,11 +67,12 @@ Short description of the files:
 
 | File name        | Short Description  | Columns |  Last updated |
 | ------------- |:-------------:|-------------:|-------------:|
-| application.tsv  | Information on the applications for granted patent | id, patent_id, series_code, number, country, date | 08.10.2021 |
-| assignee.tsv  | a | | 08.10.2021 |
-| cpc_current.tsv  | Current CPC classification data for all patents (applied retrospectively to all patents) | uuid, patent_id, section_id, subsection_id, group_id, subgroup_id, category, sequence | 08.10.2021 |
-| patent.tsv | Data on granted patents |  | 08.10.2021 |
-| patent_assignee.tsv  | Metadata table for many-to-many relationships | patent_id, assignee_id, location_id | 08.10.2021 |
+| assignee.tsv | Disambiguated assignee data for granted patents and pre-granted applications | id, type, name_first, name_last, organization | 08.10.2021 |
+| cpc_current.tsv | Current CPC classification data for all patents | uuid, patent_id, section_id, subsection_id, group_id, subgroup_id, category, sequence | 08.10.2021 |
+| otherreference.tsv | Non-patent citations mentioned in patents (e.g. articles, papers, etc.) | uuid, patent_id, text, sequence | 08.10.2021 |
+| patent.tsv | Data on granted patents | id, type, number, country, date, abstract, title, kind, num_claims, filename, withdrawn | 08.10.2021 |
+| patent_assignee.tsv | Metadata table for many-to-many relationships between patents and assignees | patent_id, assignee_id, location_id | 08.10.2021 |
+| patent_inventor.tsv | Metadata table for many-to-many relationships between patents and inventors | patent_id, inventor_id, location_id | 08.10.2021 |
 | uspatentcitation.tsv | Citations made to US granted patents by US patents | uuid, patent_id, citation_id, date, name, kind, country, category, sequence | (08.10.2021) |
 
 ------

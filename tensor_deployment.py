@@ -186,10 +186,12 @@ def parallelisation(tensor_name, dataset, leading_column, remaining_columns, ten
 
     return final_tensor
 
+
 def save_tensor(tensor_name, tensor):
     a_file = open("data/patentsview_cleaned/{}.pkl".format(tensor_name), "wb")
     pickle.dump(tensor, a_file)
     a_file.close()
+
 
 def make_tensors():
     '''Importing multiplex: patent_id, assignee_id, value_count, cpc_current
@@ -204,6 +206,7 @@ def make_tensors():
                                                          value["leading_column"],
                                                          value["remaining_columns"],
                                                          value["tensor_value_format"])
+
 
 if __name__ == "__main__":
     name = "cpc_patent"

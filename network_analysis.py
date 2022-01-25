@@ -24,7 +24,7 @@ def prepare_assignee_nodes(start, end, assignee_patent, year_patent):
     return assignee_nodes
 
 
-def fetch_edge_data(network, tensors, assignee_time_series, start, end):
+def fetch_edge_data(tensors, assignee_time_series, start, end):
     '''
     Drawing all network edges for three sets of relationships:
     1) assignee-CPC
@@ -71,11 +71,17 @@ def fetch_edge_data(network, tensors, assignee_time_series, start, end):
                                            tensors["year_patent"][year])
                 edges[year].append((cpc1, cpc2, weight))
 
-
     return edges
 
 
-def update_edges(network, year, edges):
+def update_edges(network, edges):
+    '''Updating edge weights between two years'''
+
+    for edge in edges:
+        subject_id = edge[0]
+        object_id = edge[1]
+        weight = edge[2]
+        network[subject_id][object_id]['weight'] += weight
 
     return network
 
@@ -122,11 +128,11 @@ def unfold_network(start, end):
     network.add_nodes_from(cpc_time_series.keys())
     network.add_nodes_from(assignee_time_series.keys())
 
-    edges = fetch_edge_data(network, tensors, assignee_time_series, start, end)
+    edges = fetch_edge_data(tensors, assignee_time_series, start, end)
 
     for year in range(start, end+1):
         # Draw edges
-        network = update_edges(network, year, edges[year])
+        network = update_edges(network, edges[year])
 
         # Centrality analytics
         cpc_time_series, assignee_time_series = calculate_centrality(network, cpc_time_series, assignee_time_series)

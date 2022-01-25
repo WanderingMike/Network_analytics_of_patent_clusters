@@ -6,3 +6,6 @@ pickle
 datetime
 autokeras
 networkx
+nltk
+gensim
+spacy

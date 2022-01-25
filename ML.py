@@ -53,32 +53,52 @@ def calculate_emergingness(ml_df, category):
     return ml_df
 
 
-def calculate_indicators(ml_df, start, end, category):
+def calculate_indicators(ml_df, start, end, category, tensor_patent):
     '''
-    This function calculates two indicators for one CPC and for every year in the period range:
+    This function calculates two indicators and retrieves textual information per CPC group per year:
     - emergingness: the average citation level
     - patent_count: the number of patents at the end of the year
+    - keywords: main keywords found in patent abstracts
+    - topic: main topics found in patent abstracts
     :param ml_df: data frame used for ML analytics
     :param start: start of time series
     :param end: end of time series
     :param category: CPC group to consider
+    :param tensor_patent: contains all patent abstracts
     :return: returns the time-series, complete for one CPC group
     '''
 
     indicators = {"emergingness": None,
-                  "patent_count": None}
+                  "patent_count": None,
+                  "keywords": None,
+                  "topic": None}
 
     series = {year: indicators for year in range(start.year, end.year + 1)}
 
     df_final = calculate_emergingness(ml_df, category)
 
     for year in series.keys():
+        # Filtering patents
         temp_df = df_final[ml_df["date"] <= datetime(year, 12, 31)]
-        patent_count = len(temp_df.index)
+        patents_per_year = list(temp_df.index.values)
+
+        # Calculating indicators
+        patent_count = len(patents_per_year)
         emergingness = temp_df["output"].mean()
 
-        series[year]["patent_count"] = patent_count
+        # Information extraction
+        text = ""
+        for patent in patents_per_year:
+            text += " " + tensor_patent[patent]["abstract"]
+
+        keywords = extract_keywords(text)
+        topic = extract_topic(text)
+
+        # Adding to time-series
         series[year]["emergingness"] = emergingness
+        series[year]["patent_count"] = patent_count
+        series[year]["keywords"] = keywords
+        series[year]["topic"] = topic
 
     return series
 
@@ -124,7 +144,8 @@ class Worker(Process):
             self.time_series[category] = calculate_indicators(ml_df,
                                                               self.period_start,
                                                               self.period_end,
-                                                              category)
+                                                              category,
+                                                              self.tensors["patent"])
 
         # return final process-centric time-series
         self.return_dict[self.my_pid] = self.time_series
