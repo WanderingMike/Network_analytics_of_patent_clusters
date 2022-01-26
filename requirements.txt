@@ -1,11 +1,10 @@
-tensorflow
 pandas
 sklearn
-multiprocessing
-pickle
 datetime
-autokeras
 networkx
 nltk
 gensim
 yake
+blobcity
+numpy
+statistics

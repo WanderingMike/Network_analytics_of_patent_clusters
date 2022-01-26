@@ -44,9 +44,9 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
     for assignee in assignee_list:
         for cpc in cpc_list:
             for year in years:
-                weight = len(find_intersection(tensors["assignee_patent"][assignee],
+                weight = find_intersection(tensors["assignee_patent"][assignee],
                                                tensors["cpc_patent"][cpc],
-                                               tensors["year_patent"][year]))
+                                               tensors["year_patent"][year])
                 edges[year].append((assignee, cpc, weight))
 
 
@@ -55,9 +55,9 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
         assignee_list.remove(assignee1)
         for assignee2 in assignee_list:
             for year in years:
-                weight = len(find_intersection(tensors["assignee_patent"][assignee1],
+                weight = find_intersection(tensors["assignee_patent"][assignee1],
                                                tensors["assignee_patent"][assignee2],
-                                               tensors["year_patent"][year]))
+                                               tensors["year_patent"][year])
                 edges[year].append((assignee1, assignee2, weight))
 
 
@@ -120,7 +120,7 @@ def unfold_network(start, end):
     # Fetching assignees
     print("Preparing assignee clusters")
     print(datetime.now())
-    assignee_time_series = prepare_assignee_nodes(start, end, tensors["assignee_patent"], tensors["year_patent"])
+    assignee_time_series = prepare_assignee_nodes(start.year, end.year, tensors["assignee_patent"], tensors["year_patent"])
     print("Finished assignee clusters")
     print(datetime.now())
 
@@ -131,11 +131,11 @@ def unfold_network(start, end):
 
     print("Fetching edge data")
     print(datetime.now())
-    edges = fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end)
+    edges = fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start.year, end.year)
     print("Fetched edge data")
     print(datetime.now())
 
-    for year in range(start, end+1):
+    for year in range(start.year, end.year+1):
         # Draw edges
         network = update_edges(network, edges[year])
 
@@ -144,6 +144,6 @@ def unfold_network(start, end):
 
 
 if __name__ == "__main__":
-    start = datetime(2010, 1, 1)
-    end = datetime(2021, 10, 31)
+    start = datetime(2016,1,1)
+    end = datetime(2016,12,31)
     unfold_network(start, end) # $ make sure start and end date make sense $

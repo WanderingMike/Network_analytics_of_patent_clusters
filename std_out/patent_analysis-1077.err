@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "data_preprocessing.py", line 1, in <module>
-    from functions.functions_data_preprocessing import *
-  File "/cluster/raid/home/michael.tsesmelis/SideProject/functions/functions_data_preprocessing.py", line 1, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'

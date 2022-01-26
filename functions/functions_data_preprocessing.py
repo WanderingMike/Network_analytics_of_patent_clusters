@@ -12,6 +12,7 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 
+
 def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent):
     '''This function fetches the date and calculates the forward citation count after a
     defined time period. This will become the output variable for the ML algorithm.

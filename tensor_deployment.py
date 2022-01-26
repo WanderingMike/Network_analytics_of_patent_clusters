@@ -211,7 +211,7 @@ def make_tensors():
 if __name__ == "__main__":
     name = "year_patent"
     value = tensors[name]
-    tensor = parallelisation(name, value["dataset"], value["leading_column"], value["tensor_value_format"])
+    tensor = parallelisation(name, value["dataset"], value["leading_column"], value["remaining_columns"], value["tensor_value_format"])
     print(tensor)
     #clean_patent()
     #list_file_column_names("data/patentsview_data/uspatentcitation.tsv")

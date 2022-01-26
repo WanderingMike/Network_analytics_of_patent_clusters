@@ -6,6 +6,12 @@ import gensim.corpora as corpora
 import nltk
 from nltk.corpus import stopwords
 nltk.download('stopwords')
+import sys
+
+
+def print_output(type_script, process):
+    sys.stdout = open("std_out/process/{}_{}.out".format(type_script, process), "w")
+    sys.stderr = open("std_out/process/{}_{}.err".format(type_script, process), "w")
 
 
 def categorise_output(citations):

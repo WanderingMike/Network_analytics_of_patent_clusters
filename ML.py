@@ -9,7 +9,7 @@ from sklearn.metrics import average_precision_score
 
 
 pd.set_option('display.max_rows', 25)
-pd.set_option('display.max_columns', None)
+pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
@@ -27,21 +27,35 @@ def calculate_emergingness(ml_df, category):
 
 
     # Splitting dataframe
-    data_to_forecast = ml_df[ml_df["forward_citations"] == np.nan]
-    data_to_forecast.to_csv("data/unseen/unseen_{}.csv".format(category), index=True)
-    data_ready = ml_df[ml_df["forward_citations"] != np.nan]
+    data_to_forecast = ml_df[ml_df["forward_citations"].isna()]
+    data_to_forecast.to_csv("data/forecast/forecast_{}.csv".format(category), index=True)
+    print("data_forecast for cluster {}".format(category))
+    print(data_to_forecast)
+    data_ready = ml_df[~ml_df["forward_citations"].isna()]
     data_ready.drop(["date", "forward_citations"], axis=1, inplace=True)
+    data_ready.to_csv("data/ready/ready_{}.csv".format(category), index=True)
+    print("Data_ready for cluster {}".format(category))
+    print(data_ready)
+    data_ready.index.astype(int, copy=False)
+    print(data_ready.index.dtype)
+    print(data_ready.info(memory_usage="deep"))
+    print(data_ready.memory_usage(deep=True))
+    data_go = data_ready
 
+    data_ready = pd.read_csv("data/ready/ready_A43C.csv", index_col=0)
+    print("read data")
+    print(data_ready)
+    print(data_ready.index.dtype)
+    print(data_ready.info(memory_usage="deep"))
+    print(data_ready.memory_usage(deep=True))
     # Train model
-    model = bc.train(df=data_ready, target="output")
+    model = bc.train(df=data_go, target="output")
 
     print("Selected model features")
     model.features()
     model.plot_feature_importance()
 
-    model.spill("functions/ML_generation/ML_generation_{}.py".format(category))
-
-    predictions = model.predict(file="data/unseen/unseen_{}.csv".format(category))
+    predictions = model.predict(file="data/forecast/forecast_{}.csv".format(category))
     print(predictions)
     model.plot_prediction()
     model.summary()
@@ -95,7 +109,7 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
             keywords = extract_keywords(text)
         except Exception as e:
             print(e)
-            keywords = ["test", "keywords"]
+            keywords = ["test", "keywords"] # $ chenge $
 
         try:
             topic = extract_topic(text)
@@ -144,6 +158,8 @@ class Worker(Process):
         self.time_series = {category: None for category in cpc_groups}
 
     def run(self):
+        
+        print_output("ml", self.my_pid)
 
         for key in self.tensors.keys():
             self.tensors[key] = load_tensor(key)
@@ -173,7 +189,7 @@ def prepare_time_series(period_start, period_end):
     '''
 
     cpc_tensor = load_tensor("cpc_patent")
-    categories = list(cpc_tensor.keys())[:6] # $ delete!! $
+    categories = list(cpc_tensor.keys())[:1] # $ delete!! $
 
     shuffle(categories)
     print("There are {} entities".format(len(categories)))

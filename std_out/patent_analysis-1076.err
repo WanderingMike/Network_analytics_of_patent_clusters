@@ -1,6 +1,0 @@
-/var/spool/slurm/slurmd/job01076/slurm_script: line 21: ./bin/activate: No such file or directory
-Traceback (most recent call last):
-  File "data_preprocessing.py", line 1, in <module>
-    from functions.functions_data_preprocessing import *
-ImportError: No module named functions.functions_data_preprocessing
-/var/spool/slurm/slurmd/job01076/slurm_script: line 25: deactivate: command not found

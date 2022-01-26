@@ -112,9 +112,10 @@ def data_preparation(category, tensors, period_start, period_end):
     print(cluster)
     print(datetime.now())
     cluster_complete = fill_dataframe(category, tensors, cluster)
+    print(cluster)
+    print(datetime.now())
 
     return cluster_complete
-
 
 
 
