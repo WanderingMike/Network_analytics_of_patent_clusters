@@ -144,7 +144,3 @@ dispatch = {
     'patent_inventor': clean_patent_inventor,
     'uspatentcitation': clean_uspatentcitation
 }
-
-list_file_column_names("../data/patentsview_data/otherreference.tsv")
-list_file_column_names("../data/patentsview_data/patent_inventor.tsv")
-list_file_column_names("../data/patentsview_data/patent.tsv")

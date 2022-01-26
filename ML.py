@@ -91,8 +91,17 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
         for patent in patents_per_year:
             text += " " + tensor_patent[patent]["abstract"]
 
-        keywords = extract_keywords(text)
-        topic = extract_topic(text)
+        try:
+            keywords = extract_keywords(text)
+        except Exception as e:
+            print(e)
+            keywords = ["test", "keywords"]
+
+        try:
+            topic = extract_topic(text)
+        except Exception as e:
+            print(e)
+            topic = ["Test topic"]
 
         # Adding to time-series
         series[year]["emergingness"] = emergingness
@@ -140,7 +149,7 @@ class Worker(Process):
             self.tensors[key] = load_tensor(key)
 
         for category in self.cpc_groups:
-            ml_df = data_preparation(category, self.period_start, self.period_end)
+            ml_df = data_preparation(category, self.tensors, self.period_start, self.period_end)
             self.time_series[category] = calculate_indicators(ml_df,
                                                               self.period_start,
                                                               self.period_end,
@@ -164,7 +173,7 @@ def prepare_time_series(period_start, period_end):
     '''
 
     cpc_tensor = load_tensor("cpc_patent")
-    categories = cpc_tensor.keys()
+    categories = list(cpc_tensor.keys())[:6] # $ delete!! $
 
     shuffle(categories)
     print("There are {} entities".format(len(categories)))
@@ -193,6 +202,8 @@ def prepare_time_series(period_start, period_end):
         process_id[i].join()
 
     # Merging all process timeseries into one dictionary
+    print("Merging CPC cluster dictionaries")
+    print(datetime.now())
     for process_dictionary in return_dict.values():
         time_series_final = {**time_series_final, **process_dictionary}
 

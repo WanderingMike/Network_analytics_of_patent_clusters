@@ -24,7 +24,7 @@ def prepare_assignee_nodes(start, end, assignee_patent, year_patent):
     return assignee_nodes
 
 
-def fetch_edge_data(tensors, assignee_time_series, start, end):
+def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
     '''
     Drawing all network edges for three sets of relationships:
     1) assignee-CPC
@@ -36,7 +36,7 @@ def fetch_edge_data(tensors, assignee_time_series, start, end):
     '''
 
     assignee_list = list(assignee_time_series.keys())
-    cpc_list = list(tensors["cpc_patent"].keys())
+    cpc_list = list(cpc_time_series.keys())
     years = range(start, end+1)
     edges = {k: list() for k in years}
 
@@ -111,24 +111,29 @@ def unfold_network(start, end):
         tensors[tensor] = load_tensor(tensor)
 
     # Fetching CPC
-    category = "H04L"
-    period_start = datetime(1980, 1, 1)
-    period_end = datetime(2020, 12, 31)
-    df = pd.read_csv("data/dataframes/test2.csv", index_col=0)
-    print(df)
-    calculate_indicators(df, period_start, period_end, category)
-    # time_series = prepare_time_series(period_start, period_end)
-    # cpc_time_series = prepare_time_series(start, end)
+    print("Preparing CPC clusters")
+    print(datetime.now())
+    cpc_time_series = prepare_time_series(start, end)
+    print("Finished CPC clusters")
+    print(datetime.now())
 
     # Fetching assignees
+    print("Preparing assignee clusters")
+    print(datetime.now())
     assignee_time_series = prepare_assignee_nodes(start, end, tensors["assignee_patent"], tensors["year_patent"])
+    print("Finished assignee clusters")
+    print(datetime.now())
 
     # Creating Graph
     network = nx.Graph()
     network.add_nodes_from(cpc_time_series.keys())
     network.add_nodes_from(assignee_time_series.keys())
 
-    edges = fetch_edge_data(tensors, assignee_time_series, start, end)
+    print("Fetching edge data")
+    print(datetime.now())
+    edges = fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end)
+    print("Fetched edge data")
+    print(datetime.now())
 
     for year in range(start, end+1):
         # Draw edges
@@ -139,6 +144,6 @@ def unfold_network(start, end):
 
 
 if __name__ == "__main__":
-    start = datetime(1980, 1, 1)
+    start = datetime(2010, 1, 1)
     end = datetime(2021, 10, 31)
     unfold_network(start, end) # $ make sure start and end date make sense $
