@@ -209,7 +209,7 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-    name = "cpc_patent"
+    name = "year_patent"
     value = tensors[name]
     tensor = parallelisation(name, value["dataset"], value["leading_column"], value["tensor_value_format"])
     print(tensor)

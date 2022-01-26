@@ -8,4 +8,4 @@ autokeras
 networkx
 nltk
 gensim
-spacy
+yake
