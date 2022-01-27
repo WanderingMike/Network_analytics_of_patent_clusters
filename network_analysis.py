@@ -113,6 +113,7 @@ def unfold_network(start, end):
     # Fetching CPC
     print("Preparing CPC clusters")
     print(datetime.now())
+    print(os.getpid())
     cpc_time_series = prepare_time_series(start, end)
     print("Finished CPC clusters")
     print(datetime.now())
@@ -144,6 +145,6 @@ def unfold_network(start, end):
 
 
 if __name__ == "__main__":
-    start = datetime(2016,1,1)
-    end = datetime(2016,12,31)
+    start = datetime(2010,1,1)
+    end = datetime(2021,12,31)
     unfold_network(start, end) # $ make sure start and end date make sense $

@@ -5,6 +5,5 @@ networkx
 nltk
 gensim
 yake
-blobcity
 numpy
 statistics

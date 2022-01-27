@@ -1,11 +1,12 @@
 from data_preprocessing import *
 from random import shuffle
 from functions.functions_ML import *
-
-import blobcity as bc
-import tensorflow as tf
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import average_precision_score
+import sklearn.model_selection
+import sklearn.datasets
+import sklearn.metrics
+import autosklearn.classification
+import os
+from datetime import datetime
 
 
 pd.set_option('display.max_rows', 25)
@@ -14,55 +15,43 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
-number_of_cores = 1
+number_of_cores = 2
 
 
-def calculate_emergingness(ml_df, category):
+def calculate_emergingness(ml_df, category, clean_files=False):
     '''Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
     on the chosen time period, and a subset of the dataframe for which we need to find the citation count. We then trust
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
 
     # Categorise output to make it a classification problem
     ml_df["output"] = ml_df["forward_citations"].apply(categorise_output)
+    data_to_forecast = ml_df[ml_df["forward_citations"].isna()]
+    X = ml_df[~ml_df["forward_citations"].isna()]
 
+    print(X)
+    print(data_to_forecast)
 
     # Splitting dataframe
-    data_to_forecast = ml_df[ml_df["forward_citations"].isna()]
-    data_to_forecast.to_csv("data/forecast/forecast_{}.csv".format(category), index=True)
-    print("data_forecast for cluster {}".format(category))
-    print(data_to_forecast)
-    data_ready = ml_df[~ml_df["forward_citations"].isna()]
-    data_ready.drop(["date", "forward_citations"], axis=1, inplace=True)
-    data_ready.to_csv("data/ready/ready_{}.csv".format(category), index=True)
-    print("Data_ready for cluster {}".format(category))
-    print(data_ready)
-    data_ready.index.astype(int, copy=False)
-    print(data_ready.index.dtype)
-    print(data_ready.info(memory_usage="deep"))
-    print(data_ready.memory_usage(deep=True))
-    data_go = data_ready
+    print(datetime.now())
 
-    data_ready = pd.read_csv("data/ready/ready_A43C.csv", index_col=0)
-    print("read data")
-    print(data_ready)
-    print(data_ready.index.dtype)
-    print(data_ready.info(memory_usage="deep"))
-    print(data_ready.memory_usage(deep=True))
-    # Train model
-    model = bc.train(df=data_go, target="output")
+    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=60,
+                                                       resampling_strategy='cv', 
+                                                       resampling_strategy_arguments={'folds':5},
+                                                       memory_limit=None)
 
-    print("Selected model features")
-    model.features()
-    model.plot_feature_importance()
-
-    predictions = model.predict(file="data/forecast/forecast_{}.csv".format(category))
+    cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
+    print(cls.sprint_statistics())
+    print(datetime.now())
+    predictions = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1))
     print(predictions)
-    model.plot_prediction()
-    model.summary()
-    model.save("functions/ML_models/ML_model_{}.pkl".format(category))
+    print(cls.sprint_statistics())
 
-    # Supplement my_df with new predicted forward citations
-    ml_df[ml_df.isnull()] = predictions
+    data_to_forecast["output"] = predictions
+
+    ml_df = pd.concat([X, data_to_forecast], axis=0)
+
+    print(ml_df)
+    print(datetime.now())
 
     return ml_df
 
@@ -93,7 +82,7 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
 
     for year in series.keys():
         # Filtering patents
-        temp_df = df_final[ml_df["date"] <= datetime(year, 12, 31)]
+        temp_df = df_final[df_final["date"] <= datetime(year, 12, 31)]
         patents_per_year = list(temp_df.index.values)
 
         # Calculating indicators
@@ -103,8 +92,9 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
         # Information extraction
         text = ""
         for patent in patents_per_year:
-            text += " " + tensor_patent[patent]["abstract"]
-
+            text += tensor_patent[patent]["abstract"]
+            text += " "
+        
         try:
             keywords = extract_keywords(text)
         except Exception as e:
@@ -116,6 +106,8 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
         except Exception as e:
             print(e)
             topic = ["Test topic"]
+
+        print("Finished")
 
         # Adding to time-series
         series[year]["emergingness"] = emergingness
@@ -156,11 +148,11 @@ class Worker(Process):
             "backward_citation": None
         }
         self.time_series = {category: None for category in cpc_groups}
+        print_output("ml", self.my_pid)
 
     def run(self):
         
-        print_output("ml", self.my_pid)
-
+        print(self.cpc_groups)
         for key in self.tensors.keys():
             self.tensors[key] = load_tensor(key)
 
@@ -172,7 +164,7 @@ class Worker(Process):
                                                               category,
                                                               self.tensors["patent"])
 
-        # return final process-centric time-series
+        #final process-centric time-series
         self.return_dict[self.my_pid] = self.time_series
 
 
@@ -189,10 +181,11 @@ def prepare_time_series(period_start, period_end):
     '''
 
     cpc_tensor = load_tensor("cpc_patent")
-    categories = list(cpc_tensor.keys())[:1] # $ delete!! $
+    categories = list(cpc_tensor.keys())[:9] # $ delete!! $
 
     shuffle(categories)
     print("There are {} entities".format(len(categories)))
+    print(categories)
 
     # Preparing return objects
     process_id = dict()
@@ -205,6 +198,7 @@ def prepare_time_series(period_start, period_end):
 
     # Split entities amongst processes
     data_split = np.array_split(categories, no_processes)
+    print(os.getpid())
 
     # Starting up each thread with its share of the assignees to analyse
     print("Splitting")
@@ -219,10 +213,9 @@ def prepare_time_series(period_start, period_end):
 
     # Merging all process timeseries into one dictionary
     print("Merging CPC cluster dictionaries")
-    print(datetime.now())
     for process_dictionary in return_dict.values():
         time_series_final = {**time_series_final, **process_dictionary}
-
+    
+    print(time_series_final)
     return time_series_final
-
 

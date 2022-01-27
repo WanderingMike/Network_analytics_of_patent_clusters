@@ -108,8 +108,6 @@ def data_preparation(category, tensors, period_start, period_end):
     '''
 
     cluster = generate_dataframe(tensors["cpc_patent"], tensors["patent"], category, period_start, period_end)
-    print(category)
-    print(cluster)
     print(datetime.now())
     cluster_complete = fill_dataframe(category, tensors, cluster)
     print(cluster)

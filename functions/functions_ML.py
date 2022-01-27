@@ -7,9 +7,11 @@ import nltk
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 import sys
+import os
 
 
 def print_output(type_script, process):
+    print(os.getpid())
     sys.stdout = open("std_out/process/{}_{}.out".format(type_script, process), "w")
     sys.stderr = open("std_out/process/{}_{}.err".format(type_script, process), "w")
 
@@ -23,8 +25,10 @@ def categorise_output(citations):
         return 2
     elif 2 <= citations <= 9:
         return 1
-    else:
+    elif 0 <= citations <= 1: 
         return 0
+    else:
+        return None
 
 
 def extract_keywords(text):
@@ -53,7 +57,7 @@ def extract_topic(text):
     '''
 
     # Remove punctuation and put to lowercase
-    text = re.sub("[,.!?]", '', text)
+    text = re.sub("():;-[,.!?]", '', text)
     text = text.lower()
 
     # R
@@ -82,6 +86,7 @@ def extract_topic(text):
 
     # number of topics
     num_topics = 3
+    
     # Build LDA model
     lda_model = gensim.models.LdaMulticore(corpus=corpus,
                                            id2word=id2word,
