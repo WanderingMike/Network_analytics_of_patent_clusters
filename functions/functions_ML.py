@@ -1,11 +1,16 @@
 import yake
-from gensim.utils import simple_preprocess
 import re
 import gensim
+from gensim.utils import simple_preprocess
+from gensim.parsing.preprocessing import STOPWORDS
+from nltk.stem import WordNetLemmatizer, SnowballStemmer
+from nltk.stem.porter import *
+import numpy as np
 import gensim.corpora as corpora
 import nltk
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 import sys
 import os
 
@@ -57,41 +62,45 @@ def extract_topic(text):
     '''
 
     # Remove punctuation and put to lowercase
-    text = re.sub("():;-[,.!?]", '', text)
-    text = text.lower()
+    stemmer = SnowballStemmer("english")
 
-    # R
-    stop_words = stopwords.words('english')
-    stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
+    def lemmatize_stemming(text):
+        return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v'))
 
-    def sent_to_words(sentences):
-        for sentence in sentences:
-            # deacc=True removes punctuations
-            yield gensim.utils.simple_preprocess(str(sentence), deacc=True) # yield returns without destroying state
+    # Tokenize and lemmatize
+    def preprocess(text):
+        result = []
+        for token in gensim.utils.simple_preprocess(text):
+            if token not in gensim.parsing.preprocessing.STOPWORDS and len(token) > 3:
+                result.append(lemmatize_stemming(token))
 
-    def remove_stopwords(texts):
-        return [[word for word in simple_preprocess(str(doc))
-                 if word not in stop_words] for doc in texts]
+        return result
 
-    data_words = list(sent_to_words(text))
-    # remove stop words
-    data_words = remove_stopwords(data_words)
+    words = []
+    for word in text.split(' '):
+        words.append(word)
+    print(words)
+    print("\n\nTokenized and lemmatized document: ")
+    print(preprocess(text))
+    processed_docs = [preprocess(text)]
+    print("Processed")
+    print(processed_docs)
 
-    # Create Dictionary
-    id2word = corpora.Dictionary(data_words)
-    # Create Corpus
-    texts = data_words
-    # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in texts]
+    dictionary = gensim.corpora.Dictionary(processed_docs)
+    bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 
     # number of topics
-    num_topics = 3
     
     # Build LDA model
-    lda_model = gensim.models.LdaMulticore(corpus=corpus,
-                                           id2word=id2word,
-                                           num_topics=num_topics)
+    lda_model = gensim.models.LdaMulticore(bow_corpus,
+                                           num_topics=3,
+                                           id2word=dictionary,
+                                           passes=10,
+                                           workers=2)
     # Print the Keyword in the 3 topics
-    doc_lda = lda_model[corpus]
+    for idx, topic in lda_model.print_topics(-1):
+        print("Topic: {} \nWords: {}".format(idx, topic))
+        print("\n")
 
-    return doc_lda
+    return lda_model
+
