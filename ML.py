@@ -99,13 +99,13 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
             keywords = extract_keywords(text)
         except Exception as e:
             print(e)
-            keywords = ["test", "keywords"] # $ chenge $
+            keywords = None # $ chenge $
 
         try:
             topic = extract_topic(text)
         except Exception as e:
             print(e)
-            topic = ["Test topic"]
+            topic = None
 
         print("Finished")
 

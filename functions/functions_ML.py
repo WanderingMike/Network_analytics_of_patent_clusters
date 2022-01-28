@@ -1,21 +1,20 @@
 import yake
-import re
 import gensim
-from gensim.utils import simple_preprocess
-from gensim.parsing.preprocessing import STOPWORDS
 from nltk.stem import WordNetLemmatizer, SnowballStemmer
-from nltk.stem.porter import *
-import numpy as np
 import gensim.corpora as corpora
 import nltk
-from nltk.corpus import stopwords
-nltk.download('wordnet')
-nltk.download('omw-1.4')
 import sys
 import os
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 
 def print_output(type_script, process):
+    '''
+    Write process-level print functions to independent stdout and stderr files.
+    :param type_script: head of ame of stdout and stderr files
+    :param process: process ID
+    '''
     print(os.getpid())
     sys.stdout = open("std_out/process/{}_{}.out".format(type_script, process), "w")
     sys.stderr = open("std_out/process/{}_{}.err".format(type_script, process), "w")
@@ -42,6 +41,7 @@ def extract_keywords(text):
     :param text: abstract corpus to extract topics from
     :return:
     '''
+
     language = "en"
     max_ngram_size = 3
     deduplication_threshold = 0.9
@@ -61,7 +61,7 @@ def extract_topic(text):
     :return: list of 3 tuples
     '''
 
-    # Remove punctuation and put to lowercase
+    # Word stemmer
     stemmer = SnowballStemmer("english")
 
     def lemmatize_stemming(text):
@@ -79,9 +79,7 @@ def extract_topic(text):
     words = []
     for word in text.split(' '):
         words.append(word)
-    print(words)
     print("\n\nTokenized and lemmatized document: ")
-    print(preprocess(text))
     processed_docs = [preprocess(text)]
     print("Processed")
     print(processed_docs)
@@ -89,8 +87,6 @@ def extract_topic(text):
     dictionary = gensim.corpora.Dictionary(processed_docs)
     bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 
-    # number of topics
-    
     # Build LDA model
     lda_model = gensim.models.LdaMulticore(bow_corpus,
                                            num_topics=3,
