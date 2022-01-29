@@ -20,16 +20,29 @@ def print_output(type_script, process):
     sys.stderr = open("std_out/process/{}_{}.err".format(type_script, process), "w")
 
 
-def categorise_output(citations):
+def get_statistics(df):
+
+    print(df.forward_citations.quantile([0.25,0.5,0.75]))
+    zeroes = len(df[df["forward_citations"]==0].index)
+    ones = len(df[df["forward_citations"]==1].index)
+    twos = len(df[df["forward_citations"]==2].index)
+    threes = len(df[df["forward_citations"]==3].index)
+    fours = len(df[df["forward_citations"]==4].index)
+    fives = len(df[df["forward_citations"]==5].index)
+    sixes = len(df[df["forward_citations"]==6].index)
+    sevens = len(df[df["forward_citations"]==7].index)
+    eights = len(df[df["forward_citations"]==8].index)
+    nines = len(df[df["forward_citations"]==9].index)
+    tens_above = len(df[df["forward_citations"]>=10].index)
+    print("Zeroes: {}\nOnes: {}\nTwos: {}\nThrees: {}\nFours: {}\nFives: {}\nSixes: {}\nSevens: {}\nEights: {}\nNines: {}\nTens and above: {}".format(zeroes, ones, twos, threes, fours, fives, sixes, sevens, eights, nines, tens_above))
+
+
+def categorise_output(citations, median_value):
     '''This functions categorises the ML-readable output column forward citations'''
 
-    if citations >= 20:
-        return 3
-    elif 10 <= citations <= 19:
-        return 2
-    elif 2 <= citations <= 9:
+    if citations > median_value:
         return 1
-    elif 0 <= citations <= 1: 
+    elif citations <= median_value:
         return 0
     else:
         return None
@@ -82,14 +95,13 @@ def extract_topic(text):
     print("\n\nTokenized and lemmatized document: ")
     processed_docs = [preprocess(text)]
     print("Processed")
-    print(processed_docs)
 
     dictionary = gensim.corpora.Dictionary(processed_docs)
     bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 
     # Build LDA model
     lda_model = gensim.models.LdaMulticore(bow_corpus,
-                                           num_topics=3,
+                                           num_topics=1,
                                            id2word=dictionary,
                                            passes=10,
                                            workers=2)

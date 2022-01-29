@@ -7,7 +7,7 @@ import sklearn.metrics
 import autosklearn.classification
 import os
 from datetime import datetime
-
+import pickle
 
 pd.set_option('display.max_rows', 25)
 pd.set_option('display.max_columns', 20)
@@ -24,17 +24,22 @@ def calculate_emergingness(ml_df, category, clean_files=False):
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
 
     # Categorise output to make it a classification problem
-    ml_df["output"] = ml_df["forward_citations"].apply(categorise_output)
+    median_forward_citations = ml_df["forward_citations"].median()
+    get_statistics(ml_df)
+    print("Median: {}".format(median_forward_citations))
+    ml_df["output"] = ml_df["forward_citations"].apply(lambda x: categorise_output(x, median_forward_citations))
     data_to_forecast = ml_df[ml_df["forward_citations"].isna()]
     X = ml_df[~ml_df["forward_citations"].isna()]
-
+    print(len(X.index))
+    if len(X.index) > 1000:
+        X = X.iloc[-1000:]        
     print(X)
     print(data_to_forecast)
 
     # Splitting dataframe
     print(datetime.now())
 
-    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=60,
+    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1200,
                                                        resampling_strategy='cv', 
                                                        resampling_strategy_arguments={'folds':5},
                                                        memory_limit=None)
@@ -45,6 +50,8 @@ def calculate_emergingness(ml_df, category, clean_files=False):
     predictions = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1))
     print(predictions)
     print(cls.sprint_statistics())
+    print(cls.show_models())
+    print(cls.leaderboard())
 
     data_to_forecast["output"] = predictions
 
@@ -81,12 +88,16 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
     df_final = calculate_emergingness(ml_df, category)
 
     for year in series.keys():
+        print(year)
         # Filtering patents
-        temp_df = df_final[df_final["date"] <= datetime(year, 12, 31)]
+        start_date = df_final["date"] >= datetime(year, 1, 1)
+        end_date = df_final["date"] <= datetime(year, 12, 31)
+        filter_on_year = start_date & end_date
+        temp_df = df_final[filter_on_year]
         patents_per_year = list(temp_df.index.values)
 
         # Calculating indicators
-        patent_count = len(patents_per_year)
+        patent_count = len(df_final[end_date].index)
         emergingness = temp_df["output"].mean()
 
         # Information extraction
@@ -94,6 +105,9 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
         for patent in patents_per_year:
             text += tensor_patent[patent]["abstract"]
             text += " "
+
+        print("Beginning of text")
+        print(text[:1000])
         
         try:
             keywords = extract_keywords(text)
@@ -107,13 +121,14 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
             print(e)
             topic = None
 
-        print("Finished")
+        print("Finished year {}".format(year))
 
         # Adding to time-series
         series[year]["emergingness"] = emergingness
         series[year]["patent_count"] = patent_count
         series[year]["keywords"] = keywords
         series[year]["topic"] = topic
+        print(series[year])
 
     return series
 
@@ -158,13 +173,19 @@ class Worker(Process):
 
         for category in self.cpc_groups:
             ml_df = data_preparation(category, self.tensors, self.period_start, self.period_end)
-            self.time_series[category] = calculate_indicators(ml_df,
-                                                              self.period_start,
-                                                              self.period_end,
-                                                              category,
-                                                              self.tensors["patent"])
+            indicators = calculate_indicators(ml_df,
+                                              self.period_start,
+                                              self.period_end,
+                                              category,
+                                              self.tensors["patent"])
+            self.time_series[category] = indicators
+        
+            # Saving intermittent work
+            ffile = open("data/clusters/{}.pkl".format(category), "wb")
+            pickle.dump(indicators, ffile)
+            ffile.close()
 
-        #final process-centric time-series
+        # Final process-centric time-series
         self.return_dict[self.my_pid] = self.time_series
 
 
@@ -181,7 +202,7 @@ def prepare_time_series(period_start, period_end):
     '''
 
     cpc_tensor = load_tensor("cpc_patent")
-    categories = list(cpc_tensor.keys())[:9] # $ delete!! $
+    categories = list(cpc_tensor.keys())[:12] # $ delete!! $
 
     shuffle(categories)
     print("There are {} entities".format(len(categories)))

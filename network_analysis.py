@@ -44,10 +44,13 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
     for assignee in assignee_list:
         for cpc in cpc_list:
             for year in years:
-                weight = find_intersection(tensors["assignee_patent"][assignee],
+                try:
+                    weight = find_intersection(tensors["assignee_patent"][assignee],
                                                tensors["cpc_patent"][cpc],
                                                tensors["year_patent"][year])
-                edges[year].append((assignee, cpc, weight))
+                    edges[year].append((assignee, cpc, weight))
+                except:
+                    pass
 
 
     # assignee-assignee
@@ -55,10 +58,13 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
         assignee_list.remove(assignee1)
         for assignee2 in assignee_list:
             for year in years:
-                weight = find_intersection(tensors["assignee_patent"][assignee1],
+                try:
+                    weight = find_intersection(tensors["assignee_patent"][assignee1],
                                                tensors["assignee_patent"][assignee2],
                                                tensors["year_patent"][year])
-                edges[year].append((assignee1, assignee2, weight))
+                    edges[year].append((assignee1, assignee2, weight))
+                except:
+                    pass
 
 
     # CPC-CPC
@@ -66,10 +72,12 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
         cpc_list.remove(cpc1)
         for cpc2 in cpc_list:
             for year in years:
-                weight = find_intersection(tensors["cpc_patent"][cpc1],
-                                           tensors["cpc_patent"][cpc2],
-                                           tensors["year_patent"][year])
-                edges[year].append((cpc1, cpc2, weight))
+                try:
+                    weight = find_intersection(tensors["cpc_patent"][cpc1],
+                                               tensors["cpc_patent"][cpc2],
+                                               tensors["year_patent"][year])
+                except:
+                    edges[year].append((cpc1, cpc2, weight))
 
     return edges
 
@@ -115,6 +123,9 @@ def unfold_network(start, end):
     print(datetime.now())
     print(os.getpid())
     cpc_time_series = prepare_time_series(start, end)
+    a_file = open("data/clusters.pkl", "wb")
+    pickle.dump(cpc_time_series, a_file)
+    a_file.close()
     print("Finished CPC clusters")
     print(datetime.now())
 
@@ -145,6 +156,6 @@ def unfold_network(start, end):
 
 
 if __name__ == "__main__":
-    start = datetime(2010,1,1)
+    start = datetime(1970,1,1)
     end = datetime(2021,12,31)
     unfold_network(start, end) # $ make sure start and end date make sense $
