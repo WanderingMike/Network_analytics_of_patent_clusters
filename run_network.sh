@@ -20,7 +20,7 @@ echo $CUDA_VISIBLE_DEVICES
 
 source ./bin/activate
 
-rm std_out/process/*
+rm -r std_out/process/*
 
 python network_analysis.py
 

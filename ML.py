@@ -16,6 +16,7 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 number_of_cores = 2
+ml_search_time = 60
 
 
 def calculate_emergingness(ml_df, category, clean_files=False):
@@ -25,21 +26,22 @@ def calculate_emergingness(ml_df, category, clean_files=False):
 
     # Categorise output to make it a classification problem
     median_forward_citations = ml_df["forward_citations"].median()
-    get_statistics(ml_df)
-    print("Median: {}".format(median_forward_citations))
-    ml_df["output"] = ml_df["forward_citations"].apply(lambda x: categorise_output(x, median_forward_citations))
+    quartile_split = get_statistics(ml_df)
+    ml_df["output"] = ml_df["forward_citations"].apply(lambda x: categorise_output(x, quartile_split))
+
     data_to_forecast = ml_df[ml_df["forward_citations"].isna()]
     X = ml_df[~ml_df["forward_citations"].isna()]
-    print(len(X.index))
-    if len(X.index) > 1000:
-        X = X.iloc[-1000:]        
+
+    # Balance the dataset
+    X = balance_dataset(X)
+
     print(X)
     print(data_to_forecast)
 
     # Splitting dataframe
     print(datetime.now())
 
-    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1200,
+    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=ml_search_time,
                                                        resampling_strategy='cv', 
                                                        resampling_strategy_arguments={'folds':5},
                                                        memory_limit=None)
@@ -107,9 +109,9 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
             text += " "
 
         print("Beginning of text")
-        print(text[:1000])
         
         try:
+            print(text[:1000])
             keywords = extract_keywords(text)
         except Exception as e:
             print(e)
@@ -163,7 +165,7 @@ class Worker(Process):
             "backward_citation": None
         }
         self.time_series = {category: None for category in cpc_groups}
-        print_output("ml", self.my_pid)
+        print_output("std_out/process/ml_{}".format(self.my_pid))
 
     def run(self):
         

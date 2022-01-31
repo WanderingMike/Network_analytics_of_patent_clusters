@@ -5,24 +5,46 @@ import gensim.corpora as corpora
 import nltk
 import sys
 import os
+from sklearn.utils import resample
+import pandas as pd
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 
-def print_output(type_script, process):
+def print_output(path):
     '''
     Write process-level print functions to independent stdout and stderr files.
-    :param type_script: head of ame of stdout and stderr files
-    :param process: process ID
+    :param process: file path
     '''
     print(os.getpid())
-    sys.stdout = open("std_out/process/{}_{}.out".format(type_script, process), "w")
-    sys.stderr = open("std_out/process/{}_{}.err".format(type_script, process), "w")
+    sys.stdout = open("{}.out".format(path), "w")
+    sys.stderr = open("{}.err".format(path), "w")
+
+
+def balance_dataset(df):
+    df_majority = df[df.output==0]
+    df_minority = df[df.output==1]
+    length_output_1 = len(df_minority.index)
+
+    if length_output_1 > 500:
+        length_output_1 = 500
+
+    df_majority_downsampled = resample(df_majority,
+                                       replace=True,
+                                       n_samples=length_output_1,
+                                       random_state=123)
+
+    df_upsampled = pd.concat([df_majority_downsampled, df_minority])
+
+    print(df_upsampled.output.value_counts())
+    
+    return df_upsampled
 
 
 def get_statistics(df):
 
-    print(df.forward_citations.quantile([0.25,0.5,0.75]))
+    quantiles = df.forward_citations.quantile([0.25,0.5,0.75])
+    print(quantiles)
     zeroes = len(df[df["forward_citations"]==0].index)
     ones = len(df[df["forward_citations"]==1].index)
     twos = len(df[df["forward_citations"]==2].index)
@@ -35,6 +57,8 @@ def get_statistics(df):
     nines = len(df[df["forward_citations"]==9].index)
     tens_above = len(df[df["forward_citations"]>=10].index)
     print("Zeroes: {}\nOnes: {}\nTwos: {}\nThrees: {}\nFours: {}\nFives: {}\nSixes: {}\nSevens: {}\nEights: {}\nNines: {}\nTens and above: {}".format(zeroes, ones, twos, threes, fours, fives, sixes, sevens, eights, nines, tens_above))
+
+    return quantiles.loc[0.75]
 
 
 def categorise_output(citations, median_value):

@@ -15,7 +15,7 @@ def prepare_assignee_nodes(start, end, assignee_patent, year_patent):
 
     years = range(start, end+1)
     for assignee, patents_list in assignee_patent.items():
-        if len(patents_list) > 50:
+        if len(patents_list) > 100:
             assignee_nodes[assignee] = {k: None for k in years}
             for year in years:
                 common_patents = [patent for patent in patents_list if patent in year_patent]
@@ -37,11 +37,16 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
 
     assignee_list = list(assignee_time_series.keys())
     cpc_list = list(cpc_time_series.keys())
-    years = range(start, end+1)
+    years = range(end-2, end+1)
     edges = {k: list() for k in years}
 
     # assignee-CPC
+    num_assignees = len(assignee_list)
+    print("assignees: ", num_assignees)
+    count = 0
     for assignee in assignee_list:
+        count += 1
+        print("Task 1: {}/{}".format(count, num_assignees))
         for cpc in cpc_list:
             for year in years:
                 try:
@@ -54,8 +59,11 @@ def fetch_edge_data(tensors, cpc_time_series, assignee_time_series, start, end):
 
 
     # assignee-assignee
+    count = 0
     for assignee1 in assignee_list:
         assignee_list.remove(assignee1)
+        count += 1
+        print("Task 2: {}/{}".format(count, num_assignees))
         for assignee2 in assignee_list:
             for year in years:
                 try:
@@ -104,7 +112,7 @@ def prepare_plots(network):
     return None
 
 
-def unfold_network(start, end):
+def unfold_network(start, end, loading=False):
     ''' This function has four steps:
      1) Retrieving/calculating relevant data for all assignees, cpc patent clusters and patents themselves.
      2) Setting up network/graph
@@ -121,11 +129,18 @@ def unfold_network(start, end):
     # Fetching CPC
     print("Preparing CPC clusters")
     print(datetime.now())
-    print(os.getpid())
-    cpc_time_series = prepare_time_series(start, end)
-    a_file = open("data/clusters.pkl", "wb")
-    pickle.dump(cpc_time_series, a_file)
-    a_file.close()
+    
+    if loading:
+        ffile = open("data/clusters_3.pkl", "rb")
+        cpc_time_series = pickle.load(ffile)
+
+    else:
+        cpc_time_series = prepare_time_series(start, end)
+        a_file = open("data/clusters.pkl", "wb")
+        pickle.dump(cpc_time_series, a_file)
+        a_file.close()
+        #print_output("std_out/process/ml_main")
+
     print("Finished CPC clusters")
     print(datetime.now())
 
@@ -158,4 +173,4 @@ def unfold_network(start, end):
 if __name__ == "__main__":
     start = datetime(1970,1,1)
     end = datetime(2021,12,31)
-    unfold_network(start, end) # $ make sure start and end date make sense $
+    unfold_network(start, end, loading=True) # $ make sure start and end date make sense $
