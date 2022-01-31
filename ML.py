@@ -132,6 +132,8 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
         series[year]["topic"] = topic
         print(series[year])
 
+    series["patents_final_year"] = patents_per_year
+
     return series
 
 
