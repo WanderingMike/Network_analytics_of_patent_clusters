@@ -244,7 +244,7 @@ def fill_inv(cluster, tensor_inventor):
     return cluster
 
 
-def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent, tensor_patent_cpc, tensor_forward_citation, category):
+def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent, tensor_patent_cpc, tensor_forward_citation):
     '''This function creates four assignee-related indicators.
     Total Know-How (TKH): number of patents issued by an assignee
     Core Know-How (CKH): number of patents in chosen cpc subgroup issued by an assignee
@@ -252,7 +252,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
     Core Technological Strength (CTS): Number of forward citations of patents in cpc group issued by an assignee'''
     
     # Get the four indicators for a specific assignee
-    def get_assignee_info(assignee):
+    def get_assignee_info(assignee, cpc_classes):
        
         try:
             assignee_patents = tensor_assignee_patent[assignee]
@@ -263,6 +263,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
         assignee_ckh = 0
         assignee_tts = 0
         assignee_cts = 0
+        set_classes = set(cpc_classes)
         
         # Looping through all patents
         for patent in assignee_patents: # $ do more efficient way? $
@@ -275,7 +276,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             
             # verify cpc group
             try:
-                if category in tensor_patent_cpc[patent]:
+                if bool(set_classes) & set(tensor_patent_cpc[patent])):  # $ check here $
                     assignee_ckh += 1
                     assignee_cts += forward_citations
             except:
@@ -314,7 +315,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
 
             else:
                 
-                tkh, ckh, tts, cts = get_assignee_info(assignee)
+                tkh, ckh, tts, cts = get_assignee_info(assignee, row["MF"])
                 assignee_info[assignee] = {"tkh": tkh, "ckh": ckh, "tts": tts, "cts": cts}
 
             total_know_how += tkh

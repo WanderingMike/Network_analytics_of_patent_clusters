@@ -6,20 +6,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MultiLabelBinarizer
 
 
-def load_tensor(tensor_key):
+def generate_dataframe(tensor_patent, start_date=None, end_date=None):
 
-    file = open("data/patentsview_cleaned/{}.pkl".format(tensor_key), "rb")
-    tensor = pickle.load(file)
-
-    return tensor
-
-
-def generate_dataframe(tensor_cpc_patent, tensor_patent, category, start_date=None, end_date=None):
-
-    patents_in_cpc_group = tensor_cpc_patent[category]
     indexed_patents = list()
 
-    for patent in patents_in_cpc_group:
+    for patent in tensor_patent.keys():
         try:
             if start_date <= tensor_patent[patent]["date"] <= end_date:
                 indexed_patents.append(patent)
@@ -33,7 +24,7 @@ def generate_dataframe(tensor_cpc_patent, tensor_patent, category, start_date=No
     return cluster
 
 
-def fill_dataframe(category, tensors, cluster):
+def fill_dataframe(tensors, cluster):
     '''This function fills in every column of the final ML-readable dataframe. Each datapoint is sourced from the
     tensors given as parameters to the functions. Finally, missing values are replaced by the median for the each
     indicator/column in the dataframe.'''
@@ -42,45 +33,36 @@ def fill_dataframe(category, tensors, cluster):
     cluster = fill_date_forward_citations(cluster, tensors["forward_citation"], tensors["patent"])
 
     print(datetime.now())
-    cluster = fill_cto(cluster, tensors["patent_cpc"], tensors["backward_citation"])
-    print(category)
+    cluster = fill_cto(cluster, tensors["patent_cpc_main"], tensors["backward_citation"])
 
     print(datetime.now())
     cluster = fill_pk(cluster, tensors["backward_citation"])
-    print(category)
 
     print(datetime.now())
     cluster = fill_sk(cluster, tensors["otherreference"])
-    print(category)
 
     print(datetime.now())
     cluster = fill_tct(cluster, tensors["backward_citation"], tensors["patent"])
-    print(category)
 
     print(datetime.now())
-    cluster = fill_mf_ts(cluster, tensors["patent_cpc"])
-    print(category)
+    cluster = fill_mf_ts(cluster, tensors["patent_cpc_main"])
 
     print(datetime.now())
     cluster = fill_pcd(cluster, tensors["patent"])
-    print(category)
 
     print(datetime.now())
     cluster = fill_col(cluster, tensors["patent_assignee"])
-    print(category)
 
     print(datetime.now())
     cluster = fill_inv(cluster, tensors["inventor"])
-    print(category)
     
-    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc"], tensors["forward_citation"], category)
+    cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc_main"], tensors["forward_citation"])
     print(datetime.now())
-    print(category)
 
     # Encode mainclass column using one-hot-encoding
-    cpc_to_labels = list(tensors["cpc_patent"].keys())
+    cpc_mainclass_labels = list(set[name[:4] for name in tensors["cpc_sub_patent"].keys()]))
     le = LabelEncoder()
-    le.fit(cpc_to_labels)
+    le.fit(cpc_mainclass_labels)
     cluster["MF"] = cluster["MF"].apply(lambda cpc_groups: le.transform(cpc_groups))
 
     ### OneHotEncoding
@@ -97,7 +79,7 @@ def fill_dataframe(category, tensors, cluster):
     #    cluster[column] = cluster[column].replace(np.nan, cluster[column].median())
 
 
-def data_preparation(category, tensors, period_start, period_end):
+def data_preparation(tensors, period_start, period_end):
     '''
     1) Load all tensors
     2) Create ML-readable dataframe
@@ -107,9 +89,9 @@ def data_preparation(category, tensors, period_start, period_end):
     :return: ML-readable dataframe
     '''
 
-    cluster = generate_dataframe(tensors["cpc_patent"], tensors["patent"], category, period_start, period_end)
+    cluster = generate_dataframe(tensors["patent"], period_start, period_end)
     print(datetime.now())
-    cluster_complete = fill_dataframe(category, tensors, cluster)
+    cluster_complete = fill_dataframe(tensors, cluster)
     print(cluster)
     print(datetime.now())
 

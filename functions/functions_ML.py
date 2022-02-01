@@ -10,6 +10,7 @@ import pandas as pd
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
+dataframe_length = 10000
 
 def print_output(path):
     '''
@@ -26,8 +27,8 @@ def balance_dataset(df):
     df_minority = df[df.output==1]
     length_output_1 = len(df_minority.index)
 
-    if length_output_1 > 500:
-        length_output_1 = 500
+    if length_output_1 > dataframe_length:
+        length_output_1 = dataframe_length
 
     df_majority_downsampled = resample(df_majority,
                                        replace=True,

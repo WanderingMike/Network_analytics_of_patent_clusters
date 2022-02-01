@@ -3,13 +3,6 @@ from functions.functions_network_analysis import *
 import networkx as nx
 
 
-def prepare_assignee_series(tensor_assignee_patent, tensor_year_patent):
-    patents_for_last_year = tensor_year_patent[2021]
-    for patent in patents_for_last_year:
-        if not patent.isnumeric():
-            print(patent)
-
-
 def fetch_edge_data(tensors, cpc_time_series, assignee_series):
     '''
     Drawing all network edges for three sets of relationships:
@@ -96,7 +89,53 @@ def prepare_plots(network):
     return None
 
 
-def unfold_network(start, end, loading=False):
+def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
+    
+    cpc_subgroups = list()
+
+    for patent in topical_patents:
+        try:
+            cpc_subgroups.append(tensor_patent_cpc_sub[patent])
+        except:
+            pass
+
+    return set(cpc_subgroups)
+
+
+def get_assignee_data(cluster, topical_assignees):
+
+    if assignee in topical_assignees:
+        topical_assignees[assignee]
+    else:
+        topical_assignees[assignee] = [output]
+
+
+
+
+def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assignee, tensor_patent):
+    
+    topical_assignees = dict()
+
+    for cluster in topical_clusters:
+
+        for patent in cpc_time_series[cluster]["patents_final_year"]:
+
+            try:
+                assignees = tensor_patent_assignee[patent]
+            except:
+                continue
+
+            for assignee in assignees:
+
+                try:
+                    topical_assignees = get_assignee_data(cluster, topical_assignees)
+                except:
+                    pass
+
+    return topical_assignees
+    
+
+def unfold_network(cpc_time_series, tensors, topical_patents):
     ''' This function has four steps:
      1) Retrieving/calculating relevant data for all assignees, cpc patent clusters and patents themselves.
      2) Setting up network/graph
@@ -104,38 +143,9 @@ def unfold_network(start, end, loading=False):
      4) Further analytics and plots
     '''
     
-    # Loading tensors
-    tensor_list = ["assignee", "assignee_patent", "cpc_patent", "patent", "year_patent"]
-    tensors = {k: None for k in tensor_list}
-    for tensor in tensor_list:
-        tensors[tensor] = load_tensor(tensor)
-    prepare_assignee_series(tensors["assignee_patent"], tensors["year_patent"])
+    topical_clusters = find_topical_clusters(topical_patents, tensors["patent_cpc_sub"])
+    topical_assignees = find_topical_assignees(topical_clusters, tensors["patent_assignee"], tensors["patent"])
 
-    # Fetching CPC
-    print("Preparing CPC clusters")
-    print(datetime.now())
-    
-    if loading:
-        ffile = open("data/clusters_3.pkl", "rb")
-        cpc_time_series = pickle.load(ffile)
-
-    else:
-        cpc_time_series = prepare_time_series(start, end)
-        a_file = open("data/clusters.pkl", "wb")
-        pickle.dump(cpc_time_series, a_file)
-        a_file.close()
-        #print_output("std_out/process/ml_main")
-
-    print("Finished CPC clusters")
-    print(datetime.now())
-
-    # Fetching assignees
-    assignee_series = dict()
-    for assignee, patents in tensors["assignee_patent"].items():
-        if len(patents) > 200:
-            assignee_series[assignee] = patents
-    print("Finished assignee clusters")
-    print(datetime.now())
 
     # Creating Graph
     network = nx.Graph()
@@ -155,7 +165,3 @@ def unfold_network(start, end, loading=False):
     #cpc_time_series, assignee_time_series = calculate_centrality(network, cpc_time_series, assignee_time_series)
 
 
-if __name__ == "__main__":
-    start = datetime(1970,1,1)
-    end = datetime(2021,12,31)
-    unfold_network(start, end, loading=True) # $ make sure start and end date make sense $

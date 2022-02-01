@@ -16,10 +16,10 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 number_of_cores = 2
-ml_search_time = 60
+ml_search_time = 60*60*12
 
 
-def calculate_emergingness(ml_df, category, clean_files=False):
+def calculate_emergingness(ml_df, tensor_patent, clean_files=False):
     '''Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
     on the chosen time period, and a subset of the dataframe for which we need to find the citation count. We then trust
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
@@ -42,9 +42,9 @@ def calculate_emergingness(ml_df, category, clean_files=False):
     print(datetime.now())
 
     cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=ml_search_time,
-                                                       resampling_strategy='cv', 
-                                                       resampling_strategy_arguments={'folds':5},
-                                                       memory_limit=None)
+                                                           resampling_strategy='cv', 
+                                                           resampling_strategy_arguments={'folds':5},
+                                                           memory_limit=None)
 
     cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
     print(cls.sprint_statistics())
@@ -62,10 +62,14 @@ def calculate_emergingness(ml_df, category, clean_files=False):
     print(ml_df)
     print(datetime.now())
 
-    return ml_df
+    # Add output data to tensor_patent
+    for index, row in ml_df.iterrows():
+        tensor_patent[index]["output"] = row["output"]
+
+    return ml_df, tensor_patent
 
 
-def calculate_indicators(ml_df, start, end, category, tensor_patent):
+def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent):
     '''
     This function calculates two indicators and retrieves textual information per CPC group per year:
     - emergingness: the average citation level
@@ -80,64 +84,72 @@ def calculate_indicators(ml_df, start, end, category, tensor_patent):
     :return: returns the time-series, complete for one CPC group
     '''
 
-    indicators = {"emergingness": None,
-                  "patent_count": None,
-                  "keywords": None,
-                  "topic": None}
 
-    series = {year: indicators for year in range(start.year, end.year + 1)}
+    series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys())}
 
-    df_final = calculate_emergingness(ml_df, category)
-
-    for year in series.keys():
-        print(year)
-        # Filtering patents
-        start_date = df_final["date"] >= datetime(year, 1, 1)
-        end_date = df_final["date"] <= datetime(year, 12, 31)
-        filter_on_year = start_date & end_date
-        temp_df = df_final[filter_on_year]
-        patents_per_year = list(temp_df.index.values)
-
-        # Calculating indicators
-        patent_count = len(df_final[end_date].index)
-        emergingness = temp_df["output"].mean()
-
-        # Information extraction
-        text = ""
-        for patent in patents_per_year:
-            text += tensor_patent[patent]["abstract"]
-            text += " "
-
-        print("Beginning of text")
+    df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent)
+    
+    for cpc_subgroup in series.keys():
         
-        try:
-            print(text[:1000])
-            keywords = extract_keywords(text)
-        except Exception as e:
-            print(e)
-            keywords = None # $ chenge $
+        series[cpc_subgroup] = {year: None for year in range(start, end+1)}
 
-        try:
-            topic = extract_topic(text)
-        except Exception as e:
-            print(e)
-            topic = None
-
-        print("Finished year {}".format(year))
-
-        # Adding to time-series
-        series[year]["emergingness"] = emergingness
-        series[year]["patent_count"] = patent_count
-        series[year]["keywords"] = keywords
-        series[year]["topic"] = topic
-        print(series[year])
-
-    series["patents_final_year"] = patents_per_year
-
-    return series
+        patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
+        subgroup_df = subgroup_df[subgroup_df.index.isin(patents_in_subgroup)]
 
 
-class Worker(Process):
+        for year in range(start.year, end.year+1):
+
+            print(year)
+
+            # Filtering patents
+            start_date = df_final["date"] >= datetime(year, 1, 1)
+            end_date = df_final["date"] <= datetime(year, 12, 31)
+
+            filters = start_date & end_date
+            temp_df = df_final[filters]
+            patents_per_year = list(temp_df.index.values)
+
+            # Calculating indicators
+            patent_count = len(df_final[end_date].index)
+            emergingness = temp_df["output"].mean()
+
+            # Information extraction
+            text = ""
+            for patent in patents_per_year:
+                text += tensor_patent[patent]["abstract"]
+                text += " "
+
+            print("Beginning of text")
+            
+            try:
+                print(text[:50])
+                keywords = extract_keywords(text)
+            except Exception as e:
+                print(e)
+                keywords = None # $ chenge $
+
+            try:
+                topic = extract_topic(text)
+            except Exception as e:
+                print(e)
+                topic = None
+
+            print("Finished year {}".format(year))
+
+            # Adding to time-series
+            indicators = {"emergingness": emergingness,
+                          "patent_count": patent_count,
+                          "keywords": keywords,
+                          "topic": topic}
+
+            series[cpc_subgroup][year] = indicators
+
+        series[cpc_subgroup]["patents_final_year"] = patents_per_year
+
+    return series, tensor_patent
+
+
+def run_ML(tensors, period_start, period_end):
     '''Each Worker process will create part of the tensor. This tensor (Python dictionary) will have as keys a subset of
     either patent IDs, assignee IDs, or cpc categories. The values will be populated according to the breadth of content
     in each dataframe tensor_df.
@@ -145,102 +157,21 @@ class Worker(Process):
         {assignee_A: [patent_1, patent_2,...],
          assignee_B: [...],
          ...}
-     '''
-
-    def __init__(self, cpc_groups, pid, return_dict, period_start, period_end):
-        Process.__init__(self)
-        self.cpc_groups = cpc_groups
-        self.my_pid = pid
-        self.return_dict = return_dict
-        self.period_start = period_start
-        self.period_end = period_end
-        self.tensors = {
-            "assignee": None,
-            "cpc_patent": None,
-            "patent_cpc": None,
-            "otherreference": None,
-            "patent": None,
-            "patent_assignee": None,
-            "assignee_patent": None,
-            "inventor": None,
-            "forward_citation": None,
-            "backward_citation": None
-        }
-        self.time_series = {category: None for category in cpc_groups}
-        print_output("std_out/process/ml_{}".format(self.my_pid))
-
-    def run(self):
-        
-        print(self.cpc_groups)
-        for key in self.tensors.keys():
-            self.tensors[key] = load_tensor(key)
-
-        for category in self.cpc_groups:
-            ml_df = data_preparation(category, self.tensors, self.period_start, self.period_end)
-            indicators = calculate_indicators(ml_df,
-                                              self.period_start,
-                                              self.period_end,
-                                              category,
-                                              self.tensors["patent"])
-            self.time_series[category] = indicators
-        
-            # Saving intermittent work
-            ffile = open("data/clusters/{}.pkl".format(category), "wb")
-            pickle.dump(indicators, ffile)
-            ffile.close()
-
-        # Final process-centric time-series
-        self.return_dict[self.my_pid] = self.time_series
-
-
-def prepare_time_series(period_start, period_end):
-    '''
-    This function creates different processes that each work on a separate subset of CPC clusters. This work includes
-    loading the tensors, extracting all indicators thanks to the data_preprocessing.py script, and then applying the
-    best-in-class ML algorithms to predict missing citation count values for the most recently published patents.
-
-    :param period_start: datetime value for start of period
-    :param period_end: datetime value for end of period
-    :return: dictionary with CPC groups as key, and values are time-series of 3 indicators: emergingness, patent count,
-    citations.
     '''
 
-    cpc_tensor = load_tensor("cpc_patent")
-    categories = list(cpc_tensor.keys())[:12] # $ delete!! $
+    ml_df = data_preparation(tensors, period_start, period_end)
+    indicators, tensors["patent"] = calculate_indicators(ml_df,
+                                                          period_start,
+                                                          period_end,
+                                                          tensors["patent"])
+    time_series[category] = indicators
 
-    shuffle(categories)
-    print("There are {} entities".format(len(categories)))
-    print(categories)
+    # Saving intermittent work
+    ffile = open("data/clusters.pkl", "wb")
+    pickle.dump(indicators, ffile)
+    ffile.close()
 
-    # Preparing return objects
-    process_id = dict()
-    time_series_final = dict()
+    return time_series, tensors
 
-    # Processes
-    no_processes = number_of_cores
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
 
-    # Split entities amongst processes
-    data_split = np.array_split(categories, no_processes)
-    print(os.getpid())
-
-    # Starting up each thread with its share of the assignees to analyse
-    print("Splitting")
-    for i in range(len(data_split)):
-        p = Worker(data_split[i], i, return_dict, period_start, period_end)
-        p.start()
-        process_id[i] = p
-
-    # Merging thread
-    for i in range(len(process_id)):
-        process_id[i].join()
-
-    # Merging all process timeseries into one dictionary
-    print("Merging CPC cluster dictionaries")
-    for process_dictionary in return_dict.values():
-        time_series_final = {**time_series_final, **process_dictionary}
-    
-    print(time_series_final)
-    return time_series_final
 

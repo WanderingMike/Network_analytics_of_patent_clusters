@@ -182,7 +182,7 @@ def parallelisation(tensor_name, dataset, leading_column, remaining_columns, ten
 
     # Saving tensor as compressed pickle file
     save_tensor(tensor_name, final_tensor)
-    print("Tensor saved.")
+    print("Tensor saved with {} entities.".format(len(final_tensor.keys())))
 
     return final_tensor
 
@@ -209,7 +209,7 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-    name = "year_patent"
+    name = "cpc_sub_patent"
     value = tensors[name]
     tensor = parallelisation(name, value["dataset"], value["leading_column"], value["remaining_columns"], value["tensor_value_format"])
     print(tensor)

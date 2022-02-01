@@ -60,11 +60,11 @@ def clean_assignee():
 def clean_cpc_current():
     '''Cleaning cpc_current.tsv data'''
 
-    cpc_current_columns = [1, 4]
+    cpc_current_columns = [1, 4, 5]
     cpc_current = drop_columns("cpc_current",
                                selected_columns=cpc_current_columns,
                                d_type={"patent_id": "string"})
-    cpc_current.columns = ["patent_id", "cpc_group"]
+    cpc_current.columns = ["patent_id", "cpc_group", "cpc_subgroup"]
     cpc_current.drop_duplicates(inplace=True)
 
     return cpc_current
@@ -144,3 +144,4 @@ dispatch = {
     'patent_inventor': clean_patent_inventor,
     'uspatentcitation': clean_uspatentcitation
 }
+
