@@ -212,7 +212,14 @@ if __name__ == "__main__":
     name = "cpc_sub_patent"
     value = tensors[name]
     tensor = parallelisation(name, value["dataset"], value["leading_column"], value["remaining_columns"], value["tensor_value_format"])
-    print(tensor)
+    try:
+        print(tensor["G01S7/4914"])
+    except:
+        pass
+    try:
+        print(tensor["10000000"])
+    except:
+        print("Hello")
     #clean_patent()
     #list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
     #make_tensors()

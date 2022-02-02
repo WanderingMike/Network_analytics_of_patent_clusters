@@ -16,7 +16,7 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 number_of_cores = 2
-ml_search_time = 60*60*12
+ml_search_time = 1*1*1
 
 
 def calculate_emergingness(ml_df, tensor_patent, clean_files=False):
@@ -35,22 +35,27 @@ def calculate_emergingness(ml_df, tensor_patent, clean_files=False):
     # Balance the dataset
     X = balance_dataset(X)
 
+    print("2.2.1.1 Balanced dataset and dataset to forecast ({})".format(datetime.now()))
     print(X)
     print(data_to_forecast)
 
     # Splitting dataframe
-    print(datetime.now())
-
+    print("2.2.1.2 Running ML classifier ({})".format(datetime.now()))
     cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=ml_search_time,
                                                            resampling_strategy='cv', 
                                                            resampling_strategy_arguments={'folds':5},
                                                            memory_limit=None)
 
     cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
+    print("2.2.1.3 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
-    print(datetime.now())
+
     predictions = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1))
+
+    print("2.2.1.4 Predicted outputs ({})".format(datetime.now()))
     print(predictions)
+
+    print("2.2.1.5 Show statistics again, model selection and leaderboard ({})".format(datetime.now()))
     print(cls.sprint_statistics())
     print(cls.show_models())
     print(cls.leaderboard())
@@ -58,9 +63,9 @@ def calculate_emergingness(ml_df, tensor_patent, clean_files=False):
     data_to_forecast["output"] = predictions
 
     ml_df = pd.concat([X, data_to_forecast], axis=0)
-
+    
+    print("2.2.1.6 Final dataframe ({})".format(datetime.now()))
     print(ml_df)
-    print(datetime.now())
 
     # Add output data to tensor_patent
     for index, row in ml_df.iterrows():
@@ -85,8 +90,9 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
     '''
 
 
-    series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys())}
-
+    series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
+    
+    print("2.2.1 Calculating emergingness for entire dataframe ({})".format(datetime.now()))
     df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent)
     
     for cpc_subgroup in series.keys():
@@ -98,8 +104,6 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
 
         for year in range(start.year, end.year+1):
-
-            print(year)
 
             # Filtering patents
             start_date = df_final["date"] >= datetime(year, 1, 1)
@@ -113,34 +117,9 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
             patent_count = len(df_final[end_date].index)
             emergingness = temp_df["output"].mean()
 
-            # Information extraction
-            text = ""
-            for patent in patents_per_year:
-                text += tensor_patent[patent]["abstract"]
-                text += " "
-
-            print("Beginning of text")
-            
-            try:
-                print(text[:50])
-                keywords = extract_keywords(text)
-            except Exception as e:
-                print(e)
-                keywords = None # $ chenge $
-
-            try:
-                topic = extract_topic(text)
-            except Exception as e:
-                print(e)
-                topic = None
-
-            print("Finished year {}".format(year))
-
             # Adding to time-series
             indicators = {"emergingness": emergingness,
-                          "patent_count": patent_count,
-                          "keywords": keywords,
-                          "topic": topic}
+                          "patent_count": patent_count}
 
             series[cpc_subgroup][year] = indicators
 
@@ -158,18 +137,16 @@ def run_ML(tensors, period_start, period_end):
          assignee_B: [...],
          ...}
     '''
-
+    print("2.1 Preparing dataframe ({})".format(datetime.now()))
     ml_df = data_preparation(tensors, period_start, period_end)
+
+    print("2.2 Calculating indicators ({})".format(datetime.now()))
     indicators, tensors["patent"] = calculate_indicators(ml_df,
                                                           period_start,
                                                           period_end,
                                                           tensors["patent"])
     time_series[category] = indicators
 
-    # Saving intermittent work
-    ffile = open("data/clusters.pkl", "wb")
-    pickle.dump(indicators, ffile)
-    ffile.close()
 
     return time_series, tensors
 

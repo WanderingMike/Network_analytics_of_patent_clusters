@@ -258,12 +258,15 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             assignee_patents = tensor_assignee_patent[assignee]
         except:
             return 0, 0, 0, 0
-        
+        print(cpc_classes)    
         assignee_tkh = len(assignee_patents)
         assignee_ckh = 0
         assignee_tts = 0
         assignee_cts = 0
-        set_classes = set(cpc_classes)
+        try:
+            set_classes = set(cpc_classes)
+        except:
+            set_classes = set()
         
         # Looping through all patents
         for patent in assignee_patents: # $ do more efficient way? $
@@ -276,7 +279,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             
             # verify cpc group
             try:
-                if bool(set_classes) & set(tensor_patent_cpc[patent])):  # $ check here $
+                if bool(set_classes & set(tensor_patent_cpc[patent])):  # $ check here $
                     assignee_ckh += 1
                     assignee_cts += forward_citations
             except:
