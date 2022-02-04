@@ -9,7 +9,7 @@ def load_tensor(tensor_key):
     return tensor
 
 
-def search_abstract(patent, value):
+def search_abstract(patent, value, concepts):
 
     abstract = value["abstract"]
     abstract_cleaned = abstract.translate(str.maketrans('','', string.punctuation))
@@ -34,7 +34,7 @@ def finding_topical_patents(tensor_patent, keywords):
     topical_patents = list()
     
     for patent, value in tensor_patent.items():
-        patent = topic_found = search_abstract(patent, value)
+        patent = topic_found = search_abstract(patent, value, concepts)
         if patent:
             topical_patents.append(patent)
 
@@ -43,41 +43,47 @@ def finding_topical_patents(tensor_patent, keywords):
 
 def managerial_layer(start, end, jobs, loading=False):
 
-    print("1. Loading tensors")
-
-    tensors = {
-        "assignee": None,
-        "cpc_sub_patent": None,
-        "patent_cpc_main": None,
-        "patent_cpc_sub": None,
-        "otherreference": None,
-        "patent": None,
-        "patent_assignee": None,
-        "assignee_patent": None,
-        "inventor": None,
-        "forward_citation": None,
-        "backward_citation": None
-    }
- 
-    for key in tensors.keys():
-        tensors[key] = load_tensor(key)
-
-    # Fetching CPC
-    print("2. Preparing CPC clusters ({})".format(datetime.now()))
-    
     if loading:
 
         ffile = open("data/clusters.pkl", "rb")
         cpc_time_series = pickle.load(ffile)
 
+        ffile2 = open("data/tensors.pkl", "rb")
+        tensors = pickle.load(ffile2)
+
     else:
+
+        print("1. Loading tensors ({})".format(datetime.now()))
+
+        tensors = {
+            "assignee": None,
+            "cpc_sub_patent": None,
+            "patent_cpc_main": None,
+            "patent_cpc_sub": None,
+            "otherreference": None,
+            "patent": None,
+            "patent_assignee": None,
+            "assignee_patent": None,
+            "inventor": None,
+            "forward_citation": None,
+            "backward_citation": None
+        }
+     
+        for key in tensors.keys():
+            tensors[key] = load_tensor(key)
+
+        print("2. Preparing CPC clusters ({})".format(datetime.now()))
 
         cpc_time_series, tensors = run_ML(tensors, start, end)
         a_file = open("data/clusters.pkl", "wb")
         pickle.dump(cpc_time_series, a_file)
         a_file.close()
+        
+        b_file = open("data/tensors.pkl", "wb")
+        pickle.dump(tensors, b_file)
+        b_file.close()
 
-    print("3. Finished CPC clusters ({})".format(datetime.now()))
+    print("3. Finished preparing data ({})".format(datetime.now()))
 
     for keywords in jobs:
         
@@ -91,7 +97,7 @@ def managerial_layer(start, end, jobs, loading=False):
 
 
 if __name__ == "__main__":
-    start = datetime(2021,1,1)
+    start = datetime(1970,1,1)
     end = datetime(2021,12,31)
     jobs = [["cyber", "honeypot", "cybersecurity"],
             ["quantum", "computer", "quantum mechanics"],

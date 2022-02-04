@@ -2,9 +2,6 @@ from functions.functions_data_preprocessing import *
 import multiprocessing
 from multiprocessing import Process
 import pickle
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import MultiLabelBinarizer
-
 
 def generate_dataframe(tensor_patent, start_date=None, end_date=None):
 
@@ -14,7 +11,6 @@ def generate_dataframe(tensor_patent, start_date=None, end_date=None):
 
     for patent in full_patent_list:
         try:
-            if start_date <= tensor_patent[patent]["date"] <= end_date:
                 indexed_patents.append(patent)
         except:
             pass
@@ -62,26 +58,12 @@ def fill_dataframe(tensors, cluster):
     
     print("2.1.2.10 Calculating TKH/CKH/TTS/CTS ({})".format(datetime.now()))
     cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc_main"], tensors["forward_citation"])
-    
-    cluster.to_pickle("data/dataframes/filled_df.pkl")
+   
+    print("2.1.2.11 Saving dataframe filled ({})".format(datetime.now()))
     print(cluster)
-    # Encode mainclass column using one-hot-encoding
-    cpc_mainclass_labels = list(set([name[:4] for name in tensors["cpc_sub_patent"].keys()]))
-    print(cpc_mainclass_labels)
-    le = LabelEncoder()
-    le.fit(cpc_mainclass_labels)
-    cluster["MF"] = cluster["MF"].apply(lambda cpc_groups: le.transform(cpc_groups))
-
-    ### OneHotEncoding
-    mlb = MultiLabelBinarizer()
-    onehotencoding = pd.DataFrame(mlb.fit_transform(cluster['MF']), columns=mlb.classes_, index=cluster.index)
-    cluster = pd.concat([cluster, onehotencoding], axis=1, join="inner")
-    cluster = cluster.drop(["MF"], axis=1)
+    cluster.to_pickle("data/dataframes/filled_df.pkl")
 
     return cluster
-
-    #for column in ["TKH", "CKH", "PKH", "TTS", "CTS", "PTS"]:
-    #    cluster[column] = cluster[column].replace(np.nan, cluster[column].median())
 
 
 def data_preparation(tensors, period_start, period_end):
@@ -95,15 +77,13 @@ def data_preparation(tensors, period_start, period_end):
     '''
     
     print("2.1.1 Generating empty frame ({})".format(datetime.now()))
-    cluster = generate_dataframe(tensors["patent"], period_start, period_end)
+#    cluster = generate_dataframe(tensors["patent"], period_start, period_end)
+#
+#    print("2.1.2 Filling dataframe ({})".format(datetime.now()))
+#    cluster_complete = fill_dataframe(tensors, cluster)
 
-    print("2.1.2 Filling dataframe ({})".format(datetime.now()))
-    cluster_complete = fill_dataframe(tensors, cluster)
-    print(cluster)
-
-    cluster_complete.to_pickle("data/dataframes/ml_df.pkl")
+    cluster_complete = pd.read_pickle("data/dataframes/filled_df.pkl")
 
     return cluster_complete
-
 
 

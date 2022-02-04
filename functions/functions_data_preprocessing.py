@@ -181,7 +181,7 @@ def fill_mf_ts(cluster, tensor_patent_cpc):
             cpc_classes = tensor_patent_cpc[row.name]
             return cpc_classes, len(cpc_classes)
         except:
-            return np.nan, np.nan
+            return list(), 0
 
     # Applying to every row
     cluster["MF"], cluster["TS"] = zip(*cluster.apply(calculate_mf_ts, axis=1)) # $ Main class or all classes? $
@@ -258,7 +258,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             assignee_patents = tensor_assignee_patent[assignee]
         except:
             return 0, 0, 0, 0
-        print(cpc_classes)    
+
         assignee_tkh = len(assignee_patents)
         assignee_ckh = 0
         assignee_tts = 0

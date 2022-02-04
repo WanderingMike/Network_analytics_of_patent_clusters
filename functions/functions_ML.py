@@ -3,16 +3,20 @@ import gensim
 from nltk.stem import WordNetLemmatizer, SnowballStemmer
 import gensim.corpora as corpora
 import nltk
+from sklearn.preprocessing import MultiLabelBinarizer
 import sys
 import os
 from sklearn.utils import resample
 import pandas as pd
+from datetime import datetime
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
-dataframe_length = 10000
+dataframe_length = 5000
 
 def balance_dataset(df):
+
+    print("2.2.1.0.1 Balancing dataset ({})".format(datetime.now()))
     df_majority = df[df.output==0]
     df_minority = df[df.output==1]
     length_output_1 = len(df_minority.index)
@@ -25,8 +29,14 @@ def balance_dataset(df):
                                        n_samples=length_output_1,
                                        random_state=123)
 
-    df_upsampled = pd.concat([df_majority_downsampled, df_minority])
+    df_minority_reduced = resample(df_minority,
+                                   replace=True,
+                                   n_samples=length_output_1,
+                                   random_state=123)
 
+    df_upsampled = pd.concat([df_majority_downsampled, df_minority_reduced])
+    
+    print("2.2.1.0.2 Output values for dataset ({})".format(datetime.now()))
     print(df_upsampled.output.value_counts())
     
     return df_upsampled
@@ -34,10 +44,10 @@ def balance_dataset(df):
 
 def get_statistics(df):
 
-    quantiles = df.forward_citations.quantile([0.25,0.5,0.75])
+    quantiles = df.forward_citations.quantile([0.25, 0.5, 0.75])
     print(quantiles)
 
-    for count in [0,1,2,3,4,5,6,7,8,9]:
+    for count in range(10):
         value = len(df[df["forward_citations"]==count].index)
         print("{}: {}".format(count, value)) 
 
@@ -56,4 +66,33 @@ def categorise_output(citations, median_value):
         return 0
     else:
         return None
+
+
+def onehotencode(cluster, tensor_cpc_sub_patent, columns=None):
+
+    cpc_mainclass_labels = list(set([name[:4] for name in tensor_cpc_sub_patent.keys()]))
+    
+    # OneHotEncoding
+    mlb = MultiLabelBinarizer()
+    onehotencoding = pd.DataFrame(mlb.fit_transform(cluster['MF']), columns=mlb.classes_, index=cluster.index)
+    cluster = pd.concat([cluster, onehotencoding], axis=1, join="inner")
+    cluster = cluster.drop(["MF"], axis=1)
+    
+
+    if columns:
+        cluster = cluster[cluster.columns.intersection(columns)]
+        cols = cluster.columns.values
+        print(cols, len(cols))
+        return cluster, None
+
+    else:
+        cols = cluster.columns.values
+        print(cols, len(cols))
+        return cluster, cluster.columns.values.tolist()
+    
+    #for column in ["TKH", "CKH", "PKH", "TTS", "CTS", "PTS"]:
+    #    cluster[column] = cluster[column].replace(np.nan, cluster[column].median())
+
+   
+
 
