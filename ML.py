@@ -48,24 +48,30 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
     cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
     ffile = open("data/dataframes/model.pkl", "wb")
     pickle.dump(cls, ffile)
-
+   # ffile = open("data/dataframes/model.pkl", "rb")
+   # cls = pickle.load(ffile)
     print("2.2.1.4 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
 
+    X = X[['date', 'output']]
+    print(X)
+
     print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
     batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
+
     for batch in tqdm(batches):
-        subset = data_to_forecast.iloc[batch[0]:batch[1]]
-        subset.drop(["date", "forward_citations", "output"], inplace=True)
-        predictions = cls.predict(subset, axis=1)
+
+        subset = data_to_forecast.iloc[batch[0]:batch[1], :]
+        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
         subset["output"] = predictions
+        subset = subset[['date', 'output']]
+        print(subset)
         X = pd.concat([X, subset], axis=0)
 
+    print(X)
     print("2.2.1.6 Saving data in tensor ({})".format(datetime.now()))
     for index, row in X.iterrows():
         tensor_patent[index]["output"] = row["output"]
-
-    X = X[['date', 'output']]
 
     return X, tensor_patent
 
