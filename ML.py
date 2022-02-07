@@ -1,11 +1,6 @@
 from data_preprocessing import *
-from random import shuffle
 from functions.functions_ML import *
-import sklearn.model_selection
-import sklearn.datasets
-import sklearn.metrics
 import autosklearn.classification
-import os
 from datetime import datetime
 import pickle
 from tqdm import tqdm
@@ -18,7 +13,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 number_of_cores = 2
 search_min = 0
-search_hours = 2
+search_hours = 20
 ml_search_time = search_min*60 + search_hours*3600
 
 
@@ -51,35 +46,32 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
     print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
     cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=ml_search_time,
                                                            resampling_strategy='cv', 
-                                                           resampling_strategy_arguments={'folds':5},
+                                                           resampling_strategy_arguments={'folds': 5},
                                                            memory_limit=None)
 
     cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
+    ffile = open("data/dataframes/model.pkl", "wb")
+    pickle.dump(cls, ffile)
+
     print("2.2.1.4 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
 
-    predictions = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1))
+    print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
+    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
+    for batch in tqdm(batches):
+        subset = data_to_forecast.iloc[batch[0]:batch[1]]
+        subset.drop(["date", "forward_citations", "output"], inplace=True)
+        predictions = cls.predict(subset, axis=1)
+        subset["output"] = predictions
+        X = pd.concat([X, subset], axis=0)
 
-    print("2.2.1.5 Predicted outputs ({})".format(datetime.now()))
-    print(predictions)
-
-    print("2.2.1.6 Show statistics again, model selection and leaderboard ({})".format(datetime.now()))
-    print(cls.sprint_statistics())
-    print(cls.show_models())
-    print(cls.leaderboard())
-
-    data_to_forecast["output"] = predictions
-
-    ml_df = pd.concat([X, data_to_forecast], axis=0)
-    
-    print("2.2.1.7 Final dataframe ({})".format(datetime.now()))
-    print(ml_df)
-
-    # Add output data to tensor_patent
-    for index, row in ml_df.iterrows():
+    print("2.2.1.6 Saving data in tensor ({})".format(datetime.now()))
+    for index, row in X.iterrows():
         tensor_patent[index]["output"] = row["output"]
 
-    return ml_df, tensor_patent
+    X = X[['date', 'output']]
+
+    return X, tensor_patent
 
 
 def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent):
@@ -96,7 +88,6 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
     :param tensor_patent: contains all patent abstracts
     :return: returns the time-series, complete for one CPC group
     '''
-
 
     series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
     
@@ -118,8 +109,9 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]
 
+        patents_final_year = None
 
-        for year in range(end.year-10, end.year+1):
+        for year in range(end.year-3, end.year+1):
 
             # Filtering patents
             start_date = subgroup_df["date"] >= datetime(year, 1, 1)
@@ -128,6 +120,8 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
             filters = start_date & end_date
             temp_df = subgroup_df[filters]
             patents_per_year = list(temp_df.index.values)
+            if year == end.year:
+                patents_final_year = patents_per_year
 
             # Calculating indicators
             patent_count = len(patents_per_year)
@@ -139,7 +133,7 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
             series[cpc_subgroup][year] = indicators
 
-        series[cpc_subgroup]["patents_final_year"] = patents_per_year
+        series[cpc_subgroup]["patents_final_year"] = patents_final_year
 
     return series, tensor_patent
 

@@ -12,7 +12,7 @@ from datetime import datetime
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
-dataframe_length = 5000
+dataframe_length = 3000
 
 def balance_dataset(df):
 
