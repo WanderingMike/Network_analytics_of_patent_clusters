@@ -9,10 +9,10 @@ import os
 from sklearn.utils import resample
 import pandas as pd
 from datetime import datetime
+from functions.config_ML import *
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
-dataframe_length = 3000
 
 def balance_dataset(df):
 
@@ -21,8 +21,8 @@ def balance_dataset(df):
     df_minority = df[df.output==1]
     length_output_1 = len(df_minority.index)
 
-    if length_output_1 > dataframe_length:
-        length_output_1 = dataframe_length
+    if length_output_1 > job_config.size_dataframe:
+        length_output_1 = job_config.size_dataframe
 
     df_majority_downsampled = resample(df_majority,
                                        replace=True,
@@ -48,10 +48,10 @@ def get_statistics(df):
     print(quantiles)
 
     for count in range(10):
-        value = len(df[df["forward_citations"]==count].index)
+        value = len(df[df["forward_citations"] == count].index)
         print("{}: {}".format(count, value)) 
 
-    value_count_plus = len(df[df["forward_citations"]>=10].index)
+    value_count_plus = len(df[df["forward_citations"] >= 10].index)
     print("10+: ", value_count_plus)
 
     return quantiles.loc[0.75]
@@ -68,16 +68,13 @@ def categorise_output(citations, median_value):
         return None
 
 
-def onehotencode(cluster, tensor_cpc_sub_patent, columns=None):
-
-    cpc_mainclass_labels = list(set([name[:4] for name in tensor_cpc_sub_patent.keys()]))
+def onehotencode(cluster, columns=None):
     
     # OneHotEncoding
     mlb = MultiLabelBinarizer()
     onehotencoding = pd.DataFrame(mlb.fit_transform(cluster['MF']), columns=mlb.classes_, index=cluster.index)
     cluster = pd.concat([cluster, onehotencoding], axis=1, join="inner")
     cluster = cluster.drop(["MF"], axis=1)
-    
 
     if columns:
         cluster = cluster[cluster.columns.intersection(columns)]

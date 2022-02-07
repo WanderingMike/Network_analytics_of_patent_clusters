@@ -1,8 +1,9 @@
-from ML import *
 from functions.functions_network_analysis import *
 import networkx as nx
+from functions.config_ML import *
 import pandas as pd
 import math
+# from tabulate import tabulate
 
 
 def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, end_year):
@@ -12,7 +13,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, 
     '''
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0, names=['CPC', 'desc'])
 
-    clusters_df = pd.Dataframe(columns=['CPC', 'count', 'emergingness', 'delta'])
+    clusters_df = pd.Dataframe(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index'])
     
     # CPC
     clusters_df['CPC'] = topical_clusters
@@ -131,4 +132,19 @@ def unfold_network(cpc_time_series, tensors, topical_patents, end_year):
     print(f'6.10 Writing to output files ({datetime.now()})')
     print(clusters_df)
     print(assignee_df)
+
+    clusters_df.sort_values("tech index", inplace=True)
+    clusters_df.to_markdown("output_tables/technologies_index.md")
+
+    assignee_df.sort_values("emergingness", inplace=True)
+    assignee_df.to_markdown("output_tables/assignee_index.md")
+
+    assignee_df.sort_values("impact", inplace=True)
+    assignee_df.to_markdown("output_tables/impact_index.md")
+
+    assignee_df.sort_values("normalised impact", inplace=True)
+    assignee_df.to_markdown("output_tables/norm_impact_index.md")
+
+    assignee_df.sort_values("influence", inplace=True)
+    assignee_df.to_markdown("output_tables/influence_index.md")
 

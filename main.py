@@ -1,5 +1,7 @@
 import string
 from network_analysis import *
+from ML import *
+
 
 def load_tensor(tensor_key):
 
@@ -34,14 +36,14 @@ def finding_topical_patents(tensor_patent, keywords):
     topical_patents = list()
     
     for patent, value in tensor_patent.items():
-        patent = topic_found = search_abstract(patent, value, concepts)
+        patent = search_abstract(patent, value, concepts)
         if patent:
             topical_patents.append(patent)
 
     return list(set(topical_patents))
 
 
-def managerial_layer(start, end, jobs, loading=False):
+def managerial_layer(loading=False):
 
     if loading:
 
@@ -74,7 +76,7 @@ def managerial_layer(start, end, jobs, loading=False):
 
         print("2. Preparing CPC clusters ({})".format(datetime.now()))
 
-        cpc_time_series, tensors = run_ML(tensors, start, end)
+        cpc_time_series, tensors = run_ML(tensors, job_config.start, job_config.end)
         a_file = open("data/clusters.pkl", "wb")
         pickle.dump(cpc_time_series, a_file)
         a_file.close()
@@ -85,7 +87,7 @@ def managerial_layer(start, end, jobs, loading=False):
 
     print("3. Finished preparing data ({})".format(datetime.now()))
 
-    for keywords in jobs:
+    for keywords in job_config.jobs:
         
         print("4. Running job {} ({})".format(keywords, datetime.now()))
 
@@ -93,13 +95,8 @@ def managerial_layer(start, end, jobs, loading=False):
         topical_patents = finding_topical_patents(tensors["patent"], keywords)
 
         print("6. Unfolding network ({})".format(datetime.now()))
-        unfold_network(cpc_times_series, tensors, topical_patents, end.year)
+        unfold_network(cpc_time_series, tensors, topical_patents, job_config.end.year)
 
 
 if __name__ == "__main__":
-    start = datetime(1970,1,1)
-    end = datetime(2021,12,31)
-    jobs = [["cyber", "honeypot", "cybersecurity"],
-            ["quantum", "computer", "quantum mechanics"],
-            ["5G"]]
-    managerial_layer(start, end, jobs=jobs)
+    managerial_layer()

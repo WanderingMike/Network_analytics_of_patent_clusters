@@ -1,4 +1,5 @@
 from data_preprocessing import *
+from functions.config_ML import *
 from functions.functions_ML import *
 import autosklearn.classification
 from datetime import datetime
@@ -10,11 +11,6 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
-
-number_of_cores = 2
-search_min = 0
-search_hours = 20
-ml_search_time = search_min*60 + search_hours*3600
 
 
 def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_files=False):
@@ -35,8 +31,8 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
     
     # One hot encoding MF
     print(f'2.2.1.1 One hot encoding the datasets ({datetime.now()})')
-    X, encoded_columns = onehotencode(X, tensor_cpc_sub_patent)
-    data_to_forecast, trash = onehotencode(data_to_forecast, tensor_cpc_sub_patent, columns=encoded_columns)
+    X, encoded_columns = onehotencode(X)
+    data_to_forecast, trash = onehotencode(data_to_forecast, columns=encoded_columns)
 
     print("2.2.1.2 Balanced dataset and dataset to forecast ({})".format(datetime.now()))
     print(X)
@@ -44,7 +40,7 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
 
     # Splitting dataframe
     print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
-    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=ml_search_time,
+    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=job_config.ml_search_time,
                                                            resampling_strategy='cv', 
                                                            resampling_strategy_arguments={'folds': 5},
                                                            memory_limit=None)
