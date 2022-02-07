@@ -54,7 +54,7 @@ def get_assignee_data(cluster, patent_value, topical_assignees):
 
 def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assignee, tensor_patent):
     ''' Find assignees tied to the technology clusters in which we are interested.
-    :return dictionary of assignees with their emergingness level and shared patents for clusterassignees with their emergingness level and shared patents for clusters
+    :return dictionary of assignees with their emergingness level and shared patents for cluster
     '''
 
     topical_assignees = dict()

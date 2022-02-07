@@ -1,15 +1,38 @@
 from ML import *
 from functions.functions_network_analysis import *
 import networkx as nx
+import pandas as pd
 
 def prepare_overviews():
 
     return 
 
 
-def technology_index():
+def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, end_year):
+    '''
+    :param topical_clusters: list of clusters to add to dataframe
+    :param cpc_time_series: dictionary with emergingness and patent count per cluster
+    '''
+    cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0, names=['CPC', 'desc'])
 
-    return
+    clusters_df = pd.Dataframe(columns=['CPC', 'count', 'emergingness', 'delta(emergingness)'])
+    
+    # CPC
+    clusters_df['CPC'] = topical_clusters
+    # desc
+    clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='CPC', right_on='CPC')
+    # count
+    clusters_df['count'] = clusters_df["CPC"].apply(lambda x: len(tensors_cpc_sub_patent[x]))
+    # emergingness
+    clusters_df['emergingness'] = clusters_df['CPC'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
+    # delta
+    clusters_df['delta(emergingness)'] = clusters_df['CPC'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'] - 
+                                                                            cpc_time_series[x][end_year-1]['emergingness'])   
+    # technology ind
+
+
+
+    return clusters_df
 
 
 def assignee_index():
@@ -38,7 +61,7 @@ def influence_index():
 
     return
 
-def unfold_network(cpc_time_series, tensors, topical_patents):
+def unfold_network(cpc_time_series, tensors, topical_patents, end_year):
     ''' This function has four steps:
      1) Retrieving/calculating relevant data for all assignees, cpc patent clusters and patents themselves.
      2) Setting up network/graph
@@ -61,7 +84,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
    
     # Indices
     print(f'6.5 Calculating Technology Index ({datetime.now()})')
-    technology_index()
+    technology_index(topical_clusters, cpc_time_series, tensors["cpc_sub_patent"], end_year)
     print(f'6.6 Calculating Assignee Index ({datetime.now()})')
     assignee_index()
     print(f'6.7 Calculating Impact Index ({datetime.now()})')

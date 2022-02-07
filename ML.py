@@ -18,7 +18,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 number_of_cores = 2
 search_min = 0
-search_hours = 12
+search_hours = 2
 ml_search_time = search_min*60 + search_hours*3600
 
 
