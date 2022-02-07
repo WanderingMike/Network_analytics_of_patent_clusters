@@ -1,5 +1,9 @@
+from datetime import datetime
+
+
 def find_intersection(set1, set2):
     return len([num for num in set1 if num in set2])
+
 
 def get_cpc_nodes(topical_clusters, cpc_time_series):
 
@@ -7,7 +11,7 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
     for cluster in topical_clusters:
 
-        cpc_info = (cluster, {"weight": cpc_times_series[cluster][2021]})
+        cpc_info = (cluster, {"weight": cpc_time_series[cluster][2021]})
         cpc_nodes.append(cpc_info)
     
     return cpc_nodes
@@ -15,6 +19,7 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
 def get_assignee_nodes(topical_assignees):
 
+    assignee_nodes = list()
     for assignee in topical_assignees.keys():
 
         assignee_info = (assignee, {"weight": topical_assignees[assignee]["emergingness"].mean()})
@@ -27,16 +32,16 @@ def get_edge_data(topical_assignees):
 
     edges = list()
 
-    for assignee in assignees:
+    for assignee in topical_assignees:
 
         for cluster in topical_assignees[assignee]:
-            edge_info = (assignee, cluster, topical[assignee][cluster])
+            edge_info = (assignee, cluster, topical_assignees[assignee][cluster])
             edges.append(edge_info)
 
     return edges
 
 
-def get_assignee_data(cluster, patent_value, topical_assignees):
+def get_assignee_data(cluster, patent_value, assignee, topical_assignees):
 
     if assignee in topical_assignees:
 
@@ -50,6 +55,8 @@ def get_assignee_data(cluster, patent_value, topical_assignees):
     else:
 
         topical_assignees[assignee] = {"emergingness": [patent_value], cluster: 1}
+
+    return topical_assignees
 
 
 def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assignee, tensor_patent):
@@ -75,7 +82,7 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
                 patent_value = None
 
             for assignee in assignees:
-                topical_assignees = get_assignee_data(cluster, patent_value, topical_assignees)
+                topical_assignees = get_assignee_data(cluster, patent_value, assignee, topical_assignees)
 
     return topical_assignees
 
@@ -93,5 +100,6 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
             pass
 
     return list(set(cpc_subgroups))
+
 
 
