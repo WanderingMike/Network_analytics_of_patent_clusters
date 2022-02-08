@@ -16,7 +16,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, 
     '''
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0, names=['CPC', 'desc'])
 
-    clusters_df = pd.Dataframe(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index'])
+    clusters_df = pd.DataFrame(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index'])
     
     # CPC
     clusters_df['CPC'] = topical_clusters
@@ -63,7 +63,7 @@ def assignee_index(topical_assignees, tensor_assignee):
     2) Emergingness level of assignee patents in latest year
     '''
 
-    assignees_df = pd.Dataframe(columns=['ID', 'name', 'emergingness', 'count', 'impact', 'normalised impact', 'influence'])
+    assignees_df = pd.DataFrame(columns=['ID', 'name', 'emergingness', 'count', 'impact', 'normalised impact', 'influence'])
     # ID
     assignees_df['ID'] = topical_assignees.keys()
     # name
@@ -132,7 +132,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents, end_year):
     topical_clusters = find_topical_clusters(topical_patents, tensors["patent_cpc_sub"])
 
     print("6.2 Finding topical assignees ({})".format(datetime.now())) 
-    topical_assignees = find_topical_assignees(topical_clusters, tensors["patent_assignee"], tensors["patent"])
+    topical_assignees = find_topical_assignees(topical_clusters, cpc_time_series, tensors["patent_assignee"], tensors["patent"])
 
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)

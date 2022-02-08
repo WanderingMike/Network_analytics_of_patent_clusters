@@ -48,7 +48,7 @@ def get_edge_data(topical_assignees):
 def get_assignee_data(cluster, patent_value, assignee, topical_assignees):
     '''
     Calculates the emergingness level per assignee
-    :return: topical assignees dictionary with respective mean emergingness level
+    :return: topical assignees dictionary with respective mean emergingness level {assignee: {cluster: XX, cluster: YY, emergingness: []}}
     '''
 
     if assignee in topical_assignees:
@@ -87,7 +87,8 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
             try: 
                 patent_value = tensor_patent[patent]["output"]
-            except:
+            except Exception as e:
+                print(f'{patent}:{e}') 
                 patent_value = None
 
             for assignee in assignees:

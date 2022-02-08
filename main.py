@@ -2,7 +2,6 @@ import string
 from network_analysis import *
 from ML import *
 
-
 def load_tensor(tensor_key):
     '''
     This function loads a data tensor produced by the tensor_deployment.py file.
@@ -28,14 +27,15 @@ def search_abstract(patent, value, concepts):
     abstract_tokenised = abstract_lower.split(' ')
     
     for concept in concepts:
-        first_word = concept[0]
+        concept_sep = concept.split(' ')
+        first_word = concept_sep[0]
         for i in range(len(abstract_tokenised)):
             if abstract_tokenised[i] == first_word:
-                extracted_token = abstract_tokenised[i:i+len(concept)]
-                if ' '.join(extracted_token) == ' '.join(concept):
-                    return patent
+                extracted_token = abstract_tokenised[i:i+len(concept_sep)]
+                if ' '.join(extracted_token) == concept:
+                    return True
 
-    return None
+    return False
 
 
 def finding_topical_patents(tensor_patent, keywords):
@@ -48,15 +48,13 @@ def finding_topical_patents(tensor_patent, keywords):
 
     topical_patents = list()
     
-    for patent, value in tqdm(tensor_patent.items()):
+    for patent, value in tqdm(list(tensor_patent.items())[:5]):
 
         try:
-            patent = search_abstract(patent, value, concepts)
-        except Exception as e:
-            continue
-
-        if patent:
-            topical_patents.append(patent)
+            if(search_abstract(patent, value, concepts)):
+                topical_patents.append(patent)
+        except:
+            pass
 
     return list(set(topical_patents))
 
@@ -76,8 +74,9 @@ def managerial_layer(loading=False):
 
         ffile2 = open("data/tensors.pkl", "rb")
         tensors = pickle.load(ffile2)
-        res = list(tensors["patent"].keys())[1000000]
-        print(tensors["patent"][res])
+        for i in [10, 10000, 1000000, 5000000]:
+            res = list(tensors["patent"].keys())[i]
+            print(tensors["patent"][res])
         res2 = list(cpc_time_series.keys())[10000]
         print(cpc_time_series[res2])
 
@@ -127,4 +126,4 @@ def managerial_layer(loading=False):
 
 
 if __name__ == "__main__":
-    managerial_layer(loading=True)
+    managerial_layer(loading=False)

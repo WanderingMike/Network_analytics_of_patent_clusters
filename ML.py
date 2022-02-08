@@ -53,27 +53,31 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
     print("2.2.1.4 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
 
-    X = X[['date', 'output']]
-    print(X)
+#    X = X[['date', 'output']]
+#    print(X)
 
     print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
-    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
+#    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
 
-    for batch in tqdm(batches):
+#    for batch in tqdm(batches):
+#
+#        subset = data_to_forecast.iloc[batch[0]:batch[1], :]
+#        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
+#        subset["output"] = predictions
+#        subset = subset[['date', 'output']]
+#        print(subset)
+#        X = pd.concat([X, subset], axis=0)
 
-        subset = data_to_forecast.iloc[batch[0]:batch[1], :]
-        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
-        subset["output"] = predictions
-        subset = subset[['date', 'output']]
-        print(subset)
-        X = pd.concat([X, subset], axis=0)
-
-    print(X)
+    data_to_forecast["output"] = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
+    print(data_to_forecast)
+    
+    df = data_to_forecast[['date', 'output']]
+    
     print("2.2.1.6 Saving data in tensor ({})".format(datetime.now()))
-    for index, row in X.iterrows():
+    for index, row in df.iterrows():
         tensor_patent[index]["output"] = row["output"]
 
-    return X, tensor_patent
+    return df, tensor_patent
 
 
 def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent):
@@ -106,7 +110,7 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
     for cpc_subgroup in tqdm(series.keys()):
         
-        series[cpc_subgroup] = {year: None for year in range(start.year, end.year+1)}
+        series[cpc_subgroup] = {year: None for year in range(start.end-3, end.year+1)}
 
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]

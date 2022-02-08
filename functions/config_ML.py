@@ -6,9 +6,9 @@ class MlConfig:
     def __init__(self):
         self.number_of_cores = 2
         self.search_min = 0
-        self.search_hours = 5
+        self.search_hours = 10
         self.ml_search_time = self.search_min * 60 + self.search_hours * 3600
-        self.size_dataframe = 10000
+        self.size_dataframe = 20000
         self.start = datetime(1970, 1, 1)
         self.end = datetime(2021, 12, 31)
         self.jobs = [["cyber", "honeypot", "cybersecurity"],
