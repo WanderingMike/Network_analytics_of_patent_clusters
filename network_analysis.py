@@ -8,8 +8,11 @@ import math
 
 def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, end_year):
     '''
-    :param topical_clusters: list of clusters to add to dataframe
-    :param cpc_time_series: dictionary with emergingness and patent count per cluster
+    Creates dataframe with all clusters tied to topical patents. For each cluster, this function retrieves:
+    1) The total patent count 
+    2) The emergingness value of its patents in the last year
+    3) The growth in emergingness between the last 2 years
+    4) The Technology Index: mean 3-year emergingness growth * mean 3-year patent count growth
     '''
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0, names=['CPC', 'desc'])
 
@@ -54,6 +57,11 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent, 
 
 
 def assignee_index(topical_assignees, tensor_assignee):
+    '''
+    Creates a dataframe with all assignees tied to topical patents. For each assignee, this function retrieves:
+    1) Name of company
+    2) Emergingness level of assignee patents in latest year
+    '''
 
     assignees_df = pd.Dataframe(columns=['ID', 'name', 'emergingness', 'count', 'impact', 'normalised impact', 'influence'])
     # ID
@@ -67,6 +75,8 @@ def assignee_index(topical_assignees, tensor_assignee):
 
 
 def impact_index(node, network):
+    '''Calculates the impact value used in the impact and normalised impact indices.
+    :return: impact value, number of shared patents to find normalised impact'''
 
     assignee_value = network[node]['weight']
     impact = 0
@@ -80,6 +90,12 @@ def impact_index(node, network):
 
 
 def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
+    '''
+    Retrieves remaining assignee indices:
+    3) Impact: Assignee emergingness level * CPC cluster emergingness * number of shared patents
+    4) Normalised Impact: Impact / number of patents shared
+    5) Influence: Katz Centrality measure
+    '''
 
     # Creating Graph
     print(f'6.4 Creating graph ({datetime.now()})')
@@ -90,12 +106,15 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
 
     # impact
     for node in assignee_nodes:
+
         impact, length = impact_index(node, network)
         assignee_df[assignee_df['ID'] == node]['impact'] = impact
         assignee_df[assignee_df['ID'] == node]['normalised impact'] = impact/length
 
+    # Katz centrality
     phi = (1 + math.sqrt(5)) / 2.0  # largest eigenvalue of adj matrix
     centrality = nx.katz_centrality(network, 1 / phi - 0.01)
+
     for node, centrality_measure in sorted(centrality.items()):
         assignee_df[assignee_df['ID'] == node]['influence'] = centrality_measure
 

@@ -141,14 +141,14 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
 
 def run_ML(tensors, period_start, period_end):
-    '''Each Worker process will create part of the tensor. This tensor (Python dictionary) will have as keys a subset of
-    either patent IDs, assignee IDs, or cpc categories. The values will be populated according to the breadth of content
-    in each dataframe tensor_df.
+    '''Classification algorithm. Returns a dictionary (hereafter named time_series) which will have for each CPC subgroup the following:
     Format:
-        {assignee_A: [patent_1, patent_2,...],
-         assignee_B: [...],
+        {cpc_subgroup_A: {year_1: {emergingness: XX, patent_count: YY},
+                         {year_2: ...}
+         cpc_subgroup_B: ..., 
          ...}
     '''
+
     print("2.1 Preparing dataframe ({})".format(datetime.now()))
     ml_df = data_preparation(tensors, period_start, period_end)
 

@@ -4,6 +4,7 @@ from multiprocessing import Process
 import pickle
 
 def generate_dataframe(tensor_patent, start_date=None, end_date=None):
+    '''Generates ML-readable data format with required indicators as columns and patents as row indices'''
 
     indexed_patents = list()
     full_patent_list = tensor_patent.keys()

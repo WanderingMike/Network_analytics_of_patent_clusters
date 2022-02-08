@@ -4,7 +4,10 @@ from ML import *
 
 
 def load_tensor(tensor_key):
-
+    '''
+    This function loads a data tensor produced by the tensor_deployment.py file.
+    :param tensor_key: name of tensor
+    '''
     file = open("data/patentsview_cleaned/{}.pkl".format(tensor_key), "rb")
     tensor = pickle.load(file)
 
@@ -12,6 +15,12 @@ def load_tensor(tensor_key):
 
 
 def search_abstract(patent, value, concepts):
+    '''
+    Takes a list of words or ideas and looks for them in the patent abstract.
+    :param patent: patent dictionary key 
+    :param value: patent dictionary value
+    :param concepts: words to find in patent abstract
+    '''
 
     abstract = value["abstract"]
     abstract_cleaned = abstract.translate(str.maketrans('','', string.punctuation))
@@ -30,13 +39,22 @@ def search_abstract(patent, value, concepts):
 
 
 def finding_topical_patents(tensor_patent, keywords):
-    
+    '''
+    Finds all patents that contain at least of one the keyworks.
+    :param tensor_patent: tensor which contains patent abstracts
+    :param keywords: list of words to search for
+    '''
     concepts = [words.split(' ') for words in keywords]
 
     topical_patents = list()
     
-    for patent, value in tensor_patent.items():
-        patent = search_abstract(patent, value, concepts)
+    for patent, value in tqdm(tensor_patent.items()):
+
+        try:
+            patent = search_abstract(patent, value, concepts)
+        except Exception as e:
+            continue
+
         if patent:
             topical_patents.append(patent)
 
@@ -44,6 +62,12 @@ def finding_topical_patents(tensor_patent, keywords):
 
 
 def managerial_layer(loading=False):
+    '''The main function of our system. Step-by-step walkthrough:
+    1) Loading all tensors created by tensor_deployment.py
+    2) Execute the classification algorithm with run_ML()
+    3) For each job, find patents related to the keywords
+    4) For those patents, map the network of relevant technologies and assignees
+    ''' 
 
     if loading:
 
@@ -52,6 +76,10 @@ def managerial_layer(loading=False):
 
         ffile2 = open("data/tensors.pkl", "rb")
         tensors = pickle.load(ffile2)
+        res = list(tensors["patent"].keys())[1000000]
+        print(tensors["patent"][res])
+        res2 = list(cpc_time_series.keys())[10000]
+        print(cpc_time_series[res2])
 
     else:
 
@@ -93,10 +121,10 @@ def managerial_layer(loading=False):
 
         print("5. Finding topical patents ({})".format(datetime.now()))
         topical_patents = finding_topical_patents(tensors["patent"], keywords)
-
+        print(topical_patents)
         print("6. Unfolding network ({})".format(datetime.now()))
         unfold_network(cpc_time_series, tensors, topical_patents, job_config.end.year)
 
 
 if __name__ == "__main__":
-    managerial_layer()
+    managerial_layer(loading=True)

@@ -15,6 +15,7 @@ nltk.download('omw-1.4')
 
 
 def balance_dataset(df):
+    '''Downsamples the binary output dataframe df in order to work with a balanced dataset'''
 
     print("2.2.1.0.1 Balancing dataset ({})".format(datetime.now()))
     df_majority = df[df.output==0]
@@ -43,6 +44,7 @@ def balance_dataset(df):
 
 
 def get_statistics(df):
+    '''Statistics of df: quantiles, forward_citations distribution'''
 
     quantiles = df.forward_citations.quantile([0.25, 0.5, 0.75])
     print(quantiles)
@@ -69,7 +71,8 @@ def categorise_output(citations, median_value):
 
 
 def onehotencode(cluster, columns=None):
-    
+    '''OneHotEndocing of CPC groups (MF) column'''
+
     # OneHotEncoding
     mlb = MultiLabelBinarizer()
     onehotencoding = pd.DataFrame(mlb.fit_transform(cluster['MF']), columns=mlb.classes_, index=cluster.index)
