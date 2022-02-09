@@ -13,11 +13,11 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_files=False):
+def calculate_emergingness(ml_df, tensor_patent, from_files=False):
     '''Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
     on the chosen time period, and a subset of the dataframe for which we need to find the citation count. We then trust
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
-
+        
     # Categorise output to make it a classification problem
     median_forward_citations = ml_df["forward_citations"].median()
     quartile_split = get_statistics(ml_df)
@@ -28,7 +28,7 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
 
     # Balance the dataset
     X = balance_dataset(X)
-    
+
     # One hot encoding MF
     print(f'2.2.1.1 One hot encoding the datasets ({datetime.now()})')
     X, encoded_columns = onehotencode(X)
@@ -38,40 +38,48 @@ def calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent, clean_fi
     print(X)
     print(data_to_forecast)
 
-    # Splitting dataframe
-    print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
-    cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=job_config.ml_search_time,
-                                                           resampling_strategy='cv', 
-                                                           resampling_strategy_arguments={'folds': 5},
-                                                           memory_limit=None)
+    if not from_files:
+        
+        # Building model
+        print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
+        cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=job_config.ml_search_time,
+                                                               resampling_strategy='cv', 
+                                                               resampling_strategy_arguments={'folds': 5},
+                                                               memory_limit=None)
 
-    cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
-    ffile = open("data/dataframes/model.pkl", "wb")
-    pickle.dump(cls, ffile)
-   # ffile = open("data/dataframes/model.pkl", "rb")
-   # cls = pickle.load(ffile)
+        cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
+        
+        ffile = open("data/dataframes/model.pkl", "wb")
+        pickle.dump(cls, ffile)
+        ffile.close()
+        
+    
+    else:
+
+        ffile = open("data/dataframes/model.pkl", "rb")
+        cls = pickle.load(ffile)
+        
+    del X
+    
     print("2.2.1.4 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
 
-#    X = X[['date', 'output']]
-#    print(X)
-
     print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
-#    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
+    df = pd.DataFrame(columns=['date', 'output'])
+    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
 
-#    for batch in tqdm(batches):
-#
-#        subset = data_to_forecast.iloc[batch[0]:batch[1], :]
-#        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
-#        subset["output"] = predictions
-#        subset = subset[['date', 'output']]
-#        print(subset)
-#        X = pd.concat([X, subset], axis=0)
+    for batch in tqdm(batches):
 
-    data_to_forecast["output"] = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
-    print(data_to_forecast)
-    
-    df = data_to_forecast[['date', 'output']]
+        subset = data_to_forecast.iloc[batch[0]:batch[1], :]
+        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
+        subset["output"] = predictions
+        subset = subset[['date', 'output']]
+        print(subset)
+        df = pd.concat([df, subset], axis=0)
+
+    #data_to_forecast["output"] = cls.predict(data_to_forecast.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
+    #print(data_to_forecast)
+    #df = data_to_forecast[['date', 'output']]
     
     print("2.2.1.6 Saving data in tensor ({})".format(datetime.now()))
     for index, row in df.iterrows():
@@ -98,7 +106,7 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
     series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
     
     print("2.2.1 Calculating emergingness for entire dataframe ({})".format(datetime.now()))
-    df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent, tensor_cpc_sub_patent)
+    df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent, from_files=True)
 
     print("2.1.3 Saving df with emergingness ({})".format(datetime.now()))
     print(df_final)
@@ -110,7 +118,7 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
     for cpc_subgroup in tqdm(series.keys()):
         
-        series[cpc_subgroup] = {year: None for year in range(start.end-3, end.year+1)}
+        series[cpc_subgroup] = {year: None for year in range(end.year-3, end.year+1)}
 
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]

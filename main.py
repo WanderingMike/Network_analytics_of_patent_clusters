@@ -2,6 +2,7 @@ import string
 from network_analysis import *
 from ML import *
 
+
 def load_tensor(tensor_key):
     '''
     This function loads a data tensor produced by the tensor_deployment.py file.
@@ -27,12 +28,11 @@ def search_abstract(patent, value, concepts):
     abstract_tokenised = abstract_lower.split(' ')
     
     for concept in concepts:
-        concept_sep = concept.split(' ')
-        first_word = concept_sep[0]
+        first_word = concept[0]
         for i in range(len(abstract_tokenised)):
             if abstract_tokenised[i] == first_word:
-                extracted_token = abstract_tokenised[i:i+len(concept_sep)]
-                if ' '.join(extracted_token) == concept:
+                extracted_token = abstract_tokenised[i:i+len(concept)]
+                if ' '.join(extracted_token) == ' '.join(concept):
                     return True
 
     return False
@@ -47,15 +47,18 @@ def finding_topical_patents(tensor_patent, keywords):
     concepts = [words.split(' ') for words in keywords]
 
     topical_patents = list()
+    failed_patents = list()
     
-    for patent, value in tqdm(list(tensor_patent.items())[:5]):
-
+    for patent, value in list(tensor_patent.items()):
+        
         try:
             if(search_abstract(patent, value, concepts)):
                 topical_patents.append(patent)
         except:
-            pass
+            failed_patents.append(patent)
+            continue
 
+    print(failed_patents)
     return list(set(topical_patents))
 
 
@@ -69,16 +72,11 @@ def managerial_layer(loading=False):
 
     if loading:
 
-        ffile = open("data/clusters.pkl", "rb")
+        ffile = open("data/clusters_2.pkl", "rb")
         cpc_time_series = pickle.load(ffile)
 
-        ffile2 = open("data/tensors.pkl", "rb")
+        ffile2 = open("data/tensors_2.pkl", "rb")
         tensors = pickle.load(ffile2)
-        for i in [10, 10000, 1000000, 5000000]:
-            res = list(tensors["patent"].keys())[i]
-            print(tensors["patent"][res])
-        res2 = list(cpc_time_series.keys())[10000]
-        print(cpc_time_series[res2])
 
     else:
 
@@ -122,7 +120,7 @@ def managerial_layer(loading=False):
         topical_patents = finding_topical_patents(tensors["patent"], keywords)
         print(topical_patents)
         print("6. Unfolding network ({})".format(datetime.now()))
-        unfold_network(cpc_time_series, tensors, topical_patents, job_config.end.year)
+        unfold_network(cpc_time_series, tensors, topical_patents[:2], job_config.end.year) 
 
 
 if __name__ == "__main__":

@@ -10,8 +10,8 @@ from sklearn.utils import resample
 import pandas as pd
 from datetime import datetime
 from functions.config_ML import *
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+#nltk.download('wordnet')
+#nltk.download('omw-1.4')
 
 
 def balance_dataset(df):

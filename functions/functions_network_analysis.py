@@ -24,8 +24,8 @@ def get_assignee_nodes(topical_assignees):
 
     assignee_nodes = list()
     for assignee in topical_assignees.keys():
-
-        assignee_info = (assignee, {"weight": topical_assignees[assignee]["emergingness"].mean()})
+        assignee_data = topical_assignees[assignee]["emergingness"]
+        assignee_info = (assignee, {"weight": sum(assignee_data)/len(assignee_data)})
         assignee_nodes.append(assignee_info)
 
     return assignee_nodes
@@ -77,12 +77,14 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
     for cluster in topical_clusters:
         print("6.2.1 Finding topical assignees for cluster {} ({})".format(cluster, datetime.now()))
-
+        print("Final patents for cluster {} ".format(cluster), cpc_time_series[cluster]["patents_final_year"])
         for patent in cpc_time_series[cluster]["patents_final_year"]:
 
             try:
                 assignees = tensor_patent_assignee[patent]
+                print(f'{patent}: {tensor_patent_assignee[patent]}')
             except:
+                print(f'{patent}: no assignee')
                 continue
 
             try: 
