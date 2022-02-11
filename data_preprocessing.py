@@ -3,7 +3,7 @@ import multiprocessing
 from multiprocessing import Process
 import pickle
 
-def generate_dataframe(tensor_patent, start_date=None, end_date=None):
+def generate_dataframe(tensor_patent):
     '''Generates ML-readable data format with required indicators as columns and patents as row indices'''
 
     indexed_patents = list()
@@ -67,7 +67,7 @@ def fill_dataframe(tensors, cluster):
     return cluster
 
 
-def data_preparation(tensors, period_start, period_end):
+def data_preparation(tensors):
     '''
     1) Load all tensors
     2) Create ML-readable dataframe
@@ -77,13 +77,13 @@ def data_preparation(tensors, period_start, period_end):
     :return: ML-readable dataframe
     '''
     
-    print("2.1.1 Generating empty frame ({})".format(datetime.now()))
-#    cluster = generate_dataframe(tensors["patent"], period_start, period_end)
-#
-#    print("2.1.2 Filling dataframe ({})".format(datetime.now()))
-#    cluster_complete = fill_dataframe(tensors, cluster)
-
-    cluster_complete = pd.read_pickle("data/dataframes/filled_df.pkl")
+    if job_config.load_df_filled:
+        cluster_complete = pd.read_pickle("data/dataframes/filled_df.pkl")
+    else:
+        print("2.1.1 Generating empty frame ({})".format(datetime.now()))
+        cluster = generate_dataframe(tensors["patent"])
+        print("2.1.2 Filling dataframe ({})".format(datetime.now()))
+        cluster_complete = fill_dataframe(tensors, cluster)
 
     return cluster_complete
 

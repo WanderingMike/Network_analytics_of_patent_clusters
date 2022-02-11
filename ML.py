@@ -5,6 +5,7 @@ import autosklearn.classification
 from datetime import datetime
 import pickle
 from tqdm import tqdm
+from functions.config_ML import *
 
 pd.set_option('display.max_rows', 25)
 pd.set_option('display.max_columns', 20)
@@ -13,7 +14,7 @@ pd.set_option('display.max_colwidth', 25)
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def calculate_emergingness(ml_df, tensor_patent, from_files=False):
+def calculate_emergingness(ml_df, tensor_patent):
     '''Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
     on the chosen time period, and a subset of the dataframe for which we need to find the citation count. We then trust
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
@@ -38,7 +39,7 @@ def calculate_emergingness(ml_df, tensor_patent, from_files=False):
     print(X)
     print(data_to_forecast)
 
-    if not from_files:
+    if not job_config.load_classifier:
         
         # Building model
         print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
@@ -88,7 +89,7 @@ def calculate_emergingness(ml_df, tensor_patent, from_files=False):
     return df, tensor_patent
 
 
-def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent):
+def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
     '''
     This function calculates two indicators and retrieves textual information per CPC group per year:
     - emergingness: the average citation level
@@ -105,36 +106,48 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
 
     series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
     
-    print("2.2.1 Calculating emergingness for entire dataframe ({})".format(datetime.now()))
-    df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent, from_files=True)
+    if job_config.load_df_final:
 
-    print("2.1.3 Saving df with emergingness ({})".format(datetime.now()))
-    print(df_final)
-    df_final.to_pickle("data/dataframes/df_final.pkl")
-#    df_final = pd.read_pickle("data/dataframes/df_final.pkl")
-    ffile = open("data/dataframes/dic_tensor_patent", "wb")
-    pickle.dump(tensor_patent, ffile)
-#    tensor_patent = pickle.load(ffile)
+        df_final = pd.read_pickle("data/dataframes/df_final.pkl")
+        ffile = open("data/dataframes/dic_tensor_patent", "rb")
+        tensor_patent = pickle.load(ffile)
+        ffile.close()
+        
+    else:
+
+        print("2.2.1 Calculating emergingness for entire dataframe ({})".format(datetime.now()))
+        df_final, tensor_patent = calculate_emergingness(ml_df, tensor_patent)
+
+        print("2.1.3 Saving df with emergingness ({})".format(datetime.now()))
+        print(df_final)
+        df_final.to_pickle("data/dataframes/df_final.pkl")
+        ffile = open("data/dataframes/dic_tensor_patent", "wb")
+        pickle.dump(tensor_patent, ffile)
+        ffile.close()
 
     for cpc_subgroup in tqdm(series.keys()):
         
-        series[cpc_subgroup] = {year: None for year in range(end.year-3, end.year+1)}
+        series[cpc_subgroup] = {year: None for year in range(job_config.upload_date.year-3, job_config.upload_date.year+1)}
 
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]
 
         patents_final_year = None
 
-        for year in range(end.year-3, end.year+1):
+        for diff in range(4):
+            year = job_config.upload_date.year - diff
+            month = job_config.upload_date.month
+            day = job_config.upload_date.day
 
             # Filtering patents
-            start_date = subgroup_df["date"] >= datetime(year, 1, 1)
-            end_date = subgroup_df["date"] <= datetime(year, 12, 31)
+            start_date = subgroup_df["date"] > datetime(year-1, month, day)
+            end_date = subgroup_df["date"] <= datetime(year, month, day)
 
             filters = start_date & end_date
             temp_df = subgroup_df[filters]
             patents_per_year = list(temp_df.index.values)
-            if year == end.year:
+
+            if diff == 0:
                 patents_final_year = patents_per_year
 
             # Calculating indicators
@@ -152,7 +165,7 @@ def calculate_indicators(ml_df, start, end, tensor_patent, tensor_cpc_sub_patent
     return series, tensor_patent
 
 
-def run_ML(tensors, period_start, period_end):
+def run_ML(tensors):
     '''Classification algorithm. Returns a dictionary (hereafter named time_series) which will have for each CPC subgroup the following:
     Format:
         {cpc_subgroup_A: {year_1: {emergingness: XX, patent_count: YY},
@@ -162,12 +175,10 @@ def run_ML(tensors, period_start, period_end):
     '''
 
     print("2.1 Preparing dataframe ({})".format(datetime.now()))
-    ml_df = data_preparation(tensors, period_start, period_end)
+    ml_df = data_preparation(tensors)
 
     print("2.2 Calculating indicators ({})".format(datetime.now()))
     time_series, tensors["patent"] = calculate_indicators(ml_df,
-                                                          period_start,
-                                                          period_end,
                                                           tensors["patent"],
                                                           tensors["cpc_sub_patent"])
 

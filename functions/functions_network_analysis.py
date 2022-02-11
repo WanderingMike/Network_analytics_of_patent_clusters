@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from functions.config_ML import *
 
 def find_intersection(set1, set2):
     '''Find intersection of two lists'''
@@ -13,7 +13,8 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
     for cluster in topical_clusters:
 
-        cpc_info = (cluster, {"weight": cpc_time_series[cluster][2021]})
+        cpc_info = (cluster, {"emergingness": cpc_time_series[cluster][job_config.upload_date.year]["emergingness"], 
+                              "patent_count": cpc_time_series[cluster][job_config.upload_date.year]["patent_count"]})
         cpc_nodes.append(cpc_info)
     
     return cpc_nodes
@@ -37,15 +38,19 @@ def get_edge_data(topical_assignees):
     edges = list()
 
     for assignee in topical_assignees:
+        
+        clusters = list(topical_assignees[assignee].keys())
+        clusters.remove("emergingness")
+        clusters.remove("patents")
 
-        for cluster in topical_assignees[assignee]:
+        for cluster in clusters:
             edge_info = (assignee, cluster, topical_assignees[assignee][cluster])
             edges.append(edge_info)
 
     return edges
 
 
-def get_assignee_data(cluster, patent_value, assignee, topical_assignees):
+def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees):
     '''
     Calculates the emergingness level per assignee
     :return: topical assignees dictionary with respective mean emergingness level {assignee: {cluster: XX, cluster: YY, emergingness: []}}
@@ -53,16 +58,21 @@ def get_assignee_data(cluster, patent_value, assignee, topical_assignees):
 
     if assignee in topical_assignees:
 
+        # cluster connections
         if cluster in topical_assignees[assignee]:
             topical_assignees[assignee][cluster] += 1
         else:
             topical_assignees[assignee][cluster] = 1
 
-        topical_assignees[assignee]["emergingness"].append(patent_value)
+        # assignee emergingness value
+        if patent not in topical_assignees[assignee]["patents"]:
+
+            topical_assignees[assignee]["emergingness"].append(patent_value)
+            topical_assignees[assignee]["patents"].append(patent)
 
     else:
 
-        topical_assignees[assignee] = {"emergingness": [patent_value], cluster: 1}
+        topical_assignees[assignee] = {"emergingness": [patent_value], "patents":[patent], cluster: 1}
 
     return topical_assignees
 
@@ -77,12 +87,10 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
     for cluster in topical_clusters:
         print("6.2.1 Finding topical assignees for cluster {} ({})".format(cluster, datetime.now()))
-        print("Final patents for cluster {} ".format(cluster), cpc_time_series[cluster]["patents_final_year"])
         for patent in cpc_time_series[cluster]["patents_final_year"]:
 
             try:
                 assignees = tensor_patent_assignee[patent]
-                print(f'{patent}: {tensor_patent_assignee[patent]}')
             except:
                 print(f'{patent}: no assignee')
                 continue
@@ -94,7 +102,7 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
                 patent_value = None
 
             for assignee in assignees:
-                topical_assignees = get_assignee_data(cluster, patent_value, assignee, topical_assignees)
+                topical_assignees = get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees)
 
     return topical_assignees
 

@@ -55,14 +55,12 @@ def finding_topical_patents(tensor_patent, keywords):
             if(search_abstract(patent, value, concepts)):
                 topical_patents.append(patent)
         except:
-            failed_patents.append(patent)
             continue
 
-    print(failed_patents)
     return list(set(topical_patents))
 
 
-def managerial_layer(loading=False):
+def managerial_layer():
     '''The main function of our system. Step-by-step walkthrough:
     1) Loading all tensors created by tensor_deployment.py
     2) Execute the classification algorithm with run_ML()
@@ -70,12 +68,12 @@ def managerial_layer(loading=False):
     4) For those patents, map the network of relevant technologies and assignees
     ''' 
 
-    if loading:
+    if job_config.load_main:
 
-        ffile = open("data/clusters_2.pkl", "rb")
+        ffile = open("data/clusters.pkl", "rb")
         cpc_time_series = pickle.load(ffile)
 
-        ffile2 = open("data/tensors_2.pkl", "rb")
+        ffile2 = open("data/tensors.pkl", "rb")
         tensors = pickle.load(ffile2)
 
     else:
@@ -101,7 +99,7 @@ def managerial_layer(loading=False):
 
         print("2. Preparing CPC clusters ({})".format(datetime.now()))
 
-        cpc_time_series, tensors = run_ML(tensors, job_config.start, job_config.end)
+        cpc_time_series, tensors = run_ML(tensors)
         a_file = open("data/clusters.pkl", "wb")
         pickle.dump(cpc_time_series, a_file)
         a_file.close()
@@ -120,8 +118,8 @@ def managerial_layer(loading=False):
         topical_patents = finding_topical_patents(tensors["patent"], keywords)
         print(topical_patents)
         print("6. Unfolding network ({})".format(datetime.now()))
-        unfold_network(cpc_time_series, tensors, topical_patents[:2], job_config.end.year) 
+        unfold_network(cpc_time_series, tensors, topical_patents[:2]) 
 
 
 if __name__ == "__main__":
-    managerial_layer(loading=False)
+    managerial_layer()
