@@ -38,7 +38,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
 
         def check_validity(N, N_1):
             try:
-                dummy = [N["emergingness", N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
+                dummy = [N["emergingness"], N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
             except:
                 return None
             return dummy

@@ -118,7 +118,7 @@ def managerial_layer():
         topical_patents = finding_topical_patents(tensors["patent"], keywords)
         print(topical_patents)
         print("6. Unfolding network ({})".format(datetime.now()))
-        unfold_network(cpc_time_series, tensors, topical_patents[:2]) 
+        unfold_network(cpc_time_series, tensors, topical_patents) 
 
 
 if __name__ == "__main__":

@@ -13,9 +13,41 @@ class MlConfig:
         self.load_df_final = True
         self.load_classifier = True
         self.load_df_filled = True
-        self.jobs = [["cyber", "honeypot", "cybersecurity"],
-                    ["quantum", "computer", "quantum mechanics"],
-                    ["5G"]]
+        self.jobs = [['attack signature',
+                    'blue team',
+                    'bot',
+                    'botnet',
+                    'bug',
+                    'ciphertext',
+                    'computer forensics',
+                    'computer security incident',
+                    'computer virus',
+                    'cryptanalysis',
+                    'cryptography',
+                    'cryptology',
+                    'cyber incidence',
+                    'cybersecurity',
+                    'cyberspace',
+                    'cyber threat intelligence',
+                    'data breach',
+                    'decryption',
+                    'denial of service',
+                    'encrypt',
+                    'exploit',
+                    'firewall',
+                    'hacker',
+                    'hashing',
+                    'keylogger',
+                    'malware',
+                    'pen test', 
+                    'pentest',
+                    'phishing',
+                    'public key',
+                    'red team',
+                    'rootkit',
+                    'spoofing',
+                    'spyware',
+                    'threat actor']]
 
 
 job_config = MlConfig()
