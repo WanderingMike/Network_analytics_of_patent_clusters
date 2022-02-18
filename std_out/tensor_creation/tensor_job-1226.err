@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "tensor_deployment.py", line 215, in <module>
-    print(tensor[1])
-KeyError: 1

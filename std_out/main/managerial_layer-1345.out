@@ -1,8 +1,0 @@
-/cluster/raid/home/michael.tsesmelis/SideProject
-1. Loading tensors (2022-02-09 17:00:42.967211)
-2. Preparing CPC clusters (2022-02-09 17:04:14.675917)
-2.1 Preparing dataframe (2022-02-09 17:04:14.676153)
-2.1.1 Generating empty frame (2022-02-09 17:04:14.676162)
-2.2 Calculating indicators (2022-02-09 17:04:26.917071)
-2.2.1 Calculating emergingness for entire dataframe (2022-02-09 17:04:26.994407)
-2.1.3 Saving df with emergingness (2022-02-09 17:04:26.994469)
