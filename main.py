@@ -47,7 +47,6 @@ def finding_topical_patents(tensor_patent, keywords):
     concepts = [words.split(' ') for words in keywords]
 
     topical_patents = list()
-    failed_patents = list()
     
     for patent, value in list(tensor_patent.items()):
         

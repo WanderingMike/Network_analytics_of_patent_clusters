@@ -3,7 +3,6 @@ sklearn
 datetime
 networkx
 nltk
-gensim
-yake
 numpy
 statistics
+auto-sklearn

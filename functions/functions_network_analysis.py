@@ -10,11 +10,15 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
     '''Creates CPC nodes for graph'''
     
     cpc_nodes = list()
+    counts = dict()
+    for i in topical_clusters:
+          counts[i] = counts.get(i, 0) + 1
 
-    for cluster in topical_clusters:
+    for cluster, value in counts.items():
 
-        cpc_info = (cluster, {"emergingness": cpc_time_series[cluster][job_config.upload_date.year]["emergingness"], 
-                              "patent_count": cpc_time_series[cluster][job_config.upload_date.year]["patent_count"]})
+        cpc_info  = (cluster, {"emergingness": cpc_time_series[cluster][job_config.upload_date.year]["emergingness"], 
+                              "patent_count": cpc_time_series[cluster][job_config.upload_date.year]["patent_count"],
+                              "value": value})
         cpc_nodes.append(cpc_info)
     
     return cpc_nodes
@@ -120,7 +124,7 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
         except:
             pass
 
-    return list(set(cpc_subgroups))
+    return cpc_subgroups
 
 
 

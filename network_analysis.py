@@ -68,8 +68,11 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
                 
                 data_aggregate.append(dummy)
                 value.append(growth_em_penalised * growth_pat_penalised)
-                
-        return sum(value)/len(value), data_aggregate
+        
+        if len(value) >= 1:
+            return sum(value)/len(value), data_aggregate
+        else:
+            return None
 
     # technology index
     clusters_df['tech index'], clusters_df["data"] = zip(*clusters_df['CPC'].apply(calculate_technology_index))
@@ -93,7 +96,10 @@ def assignee_index(topical_assignees, tensor_assignee):
     # count
     assignees_df['count'] = assignees_df['ID'].apply(lambda x: len(topical_assignees[x]['emergingness']))
     # emergingness
-    assignees_df['emergingness'] = assignees_df.apply(lambda row: sum(topical_assignees[row['ID']]['emergingness']) / row['count'], axis=1)
+    def func_assignees(row):
+         return sum(topical_assignees[row['ID']]['emergingness']) / row['count']
+
+    assignees_df['emergingness'] = assignees_df.apply(func_assignees, axis=1)
 
     return assignees_df
 
@@ -108,7 +114,7 @@ def impact_index(node, network):
     for neighbour, value in network[name].items():
         edge_weight = value['weight']
         count += edge_weight
-        impact += assignee_value * edge_weight * value['weight']
+        impact += assignee_value * edge_weight * network.nodes[neighbour]["emergingness"] * network.nodes[neighbour]["value"]
 
     return impact, count
 
@@ -130,7 +136,6 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
     # impact
     for node in assignee_nodes:
         impact, length = impact_index(node, network)
-        print(impact, length, node[0])
         assignee_df.loc[assignee_df['ID'] == node[0], 'impact'] = impact
         assignee_df.loc[assignee_df['ID'] == node[0], 'normalised impact'] = impact/length
 
@@ -153,7 +158,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
     print("6.1 Finding topical clusters ({})".format(datetime.now())) 
     topical_clusters = find_topical_clusters(topical_patents, tensors["patent_cpc_sub"])
     print("6.2 Finding topical assignees ({})".format(datetime.now())) 
-    topical_assignees = find_topical_assignees(topical_clusters, cpc_time_series, tensors["patent_assignee"], tensors["patent"])
+    topical_assignees = find_topical_assignees(list(set(topical_clusters)), cpc_time_series, tensors["patent_assignee"], tensors["patent"])
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
     assignee_nodes = get_assignee_nodes(topical_assignees)
@@ -161,7 +166,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
    
     # Indices
     print(f'6.5 Calculating Technology Index ({datetime.now()})')
-    clusters_df = technology_index(topical_clusters, cpc_time_series, tensors["cpc_sub_patent"])
+    clusters_df = technology_index(list(set(topical_clusters)), cpc_time_series, tensors["cpc_sub_patent"])
     print(f'6.6 Calculating Assignee Index ({datetime.now()})')
     assignee_df = assignee_index(topical_assignees, tensors["assignee"])
     print(f'6.7 Calculating Impact Index ({datetime.now()})')
