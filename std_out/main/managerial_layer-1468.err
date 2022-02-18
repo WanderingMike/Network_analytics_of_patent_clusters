@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "main.py", line 2, in <module>
+    from network_analysis import *
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 55
+    value += delta_em * count 
+                             ^
+IndentationError: unindent does not match any outer indentation level

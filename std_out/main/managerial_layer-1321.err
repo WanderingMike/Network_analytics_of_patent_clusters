@@ -1,0 +1,127 @@
+  0%|          | 0/18 [00:00<?, ?it/s]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+  6%|▌         | 1/18 [01:29<25:22, 89.54s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 11%|█         | 2/18 [02:48<22:16, 83.51s/it]/cluster/raid/home/michael.tsesmelis/SideProject/lib/python3.8/site-packages/joblib/externals/loky/process_executor.py:702: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 17%|█▋        | 3/18 [04:15<21:17, 85.15s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 22%|██▏       | 4/18 [05:34<19:17, 82.65s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 28%|██▊       | 5/18 [07:03<18:23, 84.88s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 33%|███▎      | 6/18 [08:21<16:30, 82.54s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 39%|███▉      | 7/18 [09:45<15:12, 82.92s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 44%|████▍     | 8/18 [11:04<13:36, 81.67s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 50%|█████     | 9/18 [12:39<12:54, 86.06s/it]/cluster/raid/home/michael.tsesmelis/SideProject/lib/python3.8/site-packages/joblib/externals/loky/process_executor.py:702: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 56%|█████▌    | 10/18 [13:58<11:08, 83.61s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 61%|██████    | 11/18 [15:14<09:29, 81.35s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 67%|██████▋   | 12/18 [16:32<08:01, 80.29s/it]/cluster/raid/home/michael.tsesmelis/SideProject/lib/python3.8/site-packages/joblib/externals/loky/process_executor.py:702: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 72%|███████▏  | 13/18 [18:08<07:06, 85.28s/it]/cluster/raid/home/michael.tsesmelis/SideProject/lib/python3.8/site-packages/joblib/externals/loky/process_executor.py:702: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 78%|███████▊  | 14/18 [19:25<05:30, 82.50s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 83%|████████▎ | 15/18 [20:51<04:11, 83.83s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 89%|████████▉ | 16/18 [22:10<02:44, 82.35s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+ 94%|█████████▍| 17/18 [23:33<01:22, 82.49s/it]/cluster/raid/home/michael.tsesmelis/SideProject/ML.py:75: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset["output"] = predictions
+100%|██████████| 18/18 [24:08<00:00, 68.30s/it]100%|██████████| 18/18 [24:08<00:00, 80.50s/it]
+  0%|          | 0/242050 [00:00<?, ?it/s]  0%|          | 0/242050 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "main.py", line 129, in <module>
+  File "main.py", line 106, in managerial_layer
+    pickle.dump(cpc_time_series, a_file)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/ML.py", line 168, in run_ML
+    time_series, tensors["patent"] = calculate_indicators(ml_df,
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/ML.py", line 121, in calculate_indicators
+    series[cpc_subgroup] = {year: None for year in range(start.end-3, end.year+1)}
+AttributeError: 'datetime.datetime' object has no attribute 'end'

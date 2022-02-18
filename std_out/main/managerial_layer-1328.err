@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "main.py", line 2, in <module>
+    from network_analysis import *
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 1, in <module>
+    from functions.functions_network_analysis import *
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/functions/functions_network_analysis.py", line 41
+    for cluster in [cluster in topical_assignees[assignee] if cluster != "emergingness"]:
+                                                                                       ^
+SyntaxError: invalid syntax

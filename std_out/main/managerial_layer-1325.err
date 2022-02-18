@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "main.py", line 127, in <module>
+    
+  File "main.py", line 123, in managerial_layer
+    print(topical_patents)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 151, in unfold_network
+    print(f'6.10 Writing to output files ({datetime.now()})')
+TypeError: assignee_index() missing 1 required positional argument: 'tensor_assignee'

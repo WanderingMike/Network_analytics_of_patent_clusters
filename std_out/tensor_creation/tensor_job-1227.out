@@ -1,0 +1,78 @@
+/cluster/raid/home/michael.tsesmelis/SideProject
+No devices were found
+
+File cpc_current.tsv has the following columns: 
+	"uuid"	"patent_id"	"section_id"	"subsection_id"	"group_id"	"subgroup_id"	"category"	"sequence"
+	"0000003f-0d54-4180-ac11-8c05b03c4df1"	"6579498"	"A"	"A61"	"A61B"	"A61B2560/0219"	"additional"	2
+
+There are 7101932 entities
+Splitting
+Running Process 5
+Filtering done on 5
+> > Process 5: 0/7460070
+> > Process 5: 1000000/7460070
+> > Process 5: 2000000/7460070
+> > Process 5: 3000000/7460070
+> > Process 5: 4000000/7460070
+> > Process 5: 5000000/7460070
+> > Process 5: 6000000/7460070
+> > Process 5: 7000000/7460070
+Collapsing Process 5
+Running Process 0
+Filtering done on 0
+> > Process 0: 0/7450086
+> > Process 0: 1000000/7450086
+> > Process 0: 2000000/7450086
+> > Process 0: 3000000/7450086
+> > Process 0: 4000000/7450086
+> > Process 0: 5000000/7450086
+> > Process 0: 6000000/7450086
+> > Process 0: 7000000/7450086
+Collapsing Process 0
+Running Process 2
+Filtering done on 2
+> > Process 2: 0/7458943
+> > Process 2: 1000000/7458943
+> > Process 2: 2000000/7458943
+> > Process 2: 3000000/7458943
+> > Process 2: 4000000/7458943
+> > Process 2: 5000000/7458943
+> > Process 2: 6000000/7458943
+> > Process 2: 7000000/7458943
+Collapsing Process 2
+Running Process 4
+Filtering done on 4
+> > Process 4: 0/7456361
+> > Process 4: 1000000/7456361
+> > Process 4: 2000000/7456361
+> > Process 4: 3000000/7456361
+> > Process 4: 4000000/7456361
+> > Process 4: 5000000/7456361
+> > Process 4: 6000000/7456361
+> > Process 4: 7000000/7456361
+Collapsing Process 4
+Running Process 3
+Filtering done on 3
+> > Process 3: 0/7460629
+> > Process 3: 1000000/7460629
+> > Process 3: 2000000/7460629
+> > Process 3: 3000000/7460629
+> > Process 3: 4000000/7460629
+> > Process 3: 5000000/7460629
+> > Process 3: 6000000/7460629
+> > Process 3: 7000000/7460629
+Collapsing Process 3
+Running Process 1
+Filtering done on 1
+> > Process 1: 0/7455259
+> > Process 1: 1000000/7455259
+> > Process 1: 2000000/7455259
+> > Process 1: 3000000/7455259
+> > Process 1: 4000000/7455259
+> > Process 1: 5000000/7455259
+> > Process 1: 6000000/7455259
+> > Process 1: 7000000/7455259
+Collapsing Process 1
+Merging all thread dictionaries
+Tensor saved with 7101932 entities.
+['G01S17/894', 'G01S7/4865', 'G01S7/4917', 'G01S7/4914', 'G01S7/4863']

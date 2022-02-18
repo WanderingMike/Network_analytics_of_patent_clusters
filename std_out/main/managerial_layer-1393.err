@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "main.py", line 125, in <module>
+    managerial_layer()
+  File "main.py", line 121, in managerial_layer
+    unfold_network(cpc_time_series, tensors, topical_patents[:2]) 
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 161, in unfold_network
+    assignee_df = network_indices(cpc_nodes, assignee_nodes, edges, assignee_df)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 116, in network_indices
+    impact, length = impact_index(name, network)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 87, in impact_index
+    assignee_value = node[1]['weight']
+TypeError: string indices must be integers

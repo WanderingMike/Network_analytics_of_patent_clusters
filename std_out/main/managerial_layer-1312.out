@@ -1,0 +1,18 @@
+/cluster/raid/home/michael.tsesmelis/SideProject
+1. Loading tensors (2022-02-09 11:04:18.903140)
+2. Preparing CPC clusters (2022-02-09 11:07:28.303598)
+2.1 Preparing dataframe (2022-02-09 11:07:28.303856)
+2.1.1 Generating empty frame (2022-02-09 11:07:28.303866)
+2.2 Calculating indicators (2022-02-09 11:07:41.034168)
+2.2.1 Calculating emergingness for entire dataframe (2022-02-09 11:07:41.116063)
+2.2.1.4 sprint statistics (2022-02-09 11:07:53.882582)
+auto-sklearn results:
+  Dataset name: b947d3c7-883b-11ec-8eaf-0b0d54ef91e0
+  Metric: accuracy
+  Best validation score: 0.673250
+  Number of target algorithm runs: 59
+  Number of successful target algorithm runs: 47
+  Number of crashed target algorithm runs: 2
+  Number of target algorithms that exceeded the time limit: 5
+  Number of target algorithms that exceeded the memory limit: 5
+

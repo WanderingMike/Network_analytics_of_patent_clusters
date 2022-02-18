@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "main.py", line 127, in <module>
+    managerial_layer(loading=True)
+  File "main.py", line 123, in managerial_layer
+    unfold_network(cpc_time_series, tensors, topical_patents, job_config.end.year)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/network_analysis.py", line 139, in unfold_network
+    assignee_nodes = get_assignee_nodes(topical_assignees)
+  File "/cluster/raid/home/michael.tsesmelis/SideProject/functions/functions_network_analysis.py", line 28, in get_assignee_nodes
+    assignee_info = (assignee, {"weight": topical_assignees[assignee]["emergingness"].mean()})
+AttributeError: 'list' object has no attribute 'mean'

@@ -16,7 +16,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     '''
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0, names=['CPC', 'desc'])
 
-    clusters_df = pd.DataFrame(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index'])
+    clusters_df = pd.DataFrame(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index', 'data'])
     
     # CPC
     clusters_df['CPC'] = topical_clusters
@@ -32,27 +32,47 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
                                                               cpc_time_series[x][end_year-1]['emergingness'])
 
     def calculate_technology_index(cpc_subgroup):
-        deltas_em = []
-        deltas_pat = []
         padding = cpc_time_series[cpc_subgroup]
+        value = list()
+        data_aggregate = list()
+
+        def check_validity(N, N_1):
+            try:
+                dummy = [N["emergingness", N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
+            except:
+                return None
+            return dummy
 
         for i in range(3):
             year = end_year-i
             N = padding[year]
             N_1 = padding[year-1]
-            delta_em =  N["emergingness"] - N_1["emergingness"] / (1 + math.exp(5-10*N["emergingness"]))
-            delta_pat = N["patent_count"] - N_1["patent_count"] / (1 + math.exp(5-10*N["patent_count"]))
 
-            deltas_em.append(delta_em)
-            deltas_pat.append(delta_pat)
+            dummy = check_validity(N, N_1)
+            if dummy:
 
-        diff_emergingness = sum(deltas_em) / len(deltas_em)
-        diff_patent_count = sum(deltas_pat) / len(deltas_pat)
+                current_em = N["emergingness"]
+                prev_em = N_1["emergingness"]
+                if prev_em == 0:
+                    prev_em = 0.05
 
-        return diff_emergingness*diff_patent_count
+                growth_em = current_em / prev_em
+                growth_em_penalised = growth_em / (1 + math.exp(5-10*prev_em))
+                
+                current_pat = N["patent_count"]
+                prev_pat = N_1["patent_count"]
+                if prev_pat == 0:
+                    prev_pat = 1
+
+                growth_pat_penalised = (0.1*current_pat*prev_pat) / (prev_pat * (0.1 + prev_pat))
+                
+                data_aggregate.append(dummy)
+                value.append(growth_em_penalised * growth_pat_penalised)
+                
+        return sum(value)/len(value), data_aggregate
 
     # technology index
-    clusters_df['tech index'] = clusters_df['CPC'].apply(calculate_technology_index)
+    clusters_df['tech index'], clusters_df["data"] = zip(*clusters_df['CPC'].apply(calculate_technology_index))
 
     return clusters_df
 
@@ -115,7 +135,6 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
         assignee_df.loc[assignee_df['ID'] == node[0], 'normalised impact'] = impact/length
 
     # Katz centrality
-    phi = (1 + math.sqrt(5)) / 2.0  # largest eigenvalue of adj matrix
     centrality = nx.eigenvector_centrality(network, weight="weight", max_iter=10000)
 
     for node, centrality_measure in sorted(centrality.items()):
@@ -151,20 +170,22 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
     # Output
     print(f'6.10 Writing to output files ({datetime.now()})')
     print(clusters_df)
+    clusters_df.to_csv("output_tables/clusters_df.csv")
     print(assignee_df)
+    assignee_df.to_csv("output_tables/assignee_df.csv")
 
-    clusters_df.sort_values("tech index", inplace=True)
+    clusters_df.sort_values("tech index", inplace=True, ascending=False)
     clusters_df.to_markdown("output_tables/technologies_index.md")
 
-    assignee_df.sort_values("emergingness", inplace=True)
+    assignee_df.sort_values("emergingness", inplace=True, ascending=False)
     assignee_df.to_markdown("output_tables/assignee_index.md")
 
-    assignee_df.sort_values("impact", inplace=True)
+    assignee_df.sort_values("impact", inplace=True, ascending=False)
     assignee_df.to_markdown("output_tables/impact_index.md")
 
-    assignee_df.sort_values("normalised impact", inplace=True)
+    assignee_df.sort_values("normalised impact", inplace=True, ascending=False)
     assignee_df.to_markdown("output_tables/norm_impact_index.md")
 
-    assignee_df.sort_values("influence", inplace=True)
+    assignee_df.sort_values("influence", inplace=True, ascending=False)
     assignee_df.to_markdown("output_tables/influence_index.md")
 
