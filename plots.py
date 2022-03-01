@@ -5,19 +5,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def wield_pickle(name, load=True, data=None):
-    if load:
-        ffile1 = open(name, "rb")
-        loaded = pickle.load(ffile1)
-        ffile1.close()
-        return loaded
-    else:
-        ffile1 = open(name, "wb")
-        pickle.dump(data, a_file)
-        ffile1.close()
+def load_pickle(name):
+    ffile = open(name, "rb")
+    loaded = pickle.load(ffile)
+    ffile.close()
+    return loaded
+
+
+def save_pickle(name, data):
+    ffile = open(name, "wb")
+    pickle.dump(data, ffile)
+    ffile.close()
+
 
 ### Load data
-
 interesting_clusters = ['G06F16/9035',
                         'H04W12/55',
                         'Y10S707/915',
@@ -33,8 +34,7 @@ tensor_cpc_sub_patent = load_tensor("cpc_sub_patent")
 
 df_final = pd.read_pickle("data/dataframes/df_final.pkl")
 print(df_final)
-cpc_time_series = wield_pickle("data/clusters.pkl", load=True)
-
+cpc_time_series = load_pickle("data/clusters.pkl")
 ###
 
 
@@ -103,11 +103,11 @@ def cdf_plot(data):
 if __name__ == "__main__":
     ### Plot 1
     series = time_series_data()
-    wield_pickle("data/plots/time_series.pkl", load=False, data=series)
+    save_pickle("data/plots/time_series.pkl", data=series)
     time_series_plot(series)
 
     ### Plot 2
     emergingness_data = cdf_data()
-    wield_pickle("data/plots/emergingness_data.pkl", load=False, data=emergingness_data)
+    save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
     cdf_plot(emergingness_data)
 
