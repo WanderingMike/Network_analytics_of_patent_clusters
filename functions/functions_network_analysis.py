@@ -1,5 +1,20 @@
 from datetime import datetime
 from functions.config_ML import *
+import pickle
+
+
+def load_pickle(name):
+    ffile = open(name, "rb")
+    loaded = pickle.load(ffile)
+    ffile.close()
+    return loaded
+
+
+def save_pickle(name, data):
+    ffile = open(name, "wb")
+    pickle.dump(data, ffile)
+    ffile.close()
+
 
 def find_intersection(set1, set2):
     '''Find intersection of two lists'''
