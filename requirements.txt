@@ -6,3 +6,5 @@ nltk
 numpy
 statistics
 auto-sklearn
+matplotlib
+seaborn

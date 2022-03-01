@@ -34,6 +34,8 @@ tensor_cpc_sub_patent = load_tensor("cpc_sub_patent")
 
 df_final = pd.read_pickle("data/dataframes/df_final.pkl")
 print(df_final)
+clusters_df = pd.read_csv("output_tables/clusters_df.csv")
+print(clusters_df)
 cpc_time_series = load_pickle("data/clusters.pkl")
 ###
 
@@ -83,20 +85,24 @@ def time_series_plot(data):
 
 def cdf_data():
 
-    topical_clusters = df_final.index.tolist()
+    topical_clusters = clusters_df["CPC"].tolist()
     emergingness_data = [cpc_time_series[group][job_config.upload_date.year] for group in topical_clusters]
+    print(emergingness_data)
 
     return emergingness_data
 
 
-def cdf_plot(data):
+def cdf_plot(data_series, indicator):
+    
+    data = [point[indicator] for point in data_series]
+
     x_axis = np.sort(data)
     n = len(data)
     y_axis = np.array(range(n)) / float(n)
 
     plt.plot(x_axis, y_axis)
     plt.show()
-    plt.savefig("output_tables/cumulative_density_distribution_03.png", bbox_inches='tight')
+    plt.savefig("output_tables/cumulative_density_distribution.png", bbox_inches='tight')
     plt.close()
 
 
@@ -109,4 +115,5 @@ if __name__ == "__main__":
     ### Plot 2
     emergingness_data = cdf_data()
     save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
-    cdf_plot(emergingness_data)
+    cdf_plot(emergingness_data, indicator="emergingness")
+    cdf_plot(emergingness_data, indicator="patent_count")
