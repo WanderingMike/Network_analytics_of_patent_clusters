@@ -1,8 +1,10 @@
-from main import *
 import pandas as pd
+from datetime import datetime
+from functions.config_ML import job_config
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def load_pickle(name):
@@ -18,26 +20,26 @@ def save_pickle(name, data):
     ffile.close()
 
 
-### Load data
-interesting_clusters = ['G06F16/9035',
-                        'H04W12/55',
-                        'Y10S707/915',
-                        'G07B17/00508',
-                        'G07B2017/00064',
-                        'Y10S707/959',
-                        'F41A17/20',
-                        'H03K19/1731',
-                        'H04W12/69',
-                        'H04W12/60']
-
-tensor_cpc_sub_patent = load_tensor("cpc_sub_patent")
-
-df_final = pd.read_pickle("data/dataframes/df_final.pkl")
-print(df_final)
-clusters_df = pd.read_csv("output_tables/clusters_df.csv")
-print(clusters_df)
-cpc_time_series = load_pickle("data/clusters.pkl")
-###
+# ### Load data
+# interesting_clusters = ['G06F16/9035',
+#                         'H04W12/55',
+#                         'Y10S707/915',
+#                         'G07B17/00508',
+#                         'G07B2017/00064',
+#                         'Y10S707/959',
+#                         'F41A17/20',
+#                         'H03K19/1731',
+#                         'H04W12/69',
+#                         'H04W12/60']
+#
+# tensor_cpc_sub_patent = load_tensor("cpc_sub_patent")
+#
+# df_final = pd.read_pickle("data/dataframes/df_final.pkl")
+# print(df_final)
+# clusters_df = pd.read_csv("output_tables/clusters_df.csv")
+# print(clusters_df)
+# cpc_time_series = load_pickle("data/clusters.pkl")
+# ###
 
 
 def time_series_data():
@@ -106,14 +108,25 @@ def cdf_plot(data_series, indicator):
     plt.close()
 
 
+def violin_emergingness():
+    return None
+
+def violin_patent_count():
+    return None
+
+
 if __name__ == "__main__":
     ### Plot 1
-    series = time_series_data()
-    save_pickle("data/plots/time_series.pkl", data=series)
+    #series = time_series_data()
+    #save_pickle("data/plots/time_series.pkl", data=series)
+    series = load_pickle("data/plots/time_series.pkl")
+    print(series)
     time_series_plot(series)
 
     ### Plot 2
-    emergingness_data = cdf_data()
-    save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
+    #emergingness_data = cdf_data()
+    #save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
+    emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
+    print(emergingness_data)
     cdf_plot(emergingness_data, indicator="emergingness")
     cdf_plot(emergingness_data, indicator="patent_count")

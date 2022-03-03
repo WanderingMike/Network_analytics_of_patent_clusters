@@ -133,12 +133,12 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
     network.add_nodes_from(cpc_nodes)
     network.add_nodes_from(assignee_nodes)
     network.add_weighted_edges_from(edges)
-    save_pickle("data/plots/network", data=network)
+    save_pickle("data/plots/network.pkl", data=network)
 
     # impact
     for node in assignee_nodes:
         impact, length = impact_index(node, network)
-        assignee_df.loc[assignee_df['ID'] == node[0], 'impact'] = impact
+        assignee_df.loc[assignee_df[:'ID'] == node[0], 'impact'] = impact
         assignee_df.loc[assignee_df['ID'] == node[0], 'normalised impact'] = impact/length
 
     # Katz centrality
