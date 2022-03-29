@@ -106,18 +106,21 @@ def fill_cto(cluster, tensor_patent_cpc, tensor_backward_citation):
     return cluster
 
 
-def fill_pk(cluster, tensor_backward_citation):
-    '''The prior knowledge (PK) index measures the number of backward citations'''
+def fill_pk_tcs(cluster, tensor_backward_citation):
+    '''The prior knowledge (PK) index measures the number of backward citations. The total cited strength (TCS) measures
+    the value of the cited patents.'''
     
-    # This funciton calculates the amount of cited patents
+    # This function calculates the amount of cited patents
     def calculate_pk(row):
         try:
-            return len(tensor_backward_citation[row.name])
+            cited_patents = tensor_backward_citation[row.name]
+            mean_cited_fc = cluster[cluster['forward_citations'].isin(cited_patents)]["forward_citations"].mean()
+            return len(cited_patents), mean_cited_fc
         except:
-            return 0
+            return 0, np.nan
     
     # Applying to every row
-    cluster["PK"] = cluster.apply(calculate_pk, axis=1)
+    cluster["PK"], cluster["TCS"] = zip(*cluster.apply(calculate_pk, axis=1))
     
     return cluster
 

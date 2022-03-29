@@ -20,7 +20,6 @@ def calculate_emergingness(ml_df, tensor_patent):
     blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
         
     # Categorise output to make it a classification problem
-    median_forward_citations = ml_df["forward_citations"].median()
     quartile_split = get_statistics(ml_df)
     ml_df["output"] = ml_df["forward_citations"].apply(lambda x: categorise_output(x, quartile_split))
 

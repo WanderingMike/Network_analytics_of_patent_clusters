@@ -25,11 +25,8 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
     '''Creates CPC nodes for graph'''
     
     cpc_nodes = list()
-    counts = dict()
-    for i in topical_clusters:
-          counts[i] = counts.get(i, 0) + 1
 
-    for cluster, value in counts.items():
+    for cluster, value in topical_clusters.items:
 
         cpc_info  = (cluster, {"emergingness": cpc_time_series[cluster][job_config.upload_date.year]["emergingness"], 
                               "patent_count": cpc_time_series[cluster][job_config.upload_date.year]["patent_count"],
@@ -104,8 +101,9 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
     topical_assignees = dict()
 
-    for cluster in topical_clusters:
+    for cluster in topical_clusters.keys():
         print("6.2.1 Finding topical assignees for cluster {} ({})".format(cluster, datetime.now()))
+
         for patent in cpc_time_series[cluster]["patents_final_year"]:
 
             try:
@@ -128,14 +126,25 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
 def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
     '''
-    Finds all CPC subgroups related to the topical patents
-    :return: list of topical clusters
+    Finds all CPC subgroups related to the topical patents. Topical patents link to CPC groups, and the latter are
+    weighted as a sum of the topical patent values
+    :return: dictionary of topical clusters and their assigned weight
     '''
-    cpc_subgroups = list()
 
-    for patent in topical_patents:
+    cpc_subgroups = dict()
+
+    for patent, value in topical_patents.items():
+
         try:
-            cpc_subgroups += tensor_patent_cpc_sub[patent]
+            patent_cpc_subgroups = tensor_patent_cpc_sub[patent]
+
+            for group in patent_cpc_subgroups:
+
+                if group not in cpc_subgroups.keys():
+                    cpc_subgroups[group] = value
+                else:
+                    cpc_subgroups[group] += value
+
         except:
             pass
 

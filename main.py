@@ -14,10 +14,9 @@ def load_tensor(tensor_key):
     return tensor
 
 
-def search_abstract(patent, value, concepts):
+def search_abstract(value, concepts):
     '''
     Takes a list of words or ideas and looks for them in the patent abstract.
-    :param patent: patent dictionary key 
     :param value: patent dictionary value
     :param concepts: words to find in patent abstract
     '''
@@ -26,6 +25,7 @@ def search_abstract(patent, value, concepts):
     abstract_cleaned = abstract.translate(str.maketrans('','', string.punctuation))
     abstract_lower = abstract_cleaned.lower()
     abstract_tokenised = abstract_lower.split(' ')
+    references_count = 0
     
     for concept in concepts:
         first_word = concept[0]
@@ -33,9 +33,9 @@ def search_abstract(patent, value, concepts):
             if abstract_tokenised[i] == first_word:
                 extracted_token = abstract_tokenised[i:i+len(concept)]
                 if ' '.join(extracted_token) == ' '.join(concept):
-                    return True
+                    references_count += 1
 
-    return False
+    return 100*references_count/len(abstract_tokenised) # abstract is ~400 words, 1-2 cyberwords: ~1/100
 
 
 def finding_topical_patents(tensor_patent, keywords):
@@ -46,17 +46,18 @@ def finding_topical_patents(tensor_patent, keywords):
     '''
     concepts = [words.split(' ') for words in keywords]
 
-    topical_patents = list()
+    topical_patents = dict()
     
-    for patent, value in list(tensor_patent.items()):
+    for patent, value in tensor_patent.items():
         
         try:
-            if(search_abstract(patent, value, concepts)):
-                topical_patents.append(patent)
+            reference_count = search_abstract(value, concepts)
+            if reference_count != 0:
+                topical_patents[patent] = search_abstract(value, concepts)
         except:
             continue
 
-    return list(set(topical_patents))
+    return topical_patents
 
 
 def managerial_layer():

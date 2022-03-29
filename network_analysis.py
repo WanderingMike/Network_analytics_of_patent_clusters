@@ -19,7 +19,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     clusters_df = pd.DataFrame(columns=['CPC', 'count', 'emergingness', 'delta', 'tech index', 'data'])
     
     # CPC
-    clusters_df['CPC'] = topical_clusters
+    clusters_df['CPC'] = topical_clusters.keys()
     # desc
     clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='CPC', right_on='CPC')
     # count
@@ -160,7 +160,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
     print("6.1 Finding topical clusters ({})".format(datetime.now())) 
     topical_clusters = find_topical_clusters(topical_patents, tensors["patent_cpc_sub"])
     print("6.2 Finding topical assignees ({})".format(datetime.now())) 
-    topical_assignees = find_topical_assignees(list(set(topical_clusters)), cpc_time_series, tensors["patent_assignee"], tensors["patent"])
+    topical_assignees = find_topical_assignees(topical_clusters, cpc_time_series, tensors["patent_assignee"], tensors["patent"])
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
     assignee_nodes = get_assignee_nodes(topical_assignees)
@@ -168,7 +168,7 @@ def unfold_network(cpc_time_series, tensors, topical_patents):
    
     # Indices
     print(f'6.5 Calculating Technology Index ({datetime.now()})')
-    clusters_df = technology_index(list(set(topical_clusters)), cpc_time_series, tensors["cpc_sub_patent"])
+    clusters_df = technology_index(topical_clusters, cpc_time_series, tensors["cpc_sub_patent"])
     print(f'6.6 Calculating Assignee Index ({datetime.now()})')
     assignee_df = assignee_index(topical_assignees, tensors["assignee"])
     print(f'6.7 Calculating Impact Index ({datetime.now()})')

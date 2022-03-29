@@ -1,4 +1,5 @@
 from functions.functions_data_preprocessing import *
+from functions.config_ML import *
 import multiprocessing
 from multiprocessing import Process
 import pickle
@@ -17,7 +18,7 @@ def generate_dataframe(tensor_patent):
             pass
 
     cluster = pd.DataFrame(index=indexed_patents,
-                           columns=['date', 'forward_citations', 'CTO', 'PK', 'SK', 'TCT', 'MF', 'TS',
+                           columns=['date', 'forward_citations', 'CTO', 'PK', 'TCS', 'SK', 'TCT', 'MF', 'TS',
                                     'PCD', 'COL', 'INV', 'TKH', 'CKH', 'TTS', 'CTS'])
 
     print("2.1.1.2 Running on {} patents ({})".format(len(cluster.index), datetime.now()))
@@ -36,8 +37,8 @@ def fill_dataframe(tensors, cluster):
     print("2.1.2.2 Calculating CTO ({})".format(datetime.now()))
     cluster = fill_cto(cluster, tensors["patent_cpc_main"], tensors["backward_citation"])
 
-    print("2.1.2.3 Calculating PK ({})".format(datetime.now()))
-    cluster = fill_pk(cluster, tensors["backward_citation"])
+    print("2.1.2.3 Calculating PK/TCS ({})".format(datetime.now()))
+    cluster = fill_pk_tcs(cluster, tensors["backward_citation"])
 
     print("2.1.2.4 Calculating SK ({})".format(datetime.now()))
     cluster = fill_sk(cluster, tensors["otherreference"])
@@ -60,7 +61,7 @@ def fill_dataframe(tensors, cluster):
     print("2.1.2.10 Calculating TKH/CKH/TTS/CTS ({})".format(datetime.now()))
     cluster = fill_tkh_ckh_tts_cts(cluster, tensors["patent_assignee"], tensors["assignee_patent"], tensors["patent_cpc_main"], tensors["forward_citation"])
    
-    print("2.1.2.11 Saving dataframe filled ({})".format(datetime.now()))
+    print("2.1.2.12 Saving dataframe filled ({})".format(datetime.now()))
     print(cluster)
     cluster.to_pickle("data/dataframes/filled_df.pkl")
 
