@@ -1,11 +1,4 @@
-import pandas as pd
-import os
-from datetime import datetime
-
-pd.set_option('display.max_rows', 10)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', None)
+from functions.config import *
 
 
 def list_file_column_names(file_path):
@@ -126,11 +119,31 @@ def clean_patent_inventor():
 def clean_uspatentcitation():
     '''Cleaning uspatentcitation.tsv data'''
 
+    tensor_patent_assignee = load_pickle("data/patentsview_cleaned/patent_assignee.pkl")
+
     uspatentcitation_columns = [1, 2]
     uspatentcitation = drop_columns("uspatentcitation",
                                     selected_columns=uspatentcitation_columns,
                                     d_type={"patent_id": "string", "citation_id": "string"})
     uspatentcitation.columns = ["patent_id", "citation_id"]
+
+    def check_intersection(patent1, patent2):
+
+        try:
+            list1 = tensor_patent_assignee[patent1]
+            list2 = tensor_patent_assignee[patent2]
+            intersection_size = len(set(list1).intersection(list2))
+            if intersection_size > 0:
+                print(patent1, list1, patent2, list2)
+                return True
+        except:
+            pass
+
+        return False
+
+    for index, row in uspatentcitation.iterrows():
+        if check_intersection(row['patent_id'], row['citation_id']):
+            uspatentcitation.drop(index, inplace=True)
 
     return uspatentcitation
 
@@ -144,4 +157,3 @@ dispatch = {
     'patent_inventor': clean_patent_inventor,
     'uspatentcitation': clean_uspatentcitation
 }
-

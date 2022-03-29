@@ -1,16 +1,4 @@
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-import sys
-from statistics import median
-
-pd.set_option('display.max_rows', 25)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', 25)
-np.set_printoptions(threshold=sys.maxsize)
-
+from functions.config import *
 
 
 def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent):
@@ -21,9 +9,9 @@ def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent)
     :tensor_patent: gives us the date of publication of all patents'''
 
     # Initial time conditions
-    years = 5
+    years = job_config.timeframe_years
     period = 365*years
-    data_upload_date = datetime(2021, 10, 8)
+    data_upload_date = job_config.upload_date #datetime(2021, 10, 8)
     
     # This function is applied to every patent in the dataframe
     def get_forward_citations(row):

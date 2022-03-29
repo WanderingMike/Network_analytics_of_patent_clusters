@@ -1,17 +1,4 @@
-import yake
-import gensim
-from nltk.stem import WordNetLemmatizer, SnowballStemmer
-import gensim.corpora as corpora
-import nltk
-from sklearn.preprocessing import MultiLabelBinarizer
-import sys
-import os
-from sklearn.utils import resample
-import pandas as pd
-from datetime import datetime
-from functions.config_ML import *
-#nltk.download('wordnet')
-#nltk.download('omw-1.4')
+from functions.config import *
 
 
 def balance_dataset(df):
