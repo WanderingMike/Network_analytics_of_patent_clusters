@@ -4,7 +4,7 @@ from ML import *
 
 def search_abstract(value, concepts):
     '''
-    Takes a list of words or ideas and looks for them in the patent abstract.
+    Takes a list of words or ideas and looks for them in the patent abstract. Use Term Frequency to normalise.
     :param value: patent dictionary value
     :param concepts: words to find in patent abstract
     '''
@@ -17,9 +17,9 @@ def search_abstract(value, concepts):
     
     for concept in concepts:
         first_word = concept[0]
-        for i in range(len(abstract_tokenised)):
-            if abstract_tokenised[i] == first_word:
-                extracted_token = abstract_tokenised[i:i+len(concept)]
+        for word_loc in range(len(abstract_tokenised)):
+            if abstract_tokenised[word_loc] == first_word:
+                extracted_token = abstract_tokenised[word_loc:word_loc+len(concept)]
                 if ' '.join(extracted_token) == ' '.join(concept):
                     references_count += 1
 

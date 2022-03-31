@@ -2,7 +2,7 @@ from functions.config import *
 
 
 def list_file_column_names(file_path):
-    '''Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns.'''
+    """Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns."""
 
     file = open(file_path, 'r', encoding='utf8')
     file_name = os.path.basename(file_path)
@@ -19,7 +19,7 @@ def list_file_column_names(file_path):
 
 
 def drop_columns(file, selected_columns = None, d_type = None):
-    '''Downsizing data frames by dropping columns, either by preselection or via input.'''
+    """Downsizing data frames by dropping columns, either by preselection or via input."""
 
     original_file_path = "data/patentsview_data/{}.tsv".format(file)
 
@@ -37,7 +37,7 @@ def drop_columns(file, selected_columns = None, d_type = None):
 
 
 def clean_assignee():
-    '''Cleaning assignee.tsv data'''
+    """Cleaning assignee.tsv data"""
 
     patent_columns = [0, 4]
     assignee = drop_columns("assignee",

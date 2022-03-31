@@ -3,6 +3,7 @@ from functions.config import *
 
 def find_intersection(set1, set2):
     '''Find intersection of two lists'''
+
     return len([num for num in set1 if num in set2])
 
 
@@ -13,9 +14,9 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
     for cluster, value in topical_clusters.items:
 
-        cpc_info  = (cluster, {"emergingness": cpc_time_series[cluster][job_config.data_upload_date.year]["emergingness"],
+        cpc_info = (cluster, {"emergingness": cpc_time_series[cluster][job_config.data_upload_date.year]["emergingness"],
                               "patent_count": cpc_time_series[cluster][job_config.data_upload_date.year]["patent_count"],
-                              "value": value})
+                              "influence": value})
         cpc_nodes.append(cpc_info)
     
     return cpc_nodes
@@ -26,8 +27,8 @@ def get_assignee_nodes(topical_assignees):
 
     assignee_nodes = list()
     for assignee in topical_assignees.keys():
-        assignee_data = topical_assignees[assignee]["emergingness"]
-        assignee_info = (assignee, {"weight": sum(assignee_data)/len(assignee_data)})
+        assignee_value_list = topical_assignees[assignee]["emergingness"]
+        assignee_info = (assignee, {"weight": sum(assignee_value_list)/len(assignee_value_list)})
         assignee_nodes.append(assignee_info)
 
     return assignee_nodes
@@ -73,7 +74,7 @@ def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees
 
     else:
 
-        topical_assignees[assignee] = {"emergingness": [patent_value], "patents":[patent], cluster: 1}
+        topical_assignees[assignee] = {"emergingness": [patent_value], "patents": [patent], cluster: 1} #is patents used?
 
     return topical_assignees
 
@@ -111,7 +112,7 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
 def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
     '''
-    Finds all CPC subgroups related to the topical patents. Topical patents link to CPC groups, and the latter are
+    Finds all CPC subgroups related to the topical patents. Topical patents link to CPC subgroups, and the latter are
     weighted as a sum of the topical patent values
     :return: dictionary of topical clusters and their assigned weight
     '''

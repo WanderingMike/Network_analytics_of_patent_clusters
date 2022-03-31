@@ -5,8 +5,8 @@ def balance_dataset(df):
     '''Downsamples the binary output dataframe df in order to work with a balanced dataset'''
 
     print("2.2.1.0.1 Balancing dataset ({})".format(datetime.now()))
-    df_majority = df[df.output==0]
-    df_minority = df[df.output==1]
+    df_majority = df[df.output == 0]
+    df_minority = df[df.output == 1]
     length_output_1 = len(df_minority.index)
 
     if length_output_1 > job_config.size_dataframe_train:
@@ -17,17 +17,17 @@ def balance_dataset(df):
                                        n_samples=length_output_1,
                                        random_state=123)
 
-    df_minority_reduced = resample(df_minority,
+    df_minority_downsampled = resample(df_minority,
                                    replace=True,
                                    n_samples=length_output_1,
                                    random_state=123)
 
-    df_upsampled = pd.concat([df_majority_downsampled, df_minority_reduced])
+    df_balanced = pd.concat([df_majority_downsampled, df_minority_downsampled])
     
     print("2.2.1.0.2 Output values for dataset ({})".format(datetime.now()))
-    print(df_upsampled.output.value_counts())
+    print(df_balanced.output.value_counts())
     
-    return df_upsampled
+    return df_balanced
 
 
 def get_statistics(df):
@@ -58,7 +58,7 @@ def categorise_output(citations, median_value):
 
 
 def onehotencode(cluster, columns=None):
-    '''OneHotEndocing of CPC groups (MF) column'''
+    '''OneHotEncoding of CPC subclass (MF) column'''
 
     # OneHotEncoding
     mlb = MultiLabelBinarizer()
@@ -76,9 +76,7 @@ def onehotencode(cluster, columns=None):
         cols = cluster.columns.values
         print(cols, len(cols))
         return cluster, cluster.columns.values.tolist()
-    
-    #for column in ["TKH", "CKH", "PKH", "TTS", "CTS", "PTS"]:
-    #    cluster[column] = cluster[column].replace(np.nan, cluster[column].median())
+
 
    
 

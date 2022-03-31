@@ -4,17 +4,10 @@ from functions.functions_data_preprocessing import *
 def generate_dataframe(tensor_patent):
     '''Generates ML-readable data format with required indicators as columns and patents as row indices'''
 
-    indexed_patents = list()
     full_patent_list = tensor_patent.keys()
     print("2.1.1.1 Number of patents: {} ({})".format(len(full_patent_list), datetime.now()))
 
-    for patent in full_patent_list:
-        try:
-                indexed_patents.append(patent)
-        except:
-            pass
-
-    cluster = pd.DataFrame(index=indexed_patents,
+    cluster = pd.DataFrame(index=full_patent_list,
                            columns=['date', 'forward_citations', 'CTO', 'PK', 'TCS', 'SK', 'TCT', 'MF', 'TS',
                                     'PCD', 'COL', 'INV', 'TKH', 'CKH', 'TTS', 'CTS'])
 
