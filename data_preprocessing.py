@@ -1,8 +1,5 @@
 from functions.functions_data_preprocessing import *
-from functions.config_ML import *
-import multiprocessing
-from multiprocessing import Process
-import pickle
+
 
 def generate_dataframe(tensor_patent):
     '''Generates ML-readable data format with required indicators as columns and patents as row indices'''
@@ -63,12 +60,12 @@ def fill_dataframe(tensors, cluster):
    
     print("2.1.2.12 Saving dataframe filled ({})".format(datetime.now()))
     print(cluster)
-    cluster.to_pickle("data/dataframes/filled_df.pkl")
+    cluster.to_pickle("data/dataframes/df_preprocessed.pkl")
 
     return cluster
 
 
-def data_preparation(tensors):
+def data_preprocessing(tensors):
     '''
     1) Load all tensors
     2) Create ML-readable dataframe
@@ -79,7 +76,7 @@ def data_preparation(tensors):
     '''
     
     if job_config.load_df_filled:
-        cluster_complete = pd.read_pickle("data/dataframes/filled_df.pkl")
+        cluster_complete = pd.read_pickle("data/dataframes/df_preprocessed.pkl")
     else:
         print("2.1.1 Generating empty frame ({})".format(datetime.now()))
         cluster = generate_dataframe(tensors["patent"])

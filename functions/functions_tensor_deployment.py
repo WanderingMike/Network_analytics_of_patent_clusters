@@ -2,15 +2,14 @@ from functions.config import *
 
 
 def list_file_column_names(file_path):
-    '''Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns.
-    '''
+    '''Lists all columns of a dataframe, as well as a data point for each. This helps choose the relevant columns.'''
 
     file = open(file_path, 'r', encoding='utf8')
     file_name = os.path.basename(file_path)
 
     first_line = file.readline()
-    second_line = file.readline()
     column_names = first_line.split("\t")
+    second_line = file.readline()
 
     print("File {} has the following columns: \n\t{}\t{}".format(file_name, first_line, second_line))
 
@@ -20,8 +19,7 @@ def list_file_column_names(file_path):
 
 
 def drop_columns(file, selected_columns = None, d_type = None):
-    '''Downsizing data frames by dropping columns, either by preselection or via input
-    '''
+    '''Downsizing data frames by dropping columns, either by preselection or via input.'''
 
     original_file_path = "data/patentsview_data/{}.tsv".format(file)
 
@@ -42,12 +40,12 @@ def clean_assignee():
     '''Cleaning assignee.tsv data'''
 
     patent_columns = [0, 4]
-    assignee_df = drop_columns("assignee",
+    assignee = drop_columns("assignee",
                                selected_columns=patent_columns,
                                d_type={"patent_id": "string"})
-    assignee_df.columns = ["assignee_id", "organisation"]
+    assignee.columns = ["assignee_id", "organisation"]
 
-    return assignee_df
+    return assignee
 
 
 def clean_cpc_current():
@@ -127,21 +125,26 @@ def clean_uspatentcitation():
                                     d_type={"patent_id": "string", "citation_id": "string"})
     uspatentcitation.columns = ["patent_id", "citation_id"]
 
-    def check_intersection(patent1, patent2):
+    def check_intersection(patent_id, citation_id):
+        '''Checks whether patent and citation have the same assignee'''
 
         try:
-            list1 = tensor_patent_assignee[patent1]
-            list2 = tensor_patent_assignee[patent2]
-            intersection_size = len(set(list1).intersection(list2))
+            patent_assignees = tensor_patent_assignee[patent_id]
+            citation_assignees = tensor_patent_assignee[citation_id]
+            intersection_size = len(set(patent_assignees).intersection(citation_assignees))
+
             if intersection_size > 0:
-                print(patent1, list1, patent2, list2)
+                print(patent_id, patent_assignees, citation_id, citation_assignees)
                 return True
+            else:
+                return False
+
         except:
-            pass
+            return False
 
-        return False
-
+    # drop assignee self-citations
     for index, row in uspatentcitation.iterrows():
+
         if check_intersection(row['patent_id'], row['citation_id']):
             uspatentcitation.drop(index, inplace=True)
 

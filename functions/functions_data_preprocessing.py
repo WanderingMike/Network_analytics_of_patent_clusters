@@ -9,11 +9,9 @@ def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent)
     :tensor_patent: gives us the date of publication of all patents'''
 
     # Initial time conditions
-    years = job_config.timeframe_years
+    years = job_config.prediction_timeframe_years
     period = 365*years
-    data_upload_date = job_config.upload_date #datetime(2021, 10, 8)
-    
-    # This function is applied to every patent in the dataframe
+
     def get_forward_citations(row):
         
         # This function only applies to patents older than the required timeframe. For the
@@ -21,7 +19,7 @@ def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent)
         patent_id = row.name
         patent_date = tensor_patent[patent_id]["date"]
 
-        if patent_date > data_upload_date - relativedelta(years = years):
+        if patent_date > job_config.data_upload_date - relativedelta(years = years):
             return patent_date, np.nan
 
         # Get patents that cited patent_id

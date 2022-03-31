@@ -1,17 +1,5 @@
-from data_preprocessing import *
-from functions.config_ML import *
 from functions.functions_ML import *
-import autosklearn.classification
-from datetime import datetime
-import pickle
-from tqdm import tqdm
-from functions.config_ML import *
-
-pd.set_option('display.max_rows', 25)
-pd.set_option('display.max_columns', 20)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', 25)
-np.set_printoptions(threshold=sys.maxsize)
+from data_preprocessing import *
 
 
 def calculate_emergingness(ml_df, tensor_patent):
@@ -48,16 +36,11 @@ def calculate_emergingness(ml_df, tensor_patent):
                                                                memory_limit=None)
 
         cls.fit(X.drop(["date", "forward_citations", "output"], axis=1), X["output"])
-        
-        ffile = open("data/dataframes/model.pkl", "wb")
-        pickle.dump(cls, ffile)
-        ffile.close()
-        
-    
-    else:
 
-        ffile = open("data/dataframes/model.pkl", "rb")
-        cls = pickle.load(ffile)
+        save_pickle("data/dataframes/model.pkl")
+
+    else:
+        cls = load_pickle("data/dataframes/model.pkl")
         
     del X
     
@@ -108,9 +91,7 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
     if job_config.load_df_final:
 
         df_final = pd.read_pickle("data/dataframes/df_final.pkl")
-        ffile = open("data/dataframes/dic_tensor_patent", "rb")
-        tensor_patent = pickle.load(ffile)
-        ffile.close()
+        tensor_patent = load_pickle("data/dataframes/dic_tensor_patent")
         
     else:
 
@@ -120,13 +101,11 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
         print("2.1.3 Saving df with emergingness ({})".format(datetime.now()))
         print(df_final)
         df_final.to_pickle("data/dataframes/df_final.pkl")
-        ffile = open("data/dataframes/dic_tensor_patent", "wb")
-        pickle.dump(tensor_patent, ffile)
-        ffile.close()
+        save_pickle("data/dataframes/dic_tensor_patent", tensor_patent)
 
     for cpc_subgroup in tqdm(series.keys()):
         
-        series[cpc_subgroup] = {year: None for year in range(job_config.upload_date.year-3, job_config.upload_date.year+1)}
+        series[cpc_subgroup] = {year: None for year in range(job_config.data_upload_date.year-3, job_config.data_upload_date.year+1)}
 
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]
@@ -134,9 +113,9 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
         patents_final_year = None
 
         for diff in range(4):
-            year = job_config.upload_date.year - diff
-            month = job_config.upload_date.month
-            day = job_config.upload_date.day
+            year = job_config.data_upload_date.year - diff
+            month = job_config.data_upload_date.month
+            day = job_config.data_upload_date.day
 
             # Filtering patents
             start_date = subgroup_df["date"] > datetime(year-1, month, day)
@@ -174,7 +153,7 @@ def run_ML(tensors):
     '''
 
     print("2.1 Preparing dataframe ({})".format(datetime.now()))
-    ml_df = data_preparation(tensors)
+    ml_df = data_preprocessing(tensors)
 
     print("2.2 Calculating indicators ({})".format(datetime.now()))
     time_series, tensors["patent"] = calculate_indicators(ml_df,

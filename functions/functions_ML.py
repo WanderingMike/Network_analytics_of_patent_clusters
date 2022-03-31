@@ -9,8 +9,8 @@ def balance_dataset(df):
     df_minority = df[df.output==1]
     length_output_1 = len(df_minority.index)
 
-    if length_output_1 > job_config.size_dataframe:
-        length_output_1 = job_config.size_dataframe
+    if length_output_1 > job_config.size_dataframe_train:
+        length_output_1 = job_config.size_dataframe_train
 
     df_majority_downsampled = resample(df_majority,
                                        replace=True,

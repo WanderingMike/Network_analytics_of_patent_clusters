@@ -13,8 +13,8 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
     for cluster, value in topical_clusters.items:
 
-        cpc_info  = (cluster, {"emergingness": cpc_time_series[cluster][job_config.upload_date.year]["emergingness"], 
-                              "patent_count": cpc_time_series[cluster][job_config.upload_date.year]["patent_count"],
+        cpc_info  = (cluster, {"emergingness": cpc_time_series[cluster][job_config.data_upload_date.year]["emergingness"],
+                              "patent_count": cpc_time_series[cluster][job_config.data_upload_date.year]["patent_count"],
                               "value": value})
         cpc_nodes.append(cpc_info)
     

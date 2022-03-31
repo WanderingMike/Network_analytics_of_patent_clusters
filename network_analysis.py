@@ -1,9 +1,4 @@
 from functions.functions_network_analysis import *
-import networkx as nx
-from functions.config_ML import *
-import pandas as pd
-import math
-# from tabulate import tabulate
 
 
 def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
@@ -25,7 +20,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     # count
     clusters_df['count'] = clusters_df["CPC"].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
-    end_year = job_config.upload_date.year
+    end_year = job_config.data_upload_date.year
     clusters_df['emergingness'] = clusters_df['CPC'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
     # delta
     clusters_df['delta'] = clusters_df['CPC'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'] -
@@ -95,6 +90,7 @@ def assignee_index(topical_assignees, tensor_assignee):
     assignees_df['name'] = assignees_df['ID'].apply(lambda x: tensor_assignee[x])
     # count
     assignees_df['count'] = assignees_df['ID'].apply(lambda x: len(topical_assignees[x]['emergingness']))
+
     # emergingness
     def func_assignees(row):
          return sum(topical_assignees[row['ID']]['emergingness']) / row['count']
@@ -133,7 +129,7 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
     network.add_nodes_from(cpc_nodes)
     network.add_nodes_from(assignee_nodes)
     network.add_weighted_edges_from(edges)
-    save_pickle("data/plots/network.pkl", data=network)
+    save_pickle("data/{}.pkl".format(job_config.graph_name), network)
 
     # impact
     for node in assignee_nodes:
