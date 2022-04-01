@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-#import autosklearn.classification
+# import autosklearn.classification
 import pickle
 from tqdm import tqdm
 import pickle
@@ -11,8 +11,8 @@ import sys
 from sklearn.preprocessing import MultiLabelBinarizer
 import os
 from sklearn.utils import resample
-#nltk.download('wordnet')
-#nltk.download('omw-1.4')
+# nltk.download('wordnet')
+# nltk.download('omw-1.4')
 import multiprocessing
 from multiprocessing import Process
 import numpy as np
@@ -91,67 +91,67 @@ class MlConfig:
                             'spyware',
                             'threat actor']]
 
+
 job_config = MlConfig()
 
-
-tensors = {"assignee":          {"tensor": None,
-                                 "dataset": "assignee",
-                                 "leading_column": "assignee_id",
-                                 "remaining_columns": ["organisation"],
-                                 "tensor_value_format": None},
-            "cpc_sub_patent":   {"tensor": None,
-                                 "dataset": "cpc_current",
-                                 "leading_column": "cpc_subgroup",
-                                 "remaining_columns": ["patent_id"],
-                                 "tensor_value_format": list()},
-            "patent_cpc_main":  {"tensor": None,
-                                 "dataset": "cpc_current",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["cpc_group"],
-                                 "tensor_value_format": list()},
-            "patent_cpc_sub":   {"tensor": None,
-                                 "dataset": "cpc_current",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["cpc_subgroup"],
-                                 "tensor_value_format": list()},
-            "otherreference":   {"tensor": None,
-                                 "dataset": "otherreference",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["otherreference"],
-                                 "tensor_value_format": None},
-            "patent":           {"tensor": None,
-                                 "dataset": "patent",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["date", "abstract", "num_claims"],
-                                 "tensor_value_format": dict()},
-            "patent_assignee":  {"tensor": None,
-                                 "dataset": "patent_assignee",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["assignee_id"],
-                                 "tensor_value_format": list()},
-            "assignee_patent":  {"tensor": None,
-                                 "dataset": "patent_assignee",
-                                 "leading_column": "assignee_id",
-                                 "remaining_columns": ["patent_id"],
-                                 "tensor_value_format": list()},
-            "inventor":         {"tensor": None,
-                                 "dataset": "patent_inventor",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["inventors"],
-                                 "tensor_value_format": None},
-            "forward_citation": {"tensor": None,
-                                 "dataset": "uspatentcitation",
-                                 "leading_column": "citation_id",
-                                 "remaining_columns": ["patent_id"],
-                                 "tensor_value_format": list()},
-            "backward_citation":{"tensor": None,
-                                 "dataset": "uspatentcitation",
-                                 "leading_column": "patent_id",
-                                 "remaining_columns": ["citation_id"],
-                                 "tensor_value_format": list()},
-            "year_patent":      {"tensor": None,
-                                 "dataset": "patent",
-                                 "leading_column": "year",
-                                 "remaining_columns": ["patent_id"],
-                                 "tensor_value_format": list()}
-           }
+tensors_config = {"assignee": {"tensor": None,
+                               "dataset": "assignee",
+                               "leading_column": "assignee_id",
+                               "remaining_columns": ["organisation"],
+                               "tensor_value_format": None},
+                  "cpc_sub_patent": {"tensor": None,
+                                     "dataset": "cpc_current",
+                                     "leading_column": "cpc_subgroup",
+                                     "remaining_columns": ["patent_id"],
+                                     "tensor_value_format": list()},
+                  "patent_cpc_main": {"tensor": None,
+                                      "dataset": "cpc_current",
+                                      "leading_column": "patent_id",
+                                      "remaining_columns": ["cpc_group"],
+                                      "tensor_value_format": list()},
+                  "patent_cpc_sub": {"tensor": None,
+                                     "dataset": "cpc_current",
+                                     "leading_column": "patent_id",
+                                     "remaining_columns": ["cpc_subgroup"],
+                                     "tensor_value_format": list()},
+                  "otherreference": {"tensor": None,
+                                     "dataset": "otherreference",
+                                     "leading_column": "patent_id",
+                                     "remaining_columns": ["otherreference"],
+                                     "tensor_value_format": None},
+                  "patent": {"tensor": None,
+                             "dataset": "patent",
+                             "leading_column": "patent_id",
+                             "remaining_columns": ["date", "abstract", "num_claims"],
+                             "tensor_value_format": dict()},
+                  "patent_assignee": {"tensor": None,
+                                      "dataset": "patent_assignee",
+                                      "leading_column": "patent_id",
+                                      "remaining_columns": ["assignee_id"],
+                                      "tensor_value_format": list()},
+                  "assignee_patent": {"tensor": None,
+                                      "dataset": "patent_assignee",
+                                      "leading_column": "assignee_id",
+                                      "remaining_columns": ["patent_id"],
+                                      "tensor_value_format": list()},
+                  "inventor": {"tensor": None,
+                               "dataset": "patent_inventor",
+                               "leading_column": "patent_id",
+                               "remaining_columns": ["inventors"],
+                               "tensor_value_format": None},
+                  "forward_citation": {"tensor": None,
+                                       "dataset": "uspatentcitation",
+                                       "leading_column": "citation_id",
+                                       "remaining_columns": ["patent_id"],
+                                       "tensor_value_format": list()},
+                  "backward_citation": {"tensor": None,
+                                        "dataset": "uspatentcitation",
+                                        "leading_column": "patent_id",
+                                        "remaining_columns": ["citation_id"],
+                                        "tensor_value_format": list()},
+                  "year_patent": {"tensor": None,
+                                  "dataset": "patent",
+                                  "leading_column": "year",
+                                  "remaining_columns": ["patent_id"],
+                                  "tensor_value_format": list()}
+                  }

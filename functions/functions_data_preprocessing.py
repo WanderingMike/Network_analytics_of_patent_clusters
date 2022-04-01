@@ -2,19 +2,19 @@ from functions.config import *
 
 
 def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent):
-    '''This function fetches the date and calculates the forward citation count after a
+    """This function fetches the date and calculates the forward citation count after a
     defined time period. This will become the output variable for the ML algorithm.
     :cluster: ML-readable data-frame
     :tensor_forward_citation: tells us which patents have cited a specific patent
-    :tensor_patent: gives us the date of publication of all patents'''
+    :tensor_patent: gives us the date of publication of all patents"""
 
     # Initial time conditions
     years = job_config.prediction_timeframe_years
-    period = 365*years
+    period = 365 * years
 
     def get_forward_citations(row):
-        '''This function only applies to patents older than the required timeframe. For the remaining patents, the
-        forward citation count will be approximated with ML'''
+        """This function only applies to patents older than the required timeframe. For the remaining patents, the
+        forward citation count will be approximated with ML"""
 
         patent_id = row.name
         patent_date = tensor_patent[patent_id]["date"]
@@ -38,7 +38,7 @@ def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent)
                 pass
 
         return patent_date, citedby_patent_count
-    
+
     # Applying function to all rows
     cluster["date"], cluster["forward_citations"] = zip(*cluster.apply(get_forward_citations, axis=1))
 
@@ -46,9 +46,9 @@ def fill_date_forward_citations(cluster, tensor_forward_citation, tensor_patent)
 
 
 def fill_cto(cluster, tensor_patent_cpc, tensor_backward_citation):
-    '''This function calculates the Herfindahl index on all cpc groups of cited patents. The Herfindahl
+    """This function calculates the Herfindahl index on all cpc groups of cited patents. The Herfindahl
     index is a measure of how concentrated the groups are. If the index value is close to 0, a patent
-    cites other patents part of similar CPC subclasses. If the index is close to 1, they are strewn.'''
+    cites other patents part of similar CPC subclasses. If the index is close to 1, they are strewn."""
 
     def calculate_herfindahl(row):
 
@@ -58,7 +58,7 @@ def fill_cto(cluster, tensor_patent_cpc, tensor_backward_citation):
             cited_patents = tensor_backward_citation[patent_id]
         except:
             return 0
-        
+
         # Variables
         count = {}
         counter = 0
@@ -92,28 +92,53 @@ def fill_cto(cluster, tensor_patent_cpc, tensor_backward_citation):
     return cluster
 
 
-def fill_pk_tcs(cluster, tensor_backward_citation):
-    '''The prior knowledge (PK) index measures the number of backward citations. The total cited strength (TCS) measures
-    the value of the cited patents.'''
-    
-    # This function calculates the amount of cited patents
-    def calculate_pk_tcs(row):
+def fill_pk_tct_tcs(cluster, tensor_backward_citation, tensor_patent):
+    """The prior knowledge (PK) index measures the number of backward citations. The Technology Cycle Time (TCT)
+    measures the median age of cited patents. The total cited strength (TCS) measures the value of the cited patents."""
+
+    def calculate_pk_tct_tcs(row):
+
+        # Getting all cited patents
+        patent_id = row.name
         try:
-            cited_patents = tensor_backward_citation[row.name]
-            mean_cited_fc = cluster[cluster['forward_citations'].isin(cited_patents)]["forward_citations"].mean()
-            return len(cited_patents), mean_cited_fc
+            cited_patents = tensor_backward_citation[patent_id]
         except:
-            return 0, np.nan
-    
+            return np.nan, np.nan, np.nan
+
+        try:
+            mean_cited_fc = cluster[cluster['forward_citations'].isin(cited_patents)]["forward_citations"].mean()
+            pk = len(cited_patents)
+            tcs = mean_cited_fc
+        except:
+            pk = 0
+            tcs = np.nan
+
+        # For each cited patent, get the age difference
+        cited_patents_age = list()
+        for cited_patent in cited_patents:
+            try:
+                age = (tensor_patent[patent_id]["date"] - tensor_patent[cited_patent]["date"]).days
+                cited_patents_age.append(age)
+            except:
+                pass
+
+        # return appropriate value
+        try:
+            tct = median(cited_patents_age)
+        except:
+            tct = np.nan
+
+        return pk, tct, tcs
+
     # Applying to every row
-    cluster["PK"], cluster["TCS"] = zip(*cluster.apply(calculate_pk_tcs, axis=1))
-    
+    cluster["PK"], cluster["TCT"], cluster["TCS"] = zip(*cluster.apply(calculate_pk_tct_tcs, axis=1))
+
     return cluster
 
 
 def fill_sk(cluster, tensor_otherreference):
-    '''This function measures the amount of non-patent literature references'''
-    
+    """This function measures the amount of non-patent literature references"""
+
     # Fetching the value of otherreference for every patent
     def calculate_sk(row):
         try:
@@ -127,41 +152,8 @@ def fill_sk(cluster, tensor_otherreference):
     return cluster
 
 
-def fill_tct(cluster, tensor_backward_citation, tensor_patent):
-    '''The Technology Cycle Time (TCT) measures the median age of cited patents'''
-
-    def calculate_tct(row):
-
-        # Getting all cited patents
-        patent_id = row.name
-        try:
-            cited_patents = tensor_backward_citation[patent_id]
-        except:
-            return np.nan
-
-        # For each cited patent, get the age difference 
-        cited_patents_age = list()
-        for cited_patent in cited_patents:
-            try:
-                age = (tensor_patent[patent_id]["date"] - tensor_patent[cited_patent]["date"]).days
-                cited_patents_age.append(age)
-            except:
-                pass
-
-        # return appropriate value
-        try:
-            return median(cited_patents_age)
-        except:
-            return np.nan
-    
-    # Applying to every row
-    cluster["TCT"] = cluster.apply(calculate_tct, axis=1)
-
-    return cluster
-
-
 def fill_mf_ts(cluster, tensor_patent_main):
-    '''This function returns once all the subclasses of a patent, as well as the number of subclasses it is in.'''
+    """This function returns once all the subclasses of a patent, as well as the number of subclasses it is in."""
 
     def calculate_mf_ts(row):
         try:
@@ -171,15 +163,15 @@ def fill_mf_ts(cluster, tensor_patent_main):
             return list(), 0
 
     # Applying to every row
-    cluster["MF"], cluster["TS"] = zip(*cluster.apply(calculate_mf_ts, axis=1)) # $ Main class or all classes? $
+    cluster["MF"], cluster["TS"] = zip(*cluster.apply(calculate_mf_ts, axis=1))  # $ Main class or all classes? $
 
     return cluster
 
 
 def fill_pcd(cluster, tensor_patent):
-    '''The Protection Coverage measures the amount of claims a patent is making. This information is found 
-    in the patent tensor'''
-    
+    """The Protection Coverage measures the amount of claims a patent is making. This information is found
+    in the patent tensor"""
+
     # Function
     def calculate_pcd(row):
         try:
@@ -194,7 +186,7 @@ def fill_pcd(cluster, tensor_patent):
 
 
 def fill_col(cluster, tensor_patent_assignee):
-    '''The collaboration measure is 1 if the patent has more than one assignee, else 0'''
+    """The collaboration measure is 1 if the patent has more than one assignee, else 0"""
 
     # Function checks length of assignees list per patent
     def calculate_col(row):
@@ -216,7 +208,7 @@ def fill_col(cluster, tensor_patent_assignee):
 
 
 def fill_inv(cluster, tensor_inventor):
-    '''This functions returns the amount of inventors whose names figure on the patent documents'''
+    """This functions returns the amount of inventors whose names figure on the patent documents"""
 
     # Function
     def calculate_inv(row):
@@ -224,23 +216,24 @@ def fill_inv(cluster, tensor_inventor):
             return tensor_inventor[row.name]
         except:
             return 0
-    
+
     # Applying to every row
     cluster["INV"] = cluster.apply(calculate_inv, axis=1)
 
     return cluster
 
 
-def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent, tensor_patent_cpc, tensor_forward_citation):
-    '''This function creates four assignee-related indicators.
+def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent, tensor_patent_cpc,
+                         tensor_forward_citation):
+    """This function creates four assignee-related indicators.
     Total Know-How (TKH): number of patents issued by an assignee
     Core Know-How (CKH): number of patents in chosen cpc subgroup issued by an assignee
     Total Technological Strength (TTS): Number of forward citations of patents issued by an assignee
-    Core Technological Strength (CTS): Number of forward citations of patents in cpc group issued by an assignee'''
-    
+    Core Technological Strength (CTS): Number of forward citations of patents in cpc group issued by an assignee"""
+
     # Get the four indicators for a specific assignee
     def get_assignee_info(assignee, cpc_classes):
-        '''Getting all necessary datapoints for one assignee'''
+        """Getting all necessary datapoints for one assignee"""
 
         try:
             assignee_patents = tensor_assignee_patent[assignee]
@@ -255,16 +248,16 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             set_classes = set(cpc_classes)
         except:
             set_classes = set()
-        
+
         # Looping through all patents
-        for patent in assignee_patents: # $ do more efficient way? $
-            
+        for patent in assignee_patents:  # $ do more efficient way? $
+
             # forward citations
             try:
                 forward_citations = len(tensor_forward_citation[patent])
             except:
                 forward_citations = 0
-            
+
             # verify cpc group
             try:
                 if bool(set_classes & set(tensor_patent_cpc[patent])):  # $ check here $
@@ -273,13 +266,12 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             except:
                 pass
 
-            assignee_tts += forward_citations # $ risk of assignees collision? Create a set of patents?$
-        
+            assignee_tts += forward_citations  # $ risk of assignees collision? Create a set of patents?$
+
         return assignee_tkh, assignee_ckh, assignee_tts, assignee_cts
 
-
     def calculate_indices(row):
-        '''Calculates TKH, CKH, TTS, CTS'''
+        """Calculates TKH, CKH, TTS, CTS"""
 
         # Setting up variables
         patent_id = row.name
@@ -305,7 +297,7 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
                 cts = assignee_info[assignee]["cts"]
 
             else:
-                
+
                 tkh, ckh, tts, cts = get_assignee_info(assignee, row["MF"])
                 assignee_info[assignee] = {"tkh": tkh, "ckh": ckh, "tts": tts, "cts": cts}
 
@@ -315,16 +307,9 @@ def fill_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_patent
             core_strength += cts
 
         return total_know_how, core_know_how, total_strength, core_strength
-    
+
     # Applying to every row
     assignee_info = dict()
     cluster["TKH"], cluster["CKH"], cluster["TTS"], cluster["CTS"] = zip(*cluster.apply(calculate_indices, axis=1))
 
     return cluster
-
-
-
-
-
-
-

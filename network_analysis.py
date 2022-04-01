@@ -2,13 +2,13 @@ from functions.functions_network_analysis import *
 
 
 def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
-    '''
+    """
     Creates dataframe with all clusters tied to topical patents. For each cluster, this function retrieves:
-    1) The total patent count 
+    1) The total patent count
     2) The emergingness value of its patents in the last year
     3) The growth in emergingness between the last 2 years
     4) The Technology Index: mean 3-year emergingness growth * mean 3-year patent count growth
-    '''
+    """
 
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv",
                                        sep='\t',
@@ -37,10 +37,10 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
 
         def check_validity(N, N_1):
             try:
-                dummy = [N["emergingness"], N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
+                test = [N["emergingness"], N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
             except:
                 return None
-            return dummy
+            return test
 
         for i in range(3):
             year = end_year-i
@@ -80,11 +80,11 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
 
 
 def assignee_index(topical_assignees, tensor_assignee):
-    '''
+    """
     Creates a dataframe with all assignees tied to topical patents. For each assignee, this function retrieves:
     1) Name of company
     2) Patent value of assignee patents in latest year
-    '''
+    """
 
     assignees_df = pd.DataFrame(columns=['ID', 'name', 'value', 'count', 'impact', 'normalised impact', 'influence'])
 
@@ -105,8 +105,8 @@ def assignee_index(topical_assignees, tensor_assignee):
 
 
 def impact_index(node, network):
-    '''Calculates the impact value used in the impact and normalised impact indices.
-    :return: impact value, number of shared patents to find normalised impact'''
+    """Calculates the impact value used in the impact and normalised impact indices.
+    :return: impact value, number of shared patents to find normalised impact"""
 
     name = node[0]
     assignee_value = node[1]['weight']
@@ -124,12 +124,12 @@ def impact_index(node, network):
 
 
 def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
-    '''
+    """
     Retrieves remaining assignee indices:
     3) Impact: Assignee emergingness level * CPC cluster emergingness * number of shared patents
     4) Normalised Impact: Impact / number of patents shared
     5) Influence: Katz Centrality measure
-    '''
+    """
 
     # Creating Graph
     print(f'6.4 Creating graph ({datetime.now()})')
@@ -155,19 +155,23 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
 
 
 def unfold_network(cpc_time_series, full_tensors, topical_patents):
-    ''' This function has four steps:
+    """
+    This function has four steps:
      1) Retrieving/calculating relevant data for all assignees, cpc patent clusters and patents themselves.
      2) Setting up network/graph
      3) Centrality analytics
      4) Further analytics and plots
-    '''
+    """
 
     # Building Network
     print("6.1 Finding topical clusters ({})".format(datetime.now())) 
     topical_clusters = find_topical_clusters(topical_patents, full_tensors["patent_cpc_sub"])
 
     print("6.2 Finding topical assignees ({})".format(datetime.now())) 
-    topical_assignees = find_topical_assignees(topical_clusters, cpc_time_series, full_tensors["patent_assignee"], full_tensors["patent"])
+    topical_assignees = find_topical_assignees(topical_clusters,
+                                               cpc_time_series,
+                                               full_tensors["patent_assignee"],
+                                               full_tensors["patent"])
 
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
@@ -205,4 +209,3 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
 
     assignee_df.sort_values("influence", inplace=True, ascending=False)
     assignee_df.to_markdown("output_tables/influence_index.md")
-

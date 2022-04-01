@@ -3,9 +3,9 @@ from data_preprocessing import *
 
 
 def calculate_patent_value(ml_df, tensor_patent):
-    '''Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
+    """Core of the ML part. This function first divides the data into completed data with pre-existing forward citations
     on the chosen time period, and a subset of the dataframe for which we need to find the citation count. We then trust
-    blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters.'''
+    blobcity's AutoAI framework to choose the optimal ML framework for us, including the optimal hyperparameters."""
         
     # Categorise output to make it a classification problem
     quartile_split = get_statistics(ml_df)
@@ -37,7 +37,7 @@ def calculate_patent_value(ml_df, tensor_patent):
 
         cls.fit(data_complete.drop(["date", "forward_citations", "output"], axis=1), data_complete["output"])
 
-        save_pickle("data/dataframes/model.pkl")
+        save_pickle("data/dataframes/model.pkl", cls)
 
     else:
         cls = load_pickle("data/dataframes/model.pkl")
@@ -68,13 +68,13 @@ def calculate_patent_value(ml_df, tensor_patent):
 
 
 def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
-    '''
+    """
     This function calculates two indicators and retrieves textual information per CPC group per year:
     - patent_value: the average citation level
     - patent_count: the number of patents at the end of the year
     :param ml_df: data frame used for ML analytics
     :return: returns the time-series, complete for one CPC group
-    '''
+    """
 
     series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
     
@@ -134,14 +134,15 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
     return series, tensor_patent
 
 
-def run_ML(tensors):
-    '''Classification algorithm. Returns a dictionary (hereafter named time_series) which will have for each CPC subgroup the following:
+def run_ml(tensors):
+    """Classification algorithm. Returns a dictionary (hereafter named time_series) which will have for each CPC
+    subgroup the following:
     Format:
         {cpc_subgroup_A: {year_1: {patent_value: XX, patent_count: YY},
                          {year_2: ...}
-         cpc_subgroup_B: ..., 
+         cpc_subgroup_B: ...,
          ...}
-    '''
+    """
 
     print("2.1 Preparing dataframe ({})".format(datetime.now()))
     ml_df = data_preprocessing(tensors)
@@ -152,6 +153,3 @@ def run_ML(tensors):
                                                           tensors["cpc_sub_patent"])
 
     return time_series, tensors
-
-
-

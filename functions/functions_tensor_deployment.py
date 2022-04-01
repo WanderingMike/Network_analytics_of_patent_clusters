@@ -18,7 +18,7 @@ def list_file_column_names(file_path):
     return column_names
 
 
-def drop_columns(file, selected_columns = None, d_type = None):
+def drop_columns(file, selected_columns=None, d_type=None):
     """Downsizing data frames by dropping columns, either by preselection or via input."""
 
     original_file_path = "data/patentsview_data/{}.tsv".format(file)
@@ -41,15 +41,15 @@ def clean_assignee():
 
     patent_columns = [0, 4]
     assignee = drop_columns("assignee",
-                               selected_columns=patent_columns,
-                               d_type={"patent_id": "string"})
+                            selected_columns=patent_columns,
+                            d_type={"patent_id": "string"})
     assignee.columns = ["assignee_id", "organisation"]
 
     return assignee
 
 
 def clean_cpc_current():
-    '''Cleaning cpc_current.tsv data'''
+    """Cleaning cpc_current.tsv data"""
 
     cpc_current_columns = [1, 4, 5]
     cpc_current = drop_columns("cpc_current",
@@ -62,7 +62,7 @@ def clean_cpc_current():
 
 
 def clean_otherreference():
-    '''Cleaning otherreference.tsv data'''
+    """Cleaning otherreference.tsv data"""
 
     otherreference_columns = [1]
     otherreference = drop_columns("otherreference", selected_columns=otherreference_columns,
@@ -75,7 +75,7 @@ def clean_otherreference():
 
 
 def clean_patent():
-    '''Cleaning patent.tsv data'''
+    """Cleaning patent.tsv data"""
 
     patent_columns = [0, 4, 5, 8]
     patent = drop_columns("patent",
@@ -89,7 +89,7 @@ def clean_patent():
 
 
 def clean_patent_assignee():
-    '''Cleaning patent_assignee.tsv data'''
+    """Cleaning patent_assignee.tsv data"""
 
     patent_assignee_columns = [0, 1]
     patent_assignee = drop_columns("patent_assignee",
@@ -101,7 +101,7 @@ def clean_patent_assignee():
 
 
 def clean_patent_inventor():
-    '''Cleaning patent_inventor.tsv data'''
+    """Cleaning patent_inventor.tsv data"""
 
     patent_inventor_columns = [0]
     patent_inventor = drop_columns("patent_inventor",
@@ -115,7 +115,7 @@ def clean_patent_inventor():
 
 
 def clean_uspatentcitation():
-    '''Cleaning uspatentcitation.tsv data'''
+    """Cleaning uspatentcitation.tsv data"""
 
     tensor_patent_assignee = load_pickle("data/patentsview_cleaned/patent_assignee.pkl")
 
@@ -126,7 +126,7 @@ def clean_uspatentcitation():
     uspatentcitation.columns = ["patent_id", "citation_id"]
 
     def check_intersection(patent_id, citation_id):
-        '''Checks whether patent and citation have the same assignee'''
+        """Checks whether patent and citation have the same assignee"""
 
         try:
             patent_assignees = tensor_patent_assignee[patent_id]

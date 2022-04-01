@@ -2,20 +2,21 @@ from functions.config import *
 
 
 def find_intersection(set1, set2):
-    '''Find intersection of two lists'''
+    """Find intersection of two lists"""
 
     return len([num for num in set1 if num in set2])
 
 
 def get_cpc_nodes(topical_clusters, cpc_time_series):
-    '''Creates CPC nodes for graph'''
+    """Creates CPC nodes for graph"""
     
     cpc_nodes = list()
 
     for cluster, value in topical_clusters.items:
 
-        cpc_info = (cluster, {"emergingness": cpc_time_series[cluster][job_config.data_upload_date.year]["emergingness"],
-                              "patent_count": cpc_time_series[cluster][job_config.data_upload_date.year]["patent_count"],
+        year = job_config.data_upload_date.year
+        cpc_info = (cluster, {"emergingness": cpc_time_series[cluster][year]["emergingness"],
+                              "patent_count": cpc_time_series[cluster][year]["patent_count"],
                               "influence": value})
         cpc_nodes.append(cpc_info)
     
@@ -23,7 +24,7 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
 
 def get_assignee_nodes(topical_assignees):
-    '''Creates assignee nodes for graph'''
+    """Creates assignee nodes for graph"""
 
     assignee_nodes = list()
     for assignee in topical_assignees.keys():
@@ -35,7 +36,7 @@ def get_assignee_nodes(topical_assignees):
 
 
 def get_edge_data(topical_assignees):
-    '''Creates edges for graph'''
+    """Creates edges for graph"""
 
     edges = list()
 
@@ -53,10 +54,11 @@ def get_edge_data(topical_assignees):
 
 
 def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees):
-    '''
+    """
     Calculates the emergingness level per assignee
-    :return: topical assignees dictionary with respective mean emergingness level {assignee: {cluster: XX, cluster: YY, emergingness: []}}
-    '''
+    :return: topical assignees dictionary with respective mean emergingness level {assignee: {cluster: XX, cluster: YY,
+    emergingness: []}}
+    """
 
     if assignee in topical_assignees:
 
@@ -74,16 +76,16 @@ def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees
 
     else:
 
-        topical_assignees[assignee] = {"emergingness": [patent_value], "patents": [patent], cluster: 1} #is patents used?
+        topical_assignees[assignee] = {"emergingness": [patent_value], "patents": [patent], cluster: 1}
 
     return topical_assignees
 
 
 def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assignee, tensor_patent):
-    ''' 
+    """
     Find assignees tied to the topical clusters of the job
     :return: dictionary of topical assignees with their emergingness level and shared patents with each cluster
-    '''
+    """
 
     topical_assignees = dict()
 
@@ -111,11 +113,11 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
 
 def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
-    '''
+    """
     Finds all CPC subgroups related to the topical patents. Topical patents link to CPC subgroups, and the latter are
     weighted as a sum of the topical patent values
     :return: dictionary of topical clusters and their assigned weight
-    '''
+    """
 
     cpc_subgroups = dict()
 
@@ -135,6 +137,3 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
             pass
 
     return cpc_subgroups
-
-
-
