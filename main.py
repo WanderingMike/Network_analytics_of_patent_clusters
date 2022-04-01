@@ -28,7 +28,7 @@ def search_abstract(value, concepts):
 
 def finding_topical_patents(tensor_patent, keywords):
     """
-    Finds all patents that contain at least of one the keyworks.
+    Finds all patents that contain at least of one the keywords.
     :param tensor_patent: tensor which contains patent abstracts
     :param keywords: list of words to search for
     """
@@ -49,7 +49,8 @@ def finding_topical_patents(tensor_patent, keywords):
 
 
 def managerial_layer():
-    """The main function of our system. Step-by-step walkthrough:
+    """
+    The main function of our system. Step-by-step walk through:
     1) Loading all tensors created by tensor_deployment.py
     2) Execute the classification algorithm with run_ml()
     3) For each job, find patents related to the keywords

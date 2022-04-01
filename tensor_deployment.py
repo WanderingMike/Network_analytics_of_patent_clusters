@@ -179,7 +179,8 @@ def parallelisation(tensor_name, dataset, leading_column, remaining_columns, ten
 
 
 def make_tensors():
-    """Importing multiplex: patent_id, assignee_id, value_count, cpc_current
+    """
+    Importing multiplex: patent_id, assignee_id, value_count, cpc_current
     Running the parallel processing algorithm
     Saving the final multiplex dictionary in a pickle
     """

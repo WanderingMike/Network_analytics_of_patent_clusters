@@ -22,39 +22,40 @@ def fill_dataframe(tensors, cluster):
     indicator/column in the dataframe."""
     
     print("2.1.2.1 Calculating forward citations ({})".format(datetime.now()))
-    cluster = fill_date_forward_citations(cluster, tensors["forward_citation"], tensors["patent"])
+    cluster["date"], cluster["forward_citations"] = zip(*cluster.apply(
+        lambda x: fill_date_forward_citations(x, tensors["forward_citation"], tensors["patent"]), axis=1))
+    df_citations = cluster["forward_citations"]
 
     print("2.1.2.2 Calculating CTO ({})".format(datetime.now()))
-    cluster = fill_cto(cluster, tensors["patent_cpc_main"], tensors["backward_citation"])
+    cluster["CTO"] = cluster.apply(lambda x: fill_cto(x, tensors["patent_cpc"], tensors["backward_citation"]), axis=1)
 
     print("2.1.2.3 Calculating PK/TCT/TCS ({})".format(datetime.now()))
-    cluster = fill_pk_tct_tcs(cluster, tensors["backward_citation"], tensors["patent"])
+    cluster["PK"], cluster["TCT"], cluster["TCS"] = zip(*cluster.apply(
+        lambda x: fill_pk_tct_tcs(x, df_citations, tensors["backward_citation"], tensors["patent"]), axis=1))
 
     print("2.1.2.4 Calculating SK ({})".format(datetime.now()))
-    cluster = fill_sk(cluster, tensors["otherreference"])
+    cluster["SK"] = cluster.apply(lambda x: fill_sk(x, tensors["otherreference"]), axis=1)
 
     print("2.1.2.5 Calculating MF/TS ({})".format(datetime.now()))
-    cluster = fill_mf_ts(cluster, tensors["patent_cpc_main"])
+    cluster["MF"], cluster["TS"] = zip(*cluster.apply(lambda x: fill_mf_ts(x, tensors["patent_cpc_main"]), axis=1))  # $ Main class or all classes? $
 
     print("2.1.2.6 Calculating PCD ({})".format(datetime.now()))
-    cluster = fill_pcd(cluster, tensors["patent"])
+    cluster["PCD"] = cluster.apply(lambda x: fill_pcd(x, tensors["patent"]), axis=1)
 
-    print("2.1.2.7 Calculating COL ({})".format(datetime.now()))
-    cluster = fill_col(cluster, tensors["patent_assignee"])
-
-    print("2.1.2.8 Calculating INV ({})".format(datetime.now()))
-    cluster = fill_inv(cluster, tensors["inventor"])
+    print("2.1.2.7 Calculating INV ({})".format(datetime.now()))
+    cluster["INV"] = cluster.apply(lambda x: fill_inv(x, tensors["inventor"]), axis=1)
     
-    print("2.1.2.9 Calculating TKH/CKH/TTS/CTS ({})".format(datetime.now()))
-    cluster = fill_tkh_ckh_tts_cts(cluster,
-                                   tensors["patent_assignee"],
-                                   tensors["assignee_patent"],
-                                   tensors["patent_cpc_main"],
-                                   tensors["forward_citation"])
+    print("2.1.2.8 Calculating TKH/CKH/TTS/CTS ({})".format(datetime.now()))
+    cluster = fill_col_tkh_ckh_tts_cts(cluster,
+                                       tensors["patent_assignee"],
+                                       tensors["assignee_patent"],
+                                       tensors["patent_cpc_main"],
+                                       tensors["forward_citation"])
    
-    print("2.1.2.10 Saving dataframe filled ({})".format(datetime.now()))
+    print("2.1.2.9 Saving dataframe filled ({})".format(datetime.now()))
     print(cluster)
     cluster.to_pickle("data/dataframes/df_preprocessed.pkl")
+    cluster.head(1000).to_csv("output_tables/df_preprocessed_head_1000.csv") # erase
 
     return cluster
 

@@ -35,31 +35,31 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
         value = list()
         data_aggregate = list()
 
-        def check_validity(N, N_1):
+        def check_validity(pad1, pad2):
             try:
-                test = [N["emergingness"], N_1["emergingness"], N["patent_count"], N_1["patent_count"]]
+                test = [pad1["emergingness"], pad2["emergingness"], pad1["patent_count"], pad2["patent_count"]]
             except:
                 return None
             return test
 
         for i in range(3):
             year = end_year-i
-            N = padding[year]
-            N_1 = padding[year-1]
+            n = padding[year]
+            n_1 = padding[year-1]
 
-            dummy = check_validity(N, N_1)
+            dummy = check_validity(n, n_1)
             if dummy:
 
-                current_em = N["emergingness"]
-                prev_em = N_1["emergingness"]
+                current_em = n["emergingness"]
+                prev_em = n_1["emergingness"]
                 if prev_em == 0:
                     prev_em = 0.05
 
                 growth_em = current_em / prev_em
                 growth_em_penalised = growth_em / (1 + math.exp(5-10*prev_em))
                 
-                current_count = N["patent_count"]
-                prev_count = N_1["patent_count"]
+                current_count = n["patent_count"]
+                prev_count = n_1["patent_count"]
                 if prev_count == 0:
                     prev_count = 1
 

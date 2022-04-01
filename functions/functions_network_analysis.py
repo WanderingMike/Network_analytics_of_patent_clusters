@@ -56,8 +56,8 @@ def get_edge_data(topical_assignees):
 def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees):
     """
     Calculates the emergingness level per assignee
-    :return: topical assignees dictionary with respective mean emergingness level {assignee: {cluster: XX, cluster: YY,
-    emergingness: []}}
+    :return: topical assignees dictionary with respective mean emergingness level
+                {assignee: {cluster: XX, cluster: YY, emergingness: []}}
     """
 
     if assignee in topical_assignees:
