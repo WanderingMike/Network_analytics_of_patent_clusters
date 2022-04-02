@@ -128,7 +128,7 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
     '''
 
     # Creating Graph
-    print(f'6.4 Creating graph ({datetime.now()})')
+    print(f'6.7.1 Creating graph ({datetime.now()})')
     network = nx.Graph()
     network.add_nodes_from(cpc_nodes)
     network.add_nodes_from(assignee_nodes)
