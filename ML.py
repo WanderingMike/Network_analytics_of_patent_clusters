@@ -46,6 +46,8 @@ def calculate_patent_value(ml_df, tensor_patent):
     
     print("2.2.1.4 sprint statistics ({})".format(datetime.now()))
     print(cls.sprint_statistics())
+    leaderboard = cls.leaderboard()
+    leaderboard.to_csv("data/dataframes/leaderboard.csv")
 
     print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
     df = pd.DataFrame(columns=['date', 'output'])
@@ -94,13 +96,16 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
         save_pickle("data/dataframes/dic_tensor_patent", tensor_patent)
 
     for cpc_subgroup in tqdm(series.keys()):
+        print_val = False
         start_series = job_config.data_upload_date.year - 3
         end_series = job_config.data_upload_date.year + 1
         series[cpc_subgroup] = {year: None for year in range(start_series, end_series)}
 
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
+        if len(patents_in_subgroup) > 80 and len(patents_in_subgroup) < 100:
+            print_val = True
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]
-
+        show_value(print_val, subgroup_df)
         patents_final_year = None
 
         for diff in range(4):
@@ -114,6 +119,7 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
 
             filters = start_date & end_date
             temp_df = subgroup_df[filters]
+            show_value(print_val, temp_df)
             patents_per_year = list(temp_df.index.values)
 
             if diff == 0:
@@ -128,6 +134,7 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
                           "patent_count": patent_count}
 
             series[cpc_subgroup][year] = indicators
+            show_value(print_val, series[cpc_subgroup][year])
 
         series[cpc_subgroup]["patents_final_year"] = patents_final_year
 

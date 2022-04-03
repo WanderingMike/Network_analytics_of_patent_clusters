@@ -195,13 +195,33 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-    name = "forward_citation"
-    config = tensors_config[name]
-    single_tensor = parallelisation(name,
-                                    config["dataset"],
-                                    config["leading_column"],
-                                    config["remaining_columns"],
-                                    config["tensor_value_format"])
+    back_cit = load_pickle("data/tensors/backward_citation.pkl")
+    for_cit = load_pickle("data/tensors/forward_citation.pkl")
+
+    try:
+        print("character")
+        print(for_cit["6994160"])
+        print(for_cit["6994160"].count("8791396"))
+    except:
+        pass
+
+    try:
+        print("backward")
+        print(back_cit["8791396"])
+        print(back_cit["8791396"].count("6994160"))
+        print(back_cit["6994160"].count("4662438"))
+    except:
+        pass
+
+    
+
+    #name = "forward_citation"
+    #config = tensors_config[name]
+    #single_tensor = parallelisation(name,
+    #                                config["dataset"],
+    #                                config["leading_column"],
+    #                                config["remaining_columns"],
+    #                                config["tensor_value_format"])
     # try:
     #     print(single_tensor["G01S7/4914"])
     # except:

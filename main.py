@@ -22,6 +22,10 @@ def search_abstract(value, concepts):
                 extracted_token = abstract_tokenised[word_loc:word_loc+len(concept)]
                 if ' '.join(extracted_token) == ' '.join(concept):
                     references_count += 1
+    if references_count > 2:
+        print(abstract)
+        print(abstract_lower)
+        print("#"*50)
 
     return 100*references_count/len(abstract_tokenised)  # abstract is ~400 words, 1-2 cyberwords: ~1/100
 
@@ -41,7 +45,7 @@ def finding_topical_patents(tensor_patent, keywords):
         try:
             reference_count = search_abstract(value, concepts)
             if reference_count != 0:
-                topical_patents[patent] = search_abstract(value, concepts)
+                topical_patents[patent] = reference_count
         except:
             continue
 
@@ -159,7 +163,8 @@ def inspect_network():
 
 
 if __name__ == "__main__":
-    inspect_network()
+    managerial_layer()
+    #inspect_network()
     # if (answer:=input("Would you like to create (1) or load (2)")) == 1:
     #     managerial_layer()
     # elif answer == 2:

@@ -19,8 +19,10 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     
     # CPC
     clusters_df['subgroup'] = topical_clusters.keys()
+    print("length of topical_clusters is {}".format(len(topical_clusters.keys())))
     # desc
     clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='subgroup', right_on='subgroup')
+    print(clusters_df)
     # count
     clusters_df['count'] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
@@ -31,7 +33,11 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
                                                          cpc_time_series[x][end_year-1]['emergingness'])
 
     def calculate_technology_index(cpc_subgroup):
+        print_value = False
+        if cpc_subgroup in ["G06F16/9035", "H04W12/55", "Y10S707/915"]:
+            print_value = True
         padding = cpc_time_series[cpc_subgroup]
+        show_value(print_value, padding)
         value = list()
         data_aggregate = list()
 
@@ -39,7 +45,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
             try:
                 test = [pad1["emergingness"], pad2["emergingness"], pad1["patent_count"], pad2["patent_count"]]
             except:
-                return None
+                return None, None
             return test
 
         for i in range(3):
@@ -67,11 +73,11 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
                 
                 data_aggregate.append(dummy)
                 value.append(growth_em_penalised * growth_count_penalised)
-        
+        show_value(print_value, [data_aggregate, value])
         if len(value) >= 1:
             return sum(value)/len(value), data_aggregate
         else:
-            return None
+            return None, None
 
     # technology index
     clusters_df['tech index'], clusters_df["data"] = zip(*clusters_df['CPC'].apply(calculate_technology_index))
@@ -97,6 +103,8 @@ def assignee_index(topical_assignees, tensor_assignee):
 
     # emergingness
     def assignee_emergingness(row):
+        if row["count"] > 10 and row["count"] < 13:
+            print(topical_assignees[row["ID"]]["emergingness"], row["count"])
         return sum(topical_assignees[row['ID']]['emergingness']) / row['count']
 
     assignees_df['emergingness'] = assignees_df.apply(assignee_emergingness, axis=1)
@@ -104,21 +112,25 @@ def assignee_index(topical_assignees, tensor_assignee):
     return assignees_df
 
 
-def impact_index(node, network):
+def impact_index(node, network, print_value):
     """Calculates the impact value used in the impact and normalised impact indices.
     :return: impact value, number of shared patents to find normalised impact"""
-
+    show_value(print_value, node)
     name = node[0]
     assignee_value = node[1]['weight']
     impact = 0
     count = 0
-
+    show_value(print_value, network[name].items())
+    
     for neighbour, value in network[name].items():
         edge_weight = value['weight']
         node_emergingness = network.nodes[neighbour]["emergingness"]
         node_influence = network.nodes[neighbour]["influence"]
         count += edge_weight
         impact += assignee_value * edge_weight * node_emergingness * node_influence
+    if len(network[name].keys()) > 5 and len(network[name].keys()) < 11:
+        print(network[name].items)
+        print(impact, count)
 
     return impact, count
 
@@ -141,7 +153,10 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
 
     # impact
     for node in assignee_nodes:
-        impact, length = impact_index(node, network)
+        if node == assignees_nodes[0]:
+            impact, length = impact_index(node, network, True)
+        else:
+            impact, length = impact_index(node, network, False)
         assignee_df.loc[assignee_df['ID'] == node[0], 'impact'] = impact
         assignee_df.loc[assignee_df['ID'] == node[0], 'normalised impact'] = impact / length
 

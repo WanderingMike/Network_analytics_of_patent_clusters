@@ -50,10 +50,10 @@ class MlConfig:
         self.size_dataframe_train = 15000
         self.data_upload_date = datetime(2021, 6, 30)
         self.prediction_timeframe_years = 5
-        self.load_main = True
-        self.load_df_final = True
-        self.load_classifier = True
-        self.load_df_filled = True,
+        self.load_main = False
+        self.load_df_final = False
+        self.load_classifier = False
+        self.load_df_filled = False
         self.graph_name = "cybersecurity_graph"
         self.keyphrases = [['attack signature',
                             'blue team',
@@ -155,3 +155,7 @@ tensors_config = {"assignee": {"tensor": None,
                                   "remaining_columns": ["patent_id"],
                                   "tensor_value_format": list()}
                   }
+
+def show_value(predictor, to_print):
+    if predictor:
+        print(to_print)
