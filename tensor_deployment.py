@@ -149,7 +149,7 @@ def parallelisation(tensor_name, dataset, leading_column, remaining_columns, ten
     final_tensor = dict()
 
     # # Processes
-    no_computational_cores = job_config.number_of_cores
+    no_computational_cores = 6
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
 
@@ -195,21 +195,21 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-    name = "cpc_sub_patent"
+    name = "forward_citation"
     config = tensors_config[name]
     single_tensor = parallelisation(name,
                                     config["dataset"],
                                     config["leading_column"],
                                     config["remaining_columns"],
                                     config["tensor_value_format"])
-    try:
-        print(single_tensor["G01S7/4914"])
-    except:
-        pass
-    try:
-        print(single_tensor["10000000"])
-    except:
-        print("Hello")
+    # try:
+    #     print(single_tensor["G01S7/4914"])
+    # except:
+    #     pass
+    # try:
+    #     print(single_tensor["10000000"])
+    # except:
+    #     print("Hello")
     # clean_patent()
     # list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
     # make_tensors()

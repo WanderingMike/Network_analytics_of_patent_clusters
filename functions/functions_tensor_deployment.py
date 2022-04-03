@@ -117,7 +117,7 @@ def clean_patent_inventor():
 def clean_uspatentcitation():
     """Cleaning uspatentcitation.tsv data"""
 
-    tensor_patent_assignee = load_pickle("data/patentsview_cleaned/patent_assignee.pkl")
+    tensor_patent_assignee = load_pickle("data/tensors/patent_assignee.pkl")
 
     uspatentcitation_columns = [1, 2]
     uspatentcitation = drop_columns("uspatentcitation",
@@ -137,16 +137,21 @@ def clean_uspatentcitation():
                 print(patent_id, patent_assignees, citation_id, citation_assignees)
                 return True
             else:
+                print(patent_id, patent_assignees, citation_id, citation_assignees)
                 return False
 
-        except:
+        except Exception as e:
+            print(e, patent_id, citation_id)
             return False
 
     # drop assignee self-citations
+    drop_list = list()
     for index, row in uspatentcitation.iterrows():
-
+        
         if check_intersection(row['patent_id'], row['citation_id']):
-            uspatentcitation.drop(index, inplace=True)
+            drop_list.append(index)
+    
+    uspatentcitation.drop(drop_list, inplace=True)
 
     return uspatentcitation
 
