@@ -45,7 +45,7 @@ def fill_cto(row, tensor_patent_cpc, tensor_backward_citation):
     patent_id = row.name
     try:
         cited_patents = tensor_backward_citation[patent_id]
-        if len(cited_patents) < 10 and (cited_patents.count("4662438") >= 1 or cited_patents.count("6713728")):
+        if len(cited_patents) < 10 and (cited_patents.count("4662438") >= 1 or cited_patents.count("6713728") >= 1):
             print("#"*50)
             print(cited_patents)
             print_val = True
@@ -100,12 +100,12 @@ def fill_pk_tct_tcs(row, df_citations, tensor_backward_citation, tensor_patent):
         return np.nan, np.nan, np.nan
 
     try:
-        mean_cited_fc = df_citations.filter(items=cited_patents)["forward_citations"].mean()
-        print_val = True
+        mean_cited_fc = df_citations.filter(items=cited_patents).mean()
         show_value(print_val, [df_citations.filter(items=cited_patents)])
         pk = len(cited_patents)
         tcs = mean_cited_fc
-    except:
+    except Exception as e:
+        print(e)
         pk = 0
         tcs = np.nan
 
@@ -122,7 +122,7 @@ def fill_pk_tct_tcs(row, df_citations, tensor_backward_citation, tensor_patent):
     # return appropriate value
     try:
         tct = median(cited_patents_age)
-        show_value(print_val, tct)
+        show_value(print_val, [pk, tct, tcs])
     except:
         tct = np.nan
 
@@ -176,11 +176,11 @@ def fill_col_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_pa
     Total Technological Strength (TTS): Number of forward citations of patents issued by an assignee
     Core Technological Strength (CTS): Number of forward citations of patents in cpc group issued by an assignee
     """
-    print_val = False
     # Get the four indicators for a specific assignee
     def get_assignee_info(assignee, cpc_classes):
         """Getting all necessary data points for one assignee"""
 
+        print_val = False
         try:
             assignee_patents = tensor_assignee_patent[assignee]
             if len(assignee_patents) < 20 and len(assignee_patents) > 6:
@@ -216,9 +216,14 @@ def fill_col_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_pa
                 pass
 
             assignee_tts += forward_citations  # $ risk of assignees collision? Create a set of patents? $
-            show_value(print_val, [assignee, forward_citations, set_classes, tensor_patent_cpc[patent], bool(set_classes & set(tensor_patent_cpc[patent]))])
-
-        show_value(print_val, [assignee_tkh, assignee_ckh, assignee_tts, assignee_cts])
+            try:
+                show_value(print_val, [assignee, patent, forward_citations, set_classes, tensor_patent_cpc[patent], bool(set_classes & set(tensor_patent_cpc[patent]))])
+            except:
+                pass
+        try:
+            show_value(print_val, [assignee_tkh, assignee_ckh, assignee_tts, assignee_cts])
+        except:
+            pass
         return assignee_tkh, assignee_ckh, assignee_tts, assignee_cts
 
     def calculate_indices(row):

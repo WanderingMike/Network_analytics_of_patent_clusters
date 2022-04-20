@@ -14,7 +14,7 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
 
     for cluster, value in topical_clusters.items:
         print_value = False
-        if cluster == topical_clusters.keys()[0]:
+        if cluster == list(topical_clusters.keys())[0]:
             print_value = True
         show_value(print_value, cpc_time_series[cluster]) 
         year = job_config.data_upload_date.year
@@ -33,7 +33,7 @@ def get_assignee_nodes(topical_assignees):
     assignee_nodes = list()
     for assignee in topical_assignees.keys():
         print_value = False
-        if assignee == topical_assignees.keys()[0]:
+        if assignee == list(topical_assignees.keys())[0]:
             print_value = True
         show_value(print_value, topical_assignees[assignee]) 
         assignee_value_list = topical_assignees[assignee]["emergingness"]
@@ -52,7 +52,7 @@ def get_edge_data(topical_assignees):
     for assignee in topical_assignees:
         
         print_value = False
-        if assignee == topical_assignee.keys()[0]:
+        if assignee == list(topical_assignee.keys())[0]:
             print_value = True
         show_value(print_value, topical_assignees[assignee].keys()) 
         clusters = list(topical_assignees[assignee].keys())
@@ -142,7 +142,7 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
     cpc_subgroups = dict()
     for patent, value in topical_patents.items():
         print_value = False
-        if patent == topical_patents.keys[0]:
+        if patent == list(topical_patents.keys())[0]:
             print_value = True
         try:
             patent_cpc_subgroups = tensor_patent_cpc_sub[patent]

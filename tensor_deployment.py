@@ -87,14 +87,9 @@ class Worker(Process):
             count += 1
 
             try:
-                if len(remaining_cols) > 1:
-                    tmp = {k: None for k in remaining_cols}
-                    for column in remaining_cols:
-                        tmp[column] = row[column]
-                else:
-                    tmp = row[remaining_cols[0]]
-
-                answer[row[self.leading_column]].append(tmp)
+                tmp = row[remaining_cols[0]]
+                if tmp not in answer[row[self.leading_column]]:
+                    answer[row[self.leading_column]].append(tmp)
 
             except Exception as e:
                 print("Problem with Process {}:{}-{}".format(self.pid, index, row) + e)
@@ -149,7 +144,7 @@ def parallelisation(tensor_name, dataset, leading_column, remaining_columns, ten
     final_tensor = dict()
 
     # # Processes
-    no_computational_cores = 6
+    no_computational_cores = 4
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
 
@@ -195,33 +190,15 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-    back_cit = load_pickle("data/tensors/backward_citation.pkl")
-    for_cit = load_pickle("data/tensors/forward_citation.pkl")
+        
 
-    try:
-        print("character")
-        print(for_cit["6994160"])
-        print(for_cit["6994160"].count("8791396"))
-    except:
-        pass
-
-    try:
-        print("backward")
-        print(back_cit["8791396"])
-        print(back_cit["8791396"].count("6994160"))
-        print(back_cit["6994160"].count("4662438"))
-    except:
-        pass
-
-    
-
-    #name = "forward_citation"
-    #config = tensors_config[name]
-    #single_tensor = parallelisation(name,
-    #                                config["dataset"],
-    #                                config["leading_column"],
-    #                                config["remaining_columns"],
-    #                                config["tensor_value_format"])
+    name = "patent_cpc_main"
+    config = tensors_config[name]
+    single_tensor = parallelisation(name,
+                                    config["dataset"],
+                                    config["leading_column"],
+                                    config["remaining_columns"],
+                                    config["tensor_value_format"])
     # try:
     #     print(single_tensor["G01S7/4914"])
     # except:

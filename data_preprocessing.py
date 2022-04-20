@@ -27,7 +27,7 @@ def fill_dataframe(tensors, cluster):
     df_citations = cluster["forward_citations"]
 
     print("2.1.2.2 Calculating CTO ({})".format(datetime.now()))
-    cluster["CTO"] = cluster.apply(lambda x: fill_cto(x, tensors["patent_cpc"], tensors["backward_citation"]), axis=1)
+    cluster["CTO"] = cluster.apply(lambda x: fill_cto(x, tensors["patent_cpc_main"], tensors["backward_citation"]), axis=1)
 
     print("2.1.2.3 Calculating PK/TCT/TCS ({})".format(datetime.now()))
     cluster["PK"], cluster["TCT"], cluster["TCS"] = zip(*cluster.apply(

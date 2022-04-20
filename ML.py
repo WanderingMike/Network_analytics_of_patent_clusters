@@ -30,7 +30,7 @@ def calculate_patent_value(ml_df, tensor_patent):
         
         # Building model
         print("2.2.1.3 Running ML classifier ({})".format(datetime.now()))
-        cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=job_config.ml_search_time,
+        cls = classification.AutoSklearnClassifier(time_left_for_this_task=job_config.ml_search_time,
                                                                resampling_strategy='cv', 
                                                                resampling_strategy_arguments={'folds': 5},
                                                                memory_limit=None)
@@ -51,12 +51,12 @@ def calculate_patent_value(ml_df, tensor_patent):
 
     print("2.2.1.5 Prediction phase ({})".format(datetime.now()))
     df = pd.DataFrame(columns=['date', 'output'])
-    batches = [[start, start+100000] for start in range(0, len(data_to_forecast.index), 100000)]
+    batches = [[start, start+20000] for start in range(0, len(data_to_forecast.index), 20000)]
 
     for batch in tqdm(batches):
 
         subset = data_to_forecast.iloc[batch[0]:batch[1], :]
-        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=6)
+        predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=2)
         subset["output"] = predictions
         subset = subset[['date', 'output']]
         print(subset)
