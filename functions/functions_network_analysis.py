@@ -12,7 +12,7 @@ def get_cpc_nodes(topical_clusters, cpc_time_series):
     
     cpc_nodes = list()
 
-    for cluster, value in topical_clusters.items:
+    for cluster, value in topical_clusters.items():
         print_value = False
         if cluster == list(topical_clusters.keys())[0]:
             print_value = True
@@ -49,10 +49,10 @@ def get_edge_data(topical_assignees):
 
     edges = list()
 
-    for assignee in topical_assignees:
+    for assignee in topical_assignees.keys():
         
         print_value = False
-        if assignee == list(topical_assignee.keys())[0]:
+        if assignee == list(topical_assignees.keys())[0]:
             print_value = True
         show_value(print_value, topical_assignees[assignee].keys()) 
         clusters = list(topical_assignees[assignee].keys())
@@ -65,6 +65,57 @@ def get_edge_data(topical_assignees):
         show_value(print_value, edges)
 
     return edges
+
+
+def calculate_technology_index(cpc_subgroup, padding):
+    '''comment'''
+    
+    print_value = False
+    if cpc_subgroup in ["G06F16/9035", "H04W12/55", "Y10S707/915"]:
+        print_value = True
+    show_value(print_value, padding)
+    value = list()
+    data_aggregate = list()
+
+    def check_validity(pad1, pad2):
+        try:
+            test = [pad1["emergingness"], pad2["emergingness"], pad1["patent_count"], pad2["patent_count"]]
+            return test
+        except:
+            return None
+
+    end_year = job_config.data_upload_date.year
+    for i in range(3):
+        year = end_year-i
+        n = padding[year]
+        n_1 = padding[year-1]
+
+        dummy = check_validity(n, n_1)
+        if dummy:
+
+            current_em = n["emergingness"]
+            prev_em = n_1["emergingness"]
+            if prev_em == 0:
+                prev_em = 0.05
+
+            growth_em = current_em / prev_em
+            growth_em_penalised = growth_em / (1 + math.exp(5-10*prev_em))
+
+            current_count = n["patent_count"]
+            prev_count = n_1["patent_count"]
+            if prev_count == 0:
+                prev_count = 1
+
+            growth_count_penalised = (0.1*current_count*prev_count) / (prev_count*(0.1 + prev_count))
+
+            data_aggregate.append(dummy)
+            value.append(growth_em_penalised * growth_count_penalised)
+    show_value(print_value, [data_aggregate, value])
+
+    if len(value) >= 1:
+        return sum(value)/len(value), data_aggregate
+    else:
+        return None, None
 
 
 def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees):
@@ -102,14 +153,14 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
     """
 
     topical_assignees = dict()
+    total_patents = 0
+    patents_no_assignee = 0
 
     for cluster in topical_clusters.keys():
         print("6.2.1 Finding topical assignees for cluster {} ({})".format(cluster, datetime.now()))
 
         print_value = False
-        cond1 = len(cpc_time_series[cluster]["patents_final_year"]) > 10 
-        cond2 = len(cpc_time_series[cluster]["patents_final_year"]) < 16 
-        if cond1 and cond2:
+        if cluster == "B60L2270/32":
             print_value = True
             show_value(print_value, cpc_time_series[cluster]["patents_final_year"])
 
@@ -118,6 +169,7 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
                 assignees = tensor_patent_assignee[patent]
             except:
                 print(f'{patent}: no assignee')
+                patents_no_assignee += 1
                 continue
 
             try: 
@@ -128,7 +180,10 @@ def find_topical_assignees(topical_clusters, cpc_time_series, tensor_patent_assi
 
             for assignee in assignees:
                 topical_assignees = get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees)
+            total_patents += 1
             show_value(print_value, topical_assignees)
+
+    print("Results: {}/{}".format(patents_no_assignee, total_patents))
     return topical_assignees
 
 
@@ -146,16 +201,17 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
             print_value = True
         try:
             patent_cpc_subgroups = tensor_patent_cpc_sub[patent]
-            show_values(print_value, patent_cpc_subgroups)
+            if "nan" in patent_cpc_subgroups:
+                continue
+            show_value(print_value, patent_cpc_subgroups)
             for group in patent_cpc_subgroups:
-
                 if group not in cpc_subgroups.keys():
                     cpc_subgroups[group] = value
                 else:
                     cpc_subgroups[group] += value
-            show_values(print_value, cpc_subgroups)
+            show_value(print_value, cpc_subgroups)
 
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     return cpc_subgroups

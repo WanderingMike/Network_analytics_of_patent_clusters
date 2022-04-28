@@ -22,10 +22,6 @@ def search_abstract(value, concepts):
                 extracted_token = abstract_tokenised[word_loc:word_loc+len(concept)]
                 if ' '.join(extracted_token) == ' '.join(concept):
                     references_count += 1
-    if references_count > 2:
-        print(abstract)
-        print(abstract_lower)
-        print("#"*50)
 
     return 100*references_count/len(abstract_tokenised)  # abstract is ~400 words, 1-2 cyberwords: ~1/100
 
@@ -89,7 +85,7 @@ def managerial_layer():
 
         print("2. Preparing CPC clusters ({})".format(datetime.now()))
 
-        cpc_time_series, tensors = run_ml(tensors)
+        cpc_time_series, tensors["patent"] = run_ml(tensors)
 
         save_pickle("data/clusters.pkl", cpc_time_series)
         save_pickle("data/tensors.pkl", tensors)
@@ -101,8 +97,15 @@ def managerial_layer():
         print("4. Running job {} ({})".format(keywords, datetime.now()))
 
         print("5. Finding topical patents ({})".format(datetime.now()))
-        topical_patents = finding_topical_patents(tensors["patent"], keywords)
-        print(topical_patents)
+        if job_config.load_topical_patents:
+
+            topical_patents = load_pickle("data/topical_patents.pkl")
+
+        else:
+
+            topical_patents = finding_topical_patents(tensors["patent"], keywords)
+            save_pickle("data/topical_patents.pkl", topical_patents)
+
         print("6. Unfolding network ({})".format(datetime.now()))
         unfold_network(cpc_time_series, tensors, topical_patents)
 

@@ -93,7 +93,7 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
         print("2.1.3 Saving final dataframe with predictions ({})".format(datetime.now()))
         print(df_final)
         df_final.to_pickle("data/dataframes/df_final.pkl")
-        save_pickle("data/dataframes/dic_tensor_patent", tensor_patent)
+        save_pickle("data/dataframes/dic_tensor_patent.pkl", tensor_patent)
 
     for cpc_subgroup in tqdm(series.keys()):
         print_val = False
@@ -159,4 +159,4 @@ def run_ml(tensors):
                                                           tensors["patent"],
                                                           tensors["cpc_sub_patent"])
 
-    return time_series, tensors
+    return time_series, tensors["patent"]

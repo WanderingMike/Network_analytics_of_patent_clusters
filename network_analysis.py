@@ -13,7 +13,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv",
                                        sep='\t',
                                        header=0,
-                                       names=['CPC', 'desc'])
+                                       names=['subgroup', 'desc'])
 
     clusters_df = pd.DataFrame(columns=['subgroup', 'count', 'emergingness', 'delta', 'tech index', 'data'])
     
@@ -26,61 +26,14 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     # count
     clusters_df['count'] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
-    end_year = job_config.data_upload_date.year
     clusters_df['emergingness'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
     # delta
     clusters_df['delta'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'] -
                                                          cpc_time_series[x][end_year-1]['emergingness'])
 
-    def calculate_technology_index(cpc_subgroup):
-        print_value = False
-        if cpc_subgroup in ["G06F16/9035", "H04W12/55", "Y10S707/915"]:
-            print_value = True
-        padding = cpc_time_series[cpc_subgroup]
-        show_value(print_value, padding)
-        value = list()
-        data_aggregate = list()
-
-        def check_validity(pad1, pad2):
-            try:
-                test = [pad1["emergingness"], pad2["emergingness"], pad1["patent_count"], pad2["patent_count"]]
-            except:
-                return None, None
-            return test
-
-        for i in range(3):
-            year = end_year-i
-            n = padding[year]
-            n_1 = padding[year-1]
-
-            dummy = check_validity(n, n_1)
-            if dummy:
-
-                current_em = n["emergingness"]
-                prev_em = n_1["emergingness"]
-                if prev_em == 0:
-                    prev_em = 0.05
-
-                growth_em = current_em / prev_em
-                growth_em_penalised = growth_em / (1 + math.exp(5-10*prev_em))
-                
-                current_count = n["patent_count"]
-                prev_count = n_1["patent_count"]
-                if prev_count == 0:
-                    prev_count = 1
-
-                growth_count_penalised = (0.1*current_count*prev_count) / (prev_count*(0.1 + prev_count))
-                
-                data_aggregate.append(dummy)
-                value.append(growth_em_penalised * growth_count_penalised)
-        show_value(print_value, [data_aggregate, value])
-        if len(value) >= 1:
-            return sum(value)/len(value), data_aggregate
-        else:
-            return None, None
-
     # technology index
-    clusters_df['tech index'], clusters_df["data"] = zip(*clusters_df['CPC'].apply(calculate_technology_index))
+    for index, row in clusters_df.iterrows():
+        row['tech index'], row["data"] = calculate_technology_index(row["subgroup"], cpc_time_series[row["subgroup"]])
 
     return clusters_df
 
@@ -92,14 +45,14 @@ def assignee_index(topical_assignees, tensor_assignee):
     2) Patent value of assignee patents in latest year
     """
 
-    assignees_df = pd.DataFrame(columns=['ID', 'name', 'value', 'count', 'impact', 'normalised impact', 'influence'])
+    assignee_df = pd.DataFrame(columns=['ID', 'name', 'value', 'count', 'impact', 'normalised impact', 'influence'])
 
     # ID
-    assignees_df['ID'] = topical_assignees.keys()
+    assignee_df['ID'] = topical_assignees.keys()
     # name
-    assignees_df['name'] = assignees_df['ID'].apply(lambda x: tensor_assignee[x])
+    assignee_df['name'] = assignee_df['ID'].apply(lambda x: tensor_assignee[x])
     # count
-    assignees_df['count'] = assignees_df['ID'].apply(lambda x: len(topical_assignees[x]['patent_value']))
+    assignee_df['count'] = assignee_df['ID'].apply(lambda x: len(topical_assignees[x]['patents']))
 
     # emergingness
     def assignee_emergingness(row):
@@ -107,9 +60,9 @@ def assignee_index(topical_assignees, tensor_assignee):
             print(topical_assignees[row["ID"]]["emergingness"], row["count"])
         return sum(topical_assignees[row['ID']]['emergingness']) / row['count']
 
-    assignees_df['emergingness'] = assignees_df.apply(assignee_emergingness, axis=1)
+    assignee_df['emergingness'] = assignee_df.apply(assignee_emergingness, axis=1)
 
-    return assignees_df
+    return assignee_df
 
 
 def impact_index(node, network, print_value):
@@ -121,6 +74,7 @@ def impact_index(node, network, print_value):
     impact = 0
     count = 0
     show_value(print_value, network[name].items())
+    i = 10  # erase  
     
     for neighbour, value in network[name].items():
         edge_weight = value['weight']
@@ -128,9 +82,10 @@ def impact_index(node, network, print_value):
         node_influence = network.nodes[neighbour]["influence"]
         count += edge_weight
         impact += assignee_value * edge_weight * node_emergingness * node_influence
-    if len(network[name].keys()) > 5 and len(network[name].keys()) < 11:
+    if len(network[name].keys()) == 7 and i > 0:
         print(network[name].items)
         print(impact, count)
+        i-=1
 
     return impact, count
 
@@ -153,7 +108,7 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
 
     # impact
     for node in assignee_nodes:
-        if node == assignees_nodes[0]:
+        if node == assignee_nodes[0]:
             impact, length = impact_index(node, network, True)
         else:
             impact, length = impact_index(node, network, False)
@@ -177,16 +132,22 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
      3) Centrality analytics
      4) Further analytics and plots
     """
+    if job_config.load_network:
+        topical_clusters = load_pickle("data/topical_clusters.pkl")
+        topical_assignees = load_pickle("data/topical_assignees.pkl")
+    else:
+        # Building Network
+        print("6.1 Finding topical clusters ({})".format(datetime.now())) 
+        topical_clusters = find_topical_clusters(topical_patents, full_tensors["patent_cpc_sub"])
 
-    # Building Network
-    print("6.1 Finding topical clusters ({})".format(datetime.now())) 
-    topical_clusters = find_topical_clusters(topical_patents, full_tensors["patent_cpc_sub"])
+        print("6.2 Finding topical assignees ({})".format(datetime.now())) 
+        topical_assignees = find_topical_assignees(topical_clusters,
+                                                   cpc_time_series,
+                                                   full_tensors["patent_assignee"],
+                                                   full_tensors["patent"])
+        save_pickle("data/topical_clusters.pkl", topical_clusters)
+        save_pickle("data/topical_assignees.pkl", topical_assignees)
 
-    print("6.2 Finding topical assignees ({})".format(datetime.now())) 
-    topical_assignees = find_topical_assignees(topical_clusters,
-                                               cpc_time_series,
-                                               full_tensors["patent_assignee"],
-                                               full_tensors["patent"])
 
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
@@ -195,6 +156,7 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
    
     # Indices
     print(f'6.5 Calculating Technology Index ({datetime.now()})')
+
     clusters_df = technology_index(topical_clusters, cpc_time_series, full_tensors["cpc_sub_patent"])
 
     print(f'6.6 Calculating Assignee Index ({datetime.now()})')

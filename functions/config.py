@@ -50,12 +50,20 @@ class MlConfig:
         self.size_dataframe_train = 15000
         self.data_upload_date = datetime(2021, 6, 30)
         self.prediction_timeframe_years = 5
-        self.load_main = False
-        self.load_df_final = False
-        self.load_classifier = False
-        self.load_df_filled = False
+        self.load_network = False
+        self.load_topical_patents = True
+        self.load_main = True
+        self.load_df_final = True
+        self.load_classifier = True
+        self.load_df_filled = True
         self.graph_name = "cybersecurity_graph"
-        self.keyphrases = [['attack signature',
+        self.keyphrases = [['allowlist',
+                            'antimalware',
+                            'antispyware',
+                            'antivirus',
+                            'asymmetric key',
+                            'attack signature',
+                            'blocklist',
                             'blue team',
                             'bot',
                             'botnet',
@@ -64,32 +72,50 @@ class MlConfig:
                             'computer forensics',
                             'computer security incident',
                             'computer virus',
+                            'computer worm',
                             'cryptanalysis',
                             'cryptography',
+                            'cryptographic',
                             'cryptology',
-                            'cyber incidence',
+                            'cyber incident',
                             'cybersecurity',
+                            'cyber security',
                             'cyberspace',
                             'cyber threat intelligence',
                             'data breach',
+                            'data leakage',
+                            'data theft',
+                            'decrypt',
+                            'decrypted',
                             'decryption',
                             'denial of service',
+                            'digital forensics',
+                            'digital signature',
                             'encrypt',
-                            'exploit',
+                            'encrypted',
+                            'encryption',
                             'firewall',
                             'hacker',
                             'hashing',
                             'keylogger',
                             'malware',
+                            'malicious code',
+                            'network resilience',
+                            'password',
                             'pen test',
                             'pentest',
                             'phishing',
+                            'private key',
                             'public key',
                             'red team',
                             'rootkit',
                             'spoofing',
                             'spyware',
-                            'threat actor']]
+                            'symmetric key',
+                            'systems security analysis',
+                            'threat actor',
+                            'trojan',
+                            'white team']]
 
 
 job_config = MlConfig()
