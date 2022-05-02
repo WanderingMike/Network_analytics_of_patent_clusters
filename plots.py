@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
+plt.rcParams["font.family"] = "Times New Roman"
+hfont = {'fontname': 'Times New Roman'}
+font_size = 18
 
 from functions.functions_plots import *
 import pandas as pd
-from scipy.optimize import curve_fit
+sns.set(font="Times New Roman")
 
 
 def trivariate_heatmap(load=False):
@@ -37,11 +40,11 @@ def trivariate_heatmap(load=False):
 
     # Draw a heatmap with the numeric values in each cell
     f, ax = plt.subplots(figsize=(9, 6))
-    fig_title = "Average forward citation count per mainclass category per year"
     sns.heatmap(final_df, cmap="Greys", center=3, linewidths=.5, ax=ax)
     plt.subplots_adjust(top=0.9)
-    plt.suptitle(fig_title, fontsize=14)
-    plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.png", bbox_inches='tight')
+    fig_title = "Average forward citation count per mainclass category per year"
+    plt.suptitle(fig_title, fontsize=font_size)
+    plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.png")
     plt.show()
     plt.close()
 
@@ -61,7 +64,7 @@ def cdf_plot(data_series, indicator, fig_title):
 
     plt.plot(x_axis, y_axis)
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("Cumulative Distribution Function for {}".format(fig_title), fontsize=14)
+    plt.suptitle("Cumulative Distribution Function for {}".format(fig_title), fontsize=font_size)
     plt.legend(labels=["CDF"])
     plt.xlabel(fig_title)
     plt.ylabel("share of clusters")
@@ -76,7 +79,7 @@ def violin_graph(data, indicator, ylim, fig_title):
     :param ylim: plot y axis limit
     """
 
-    sns.set_theme(style="whitegrid")
+    sns.set_theme(style="whitegrid", font="Times New Roman")
     f, ax = plt.subplots(figsize=(11, 6))
     ax.set(ylim=ylim)
 
@@ -87,7 +90,9 @@ def violin_graph(data, indicator, ylim, fig_title):
     sns.despine(left=True)
 
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title), fontsize=14)
+    plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title),
+                 fontsize=font_size+4,
+                 **hfont)
     plt.savefig("plots/violin_plot_{}_query_full.png".format(indicator), bbox_inches='tight')
     plt.show()
     plt.close()
@@ -138,7 +143,7 @@ def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
     :param focus: zoomed or unzoomed version of graph
     """
 
-    sns.set_theme(style="white", color_codes=True)
+    sns.set_theme(style="white", color_codes=True, font="Times New Roman")
 
     # Use JointGrid directly to draw a custom plot
     g = sns.JointGrid(data=df, x=x, y=y, space=0, ratio=17, xlim=xlim, ylim=ylim)
@@ -148,7 +153,7 @@ def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
     g.plot_marginals(sns.rugplot, height=1, color="g", alpha=.6)
 
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=14)
+    plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=font_size, **hfont)
     plt.savefig("plots/scatterplot_{}_vs_{}_{}.png".format(x, y, focus), bbox_inches='tight')
     plt.show()
     plt.close()
@@ -166,7 +171,7 @@ if __name__ == "__main__":
     #cdf_plot(emergingness_data, indicator="patent_count", fig_title="cluster size")
 
     ### Plot 4 & 5: violin plots
-    #violin_plots_time_series()
+    violin_plots_time_series()
 
     ### Plot 6: network subgraph
     #network_draw_subgraph()
