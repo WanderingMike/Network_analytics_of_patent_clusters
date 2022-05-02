@@ -19,13 +19,12 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     
     # CPC
     clusters_df['subgroup'] = topical_clusters.keys()
-    print("length of topical_clusters is {}".format(len(topical_clusters.keys())))
     # desc
     clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='subgroup', right_on='subgroup')
-    print(clusters_df)
     # count
     clusters_df['count'] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
+    end_year = job_config.data_upload_date.year
     clusters_df['emergingness'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
     # delta
     clusters_df['delta'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'] -
@@ -55,26 +54,19 @@ def assignee_index(topical_assignees, tensor_assignee):
     assignee_df['count'] = assignee_df['ID'].apply(lambda x: len(topical_assignees[x]['patents']))
 
     # emergingness
-    def assignee_emergingness(row):
-        if row["count"] > 10 and row["count"] < 13:
-            print(topical_assignees[row["ID"]]["emergingness"], row["count"])
-        return sum(topical_assignees[row['ID']]['emergingness']) / row['count']
-
-    assignee_df['emergingness'] = assignee_df.apply(assignee_emergingness, axis=1)
+    lambda_function = lambda row: sum(topical_assignees[row['ID']]['emergingness']) / row['count']
+    assignee_df['emergingness'] = assignee_df.apply(function, axis=1)
 
     return assignee_df
 
 
-def impact_index(node, network, print_value):
+def impact_index(node, network):
     """Calculates the impact value used in the impact and normalised impact indices.
     :return: impact value, number of shared patents to find normalised impact"""
-    show_value(print_value, node)
     name = node[0]
     assignee_value = node[1]['weight']
     impact = 0
     count = 0
-    show_value(print_value, network[name].items())
-    i = 10  # erase  
     
     for neighbour, value in network[name].items():
         edge_weight = value['weight']
@@ -82,10 +74,6 @@ def impact_index(node, network, print_value):
         node_influence = network.nodes[neighbour]["influence"]
         count += edge_weight
         impact += assignee_value * edge_weight * node_emergingness * node_influence
-    if len(network[name].keys()) == 7 and i > 0:
-        print(network[name].items)
-        print(impact, count)
-        i-=1
 
     return impact, count
 
@@ -108,10 +96,8 @@ def network_indices(cpc_nodes, assignee_nodes, edges, assignee_df):
 
     # impact
     for node in assignee_nodes:
-        if node == assignee_nodes[0]:
-            impact, length = impact_index(node, network, True)
-        else:
-            impact, length = impact_index(node, network, False)
+        impact, length = impact_index(node, network)
+        assignee_df.loc[assignee_df['ID'] == node[0], 'value'] = node[1]['weight']
         assignee_df.loc[assignee_df['ID'] == node[0], 'impact'] = impact
         assignee_df.loc[assignee_df['ID'] == node[0], 'normalised impact'] = impact / length
 
@@ -133,9 +119,14 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
      4) Further analytics and plots
     """
     if job_config.load_network:
+        
+        print(f'6.1 Loading topical clusters ({datetime.now()})')
         topical_clusters = load_pickle("data/topical_clusters.pkl")
+        print(f'6.2 Loading topical assignees ({datetime.now()})')
         topical_assignees = load_pickle("data/topical_assignees.pkl")
+
     else:
+
         # Building Network
         print("6.1 Finding topical clusters ({})".format(datetime.now())) 
         topical_clusters = find_topical_clusters(topical_patents, full_tensors["patent_cpc_sub"])
@@ -167,9 +158,7 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
     
     # Output
     print(f'6.10 Writing to output files ({datetime.now()})')
-    print(clusters_df)
     clusters_df.to_csv("output_tables/clusters_df.csv")
-    print(assignee_df)
     assignee_df.to_csv("output_tables/assignee_df.csv")
 
     clusters_df.sort_values("tech index", inplace=True, ascending=False)

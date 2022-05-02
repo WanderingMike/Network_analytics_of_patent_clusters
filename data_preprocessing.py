@@ -70,8 +70,11 @@ def data_preprocessing(tensors):
     """
     
     if job_config.load_df_filled:
+
         cluster_complete = pd.read_pickle("data/dataframes/df_preprocessed.pkl")
+
     else:
+
         print("2.1.1 Generating empty frame ({})".format(datetime.now()))
         cluster = generate_dataframe(tensors["patent"])
         print("2.1.2 Filling dataframe ({})".format(datetime.now()))

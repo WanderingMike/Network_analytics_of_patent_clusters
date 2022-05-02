@@ -68,11 +68,7 @@ def onehotencode(cluster, columns=None):
 
     if columns:
         cluster = cluster[cluster.columns.intersection(columns)]
-        cols = cluster.columns.values
-        print(cols, len(cols))
         return cluster, None
 
     else:
-        cols = cluster.columns.values
-        print(cols, len(cols))
         return cluster, cluster.columns.values.tolist()

@@ -134,10 +134,8 @@ def clean_uspatentcitation():
             intersection_size = len(set(patent_assignees).intersection(citation_assignees))
 
             if intersection_size > 0:
-                print(patent_id, patent_assignees, citation_id, citation_assignees)
                 return True
             else:
-                print(patent_id, patent_assignees, citation_id, citation_assignees)
                 return False
 
         except Exception as e:

@@ -191,14 +191,16 @@ def make_tensors():
 
 if __name__ == "__main__":
         
+    list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
+    make_tensors()
 
-    name = "patent_cpc_main"
-    config = tensors_config[name]
-    single_tensor = parallelisation(name,
-                                    config["dataset"],
-                                    config["leading_column"],
-                                    config["remaining_columns"],
-                                    config["tensor_value_format"])
+    # name = "patent_cpc_main"
+    # config = tensors_config[name]
+    # single_tensor = parallelisation(name,
+    #                                 config["dataset"],
+    #                                 config["leading_column"],
+    #                                 config["remaining_columns"],
+    #                                 config["tensor_value_format"])
     # try:
     #     print(single_tensor["G01S7/4914"])
     # except:
@@ -208,5 +210,3 @@ if __name__ == "__main__":
     # except:
     #     print("Hello")
     # clean_patent()
-    # list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
-    # make_tensors()

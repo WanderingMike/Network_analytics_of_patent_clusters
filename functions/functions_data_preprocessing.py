@@ -45,10 +45,6 @@ def fill_cto(row, tensor_patent_cpc, tensor_backward_citation):
     patent_id = row.name
     try:
         cited_patents = tensor_backward_citation[patent_id]
-        if len(cited_patents) < 10 and (cited_patents.count("4662438") >= 1 or cited_patents.count("6713728") >= 1):
-            print("#"*50)
-            print(cited_patents)
-            print_val = True
     except:
         return 0
 
@@ -61,7 +57,6 @@ def fill_cto(row, tensor_patent_cpc, tensor_backward_citation):
 
         try:
             cpc_subclasses = tensor_patent_cpc[cited_patent]
-            show_value(print_val, [cited_patent, cpc_subclasses])
         except:
             continue  # failure point
 
@@ -73,13 +68,11 @@ def fill_cto(row, tensor_patent_cpc, tensor_backward_citation):
 
             counter += 1
 
-    show_value(print_val,[counter, count])
     # Calculating index by subtracting squared proportions of cpc groups
     herfindahl_index = 1
     for v in count.values():
         herfindahl_index -= (v / counter) ** 2
 
-    show_value(print_val, herfindahl_index)
     return round(herfindahl_index, 5)
 
 
@@ -89,13 +82,9 @@ def fill_pk_tct_tcs(row, df_citations, tensor_backward_citation, tensor_patent):
 
     # Getting all cited patents
     patent_id = row.name
-    print_val = False
+
     try:
         cited_patents = tensor_backward_citation[patent_id]
-        if len(cited_patents) < 10 and (cited_patents.count("4662438") >= 1 or cited_patents.count("6713728") >= 1):
-            print("#"*50)
-            print(cited_patents)
-            print_val = True
     except:
         return np.nan, np.nan, np.nan
 
@@ -111,6 +100,7 @@ def fill_pk_tct_tcs(row, df_citations, tensor_backward_citation, tensor_patent):
 
     # For each cited patent, get the age difference
     cited_patents_age = list()
+
     for cited_patent in cited_patents:
         try:
             age = (tensor_patent[patent_id]["date"] - tensor_patent[cited_patent]["date"]).days
@@ -180,12 +170,8 @@ def fill_col_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_pa
     def get_assignee_info(assignee, cpc_classes):
         """Getting all necessary data points for one assignee"""
 
-        print_val = False
         try:
             assignee_patents = tensor_assignee_patent[assignee]
-            if len(assignee_patents) < 20 and len(assignee_patents) > 6:
-                print_val = True
-                
         except:
             return 0, 0, 0, 0
 
@@ -216,14 +202,7 @@ def fill_col_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_pa
                 pass
 
             assignee_tts += forward_citations  # $ risk of assignees collision? Create a set of patents? $
-            try:
-                show_value(print_val, [assignee, patent, forward_citations, set_classes, tensor_patent_cpc[patent], bool(set_classes & set(tensor_patent_cpc[patent]))])
-            except:
-                pass
-        try:
-            show_value(print_val, [assignee_tkh, assignee_ckh, assignee_tts, assignee_cts])
-        except:
-            pass
+
         return assignee_tkh, assignee_ckh, assignee_tts, assignee_cts
 
     def calculate_indices(row):
@@ -251,8 +230,6 @@ def fill_col_tkh_ckh_tts_cts(cluster, tensor_patent_assignee, tensor_assignee_pa
         for assignee in assignee_list:
 
             if assignee in assignee_info.keys():
-                if assignee_info[assignee]["tkh"] == 5:
-                    print("Found one assignee with 5 tkh!")
                 tkh = assignee_info[assignee]["tkh"]
                 ckh = assignee_info[assignee]["ckh"]
                 tts = assignee_info[assignee]["tts"]

@@ -40,6 +40,8 @@ def calculate_patent_value(ml_df, tensor_patent):
         save_pickle("data/dataframes/model.pkl", cls)
 
     else:
+
+        print("2.2.1.3 Loading ML classifier ({})".format(datetime.now()))
         cls = load_pickle("data/dataframes/model.pkl")
         
     del data_complete
@@ -59,7 +61,6 @@ def calculate_patent_value(ml_df, tensor_patent):
         predictions = cls.predict(subset.drop(["date", "forward_citations", "output"], axis=1), n_jobs=2)
         subset["output"] = predictions
         subset = subset[['date', 'output']]
-        print(subset)
         df = pd.concat([df, subset], axis=0)
     
     print("2.2.1.6 Saving data in tensor ({})".format(datetime.now()))
@@ -81,34 +82,37 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
     series = {cpc_subgroup: dict() for cpc_subgroup in tensor_cpc_sub_patent.keys()}
     
     if job_config.load_df_final:
-
+        
+        print(f'2.2.1 Loading patent value for entire set of patents ({datetime.now()})')
         df_final = pd.read_pickle("data/dataframes/df_final.pkl")
         tensor_patent = load_pickle("data/dataframes/dic_tensor_patent.pkl")
         
     else:
 
-        print("2.2.1 Calculating patent value for entire dataframe ({})".format(datetime.now()))
+        print("2.2.1 Calculating patent value for entire set of patents ({})".format(datetime.now()))
         df_final, tensor_patent = calculate_patent_value(ml_df, tensor_patent)
-
-        print("2.1.3 Saving final dataframe with predictions ({})".format(datetime.now()))
         print(df_final)
+
         df_final.to_pickle("data/dataframes/df_final.pkl")
         save_pickle("data/dataframes/dic_tensor_patent.pkl", tensor_patent)
 
+    print(f'2.2.2 Constructing timeseries for each CPC subgroup ({datetime.now()})')
+
     for cpc_subgroup in tqdm(series.keys()):
-        print_val = False
+        
+        # creating empty timeseries dictionary
         start_series = job_config.data_upload_date.year - 3
         end_series = job_config.data_upload_date.year + 1
         series[cpc_subgroup] = {year: None for year in range(start_series, end_series)}
 
+        # required dataset to populate timeseries
         patents_in_subgroup = tensor_cpc_sub_patent[cpc_subgroup]
-        if len(patents_in_subgroup) > 80 and len(patents_in_subgroup) < 100:
-            print_val = True
         subgroup_df = df_final[df_final.index.isin(patents_in_subgroup)]
-        show_value(print_val, subgroup_df)
         patents_final_year = None
 
+        # build timeseries year after year
         for diff in range(4):
+
             year = job_config.data_upload_date.year - diff
             month = job_config.data_upload_date.month
             day = job_config.data_upload_date.day
@@ -119,7 +123,6 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
 
             filters = start_date & end_date
             temp_df = subgroup_df[filters]
-            show_value(print_val, temp_df)
             patents_per_year = list(temp_df.index.values)
 
             if diff == 0:
@@ -134,7 +137,6 @@ def calculate_indicators(ml_df, tensor_patent, tensor_cpc_sub_patent):
                           "patent_count": patent_count}
 
             series[cpc_subgroup][year] = indicators
-            show_value(print_val, series[cpc_subgroup][year])
 
         series[cpc_subgroup]["patents_final_year"] = patents_final_year
 
