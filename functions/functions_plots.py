@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-from functions.config_ML import job_config
+from functions.config import job_config
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,7 +42,7 @@ def save_pickle(name, data):
 
 
 def cdf_data():
-    '''Fetches topical clusters and the amount of patents per cluster per year'''
+    """Fetches topical clusters and the amount of patents per cluster per year"""
 
     clusters_df = pd.read_csv("output_tables/clusters_df.csv")
     topical_clusters = clusters_df["CPC"].tolist()
@@ -52,17 +52,18 @@ def cdf_data():
 
     return emergingness_data
 
+
 def prepare_violin_plot_df(cpc_time_series, topical_clusters, indicator):
-    '''Prepares violin plots datasets'''
+    """Prepares violin plots datasets"""
 
     ### Prepare rows of data
     rows_list = []
     for group in cpc_time_series.keys():
         for year in range(2018, 2022):
             if group in topical_clusters:
-                dict1 = {"name": group, "year": year, "type": "query", "value": cpc_time_series[group][year][indicator]}
+                dict1 = {"name": group, "year": year, "type": "query", "cluster value": cpc_time_series[group][year][indicator]}
             else:
-                dict1 = {"name": group, "year": year, "type": "complete", "value": cpc_time_series[group][year][indicator]}
+                dict1 = {"name": group, "year": year, "type": "full", "cluster value": cpc_time_series[group][year][indicator]}
             rows_list.append(dict1)
 
     ### Create pandas dataframe out of list of rows

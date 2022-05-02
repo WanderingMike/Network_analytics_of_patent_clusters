@@ -1,40 +1,57 @@
-from functions.functions_plots import *
+import matplotlib.pyplot as plt
 
-def trivariate_heatmap():
-    '''
+from functions.functions_plots import *
+import pandas as pd
+from scipy.optimize import curve_fit
+
+
+def trivariate_heatmap(load=False):
+    """
     Draw a heatmap with patent mainclass as y value, year as x value, and colour of each cell tied to the amount of
     patents.
-    '''
+    """
 
-    df = pd.read_pickle("data/dataframes/filled_df.pkl")
-    df = df[["date", "forward_citations", "MF"]]
-    print(df)
-    df["year"] = df["date"].apply(lambda x: x.year)
-    df = df.explode('MF')
-    df = df[df["MF"].notna()]
-    print(df)
-    df = df[df["forward_citations"].notna()]
-    df["MF"] = df["MF"].apply(lambda x: x[0])
-    print(df)
-    df.drop_duplicates(inplace=True)
-    print(df)
+    def get_mainclass(mainclasses):
+        answer = list()
+        for mainclass in mainclasses:
+            answer.append(mainclass[0])
+        return list(set(answer))
 
-    final_df = df.groupby(["MF", "year"], as_index=False).mean()
-    final_df = final_df.pivot(index="MF", columns='year', values='forward_citations')
+    if load:
+        final_df = load_pickle("plots/source/heatmap_df.pkl")
+    else:
+        df = pd.read_pickle("data/dataframes/filled_df.pkl")
+        df = df[["date", "forward_citations", "MF"]]
+        print(df)
+        df["Mainclass"] = df["MF"].apply(get_mainclass)
+        print(df)
+        df["year"] = df["date"].apply(lambda x: x.year)
+        df = df.explode('Mainclass')
+        df = df[df["Mainclass"].notna()]
+        df = df[df["forward_citations"].notna()]
+        print(df)
+
+        final_df = df.groupby(["Mainclass", "year"], as_index=False).mean()
+        final_df = final_df.pivot(index="Mainclass", columns='year', values='forward_citations')
+        save_pickle("plots/source/heatmap_df.pkl", final_df)
 
     # Draw a heatmap with the numeric values in each cell
     f, ax = plt.subplots(figsize=(9, 6))
-    sns.heatmap(final_df, linewidths=.5, ax=ax)
-    plt.show()
+    fig_title = "Average forward citation count per mainclass category per year"
+    sns.heatmap(final_df, cmap="Greys", center=3, linewidths=.5, ax=ax)
+    plt.subplots_adjust(top=0.9)
+    plt.suptitle(fig_title, fontsize=14)
     plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.png", bbox_inches='tight')
+    plt.show()
     plt.close()
 
 
-def cdf_plot(data_series, indicator):
-    '''Builds a cumulative distribution function
-    :param data_series: main dataset
+def cdf_plot(data_series, indicator, fig_title):
+    """Builds a cumulative distribution function for all topical clusters.
+    :param data_series: main dataset with the value of each cluster and its patent count
     :param indicator: independent variable of the cdf
-    '''
+    :param fig_title: title of figure
+    """
 
     data = [point[indicator] for point in data_series]
 
@@ -43,48 +60,59 @@ def cdf_plot(data_series, indicator):
     y_axis = np.array(range(n)) / float(n)
 
     plt.plot(x_axis, y_axis)
-    plt.show()
+    plt.subplots_adjust(top=0.9)
+    plt.suptitle("Cumulative Distribution Function for {}".format(fig_title), fontsize=14)
+    plt.legend(labels=["CDF"])
+    plt.xlabel(fig_title)
+    plt.ylabel("share of clusters")
     plt.savefig("plots/cdf_{}.png".format(indicator), bbox_inches='tight')
+    plt.show()
     plt.close()
 
 
-def violin_graph(data, indicator, ylim):
-    '''Draws a violin graph time-series
+def violin_graph(data, indicator, ylim, fig_title):
+    """Draws a violin graph time-series
     :param data: data distribution
-    :param ylim: plot y axis limit'''
+    :param ylim: plot y axis limit
+    """
 
     sns.set_theme(style="whitegrid")
     f, ax = plt.subplots(figsize=(11, 6))
     ax.set(ylim=ylim)
 
     # Draw a nested violinplot and split the violins for easier comparison
-    sns.violinplot(data=data, x="year", y="value", hue="type",
+    sns.violinplot(data=data, x="year", y="cluster value", hue="type",
                    split=True, inner="quart", linewidth=1,
-                   palette={"query": "b", "complete": ".85"})
+                   palette={"query": "b", "full": ".85"})
     sns.despine(left=True)
 
+    plt.subplots_adjust(top=0.9)
+    plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title), fontsize=14)
+    plt.savefig("plots/violin_plot_{}_query_full.png".format(indicator), bbox_inches='tight')
     plt.show()
-    plt.savefig("plots/violin_plot_{}_query_complete.png".format(indicator), bbox_inches='tight')
     plt.close()
 
 
 def violin_plots_time_series():
-    '''Builds a time-series of violin plots for patent count and patent value'''
+    """Builds a time-series of violin plots for patent count and patent value"""
 
     cpc_time_series = load_pickle("data/clusters.pkl")
-    topical_clusters = pd.read_csv("output_tables/clusters_df.csv")["CPC"].tolist()
+    topical_clusters = pd.read_csv("output_tables/test/clusters_df.csv")["CPC"].tolist()
     topical_clusters_time_series = {group: cpc_time_series[group] for group in topical_clusters}
 
     df_emergingness = prepare_violin_plot_df(cpc_time_series, topical_clusters_time_series, "emergingness")
     df_patent_count = prepare_violin_plot_df(cpc_time_series, topical_clusters_time_series, "patent_count")
 
-    violin_graph(df_emergingness, "emergingness", (0,1))
-    violin_graph(df_patent_count, "patent_count", (0, np.percentile(df_patent_count["value"], 95)))
+    violin_graph(df_emergingness, "emergingness", (0, 1), fig_title="cluster value")
+    violin_graph(df_patent_count,
+                 "patent_count",
+                 (0, np.percentile(df_patent_count["cluster value"], 99)),
+                 fig_title="cluster size")
 
 
 def network_draw_subgraph():
 
-    network = load_pickle("data/plots/network.pkl")
+    network = load_pickle("data/network.pkl")
     most_connected = list(network.degree())
     most_connected_clusters = [node[0] for node in most_connected if "/" in node[0]][:10]
     most_connected_assignees = [node[0] for node in most_connected if "/" not in node[0]][:10]
@@ -99,8 +127,8 @@ def network_draw_subgraph():
     plt.show()
 
 
-def scatterplot(df, x, y, xlim, ylim, focus):
-    '''
+def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
+    """
     Builds a scatterplot graph
     :param df: dataset
     :param x: dependent variable
@@ -108,54 +136,65 @@ def scatterplot(df, x, y, xlim, ylim, focus):
     :param xlim: ticker limits on x-axis
     :param ylim: ticker limits on y-axis
     :param focus: zoomed or unzoomed version of graph
-    '''
+    """
 
     sns.set_theme(style="white", color_codes=True)
 
     # Use JointGrid directly to draw a custom plot
     g = sns.JointGrid(data=df, x=x, y=y, space=0, ratio=17, xlim=xlim, ylim=ylim)
+    g.set_axis_labels(x_title, y_title, fontsize=12)
     g.plot_joint(sns.scatterplot, size=df["count"], sizes=(30, 120),
                  color="g", alpha=.6, legend=False)
     g.plot_marginals(sns.rugplot, height=1, color="g", alpha=.6)
 
-    plt.show()
+    plt.subplots_adjust(top=0.9)
+    plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=14)
     plt.savefig("plots/scatterplot_{}_vs_{}_{}.png".format(x, y, focus), bbox_inches='tight')
+    plt.show()
     plt.close()
 
 
 if __name__ == "__main__":
     ### Plot 1: Trivariate heatmap
-    trivariate_heatmap()
+    #trivariate_heatmap(load=True)
 
     ### Plot 2 & 3: cumulative distribution functions
     # emergingness_data = cdf_data()
     # save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
-    emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
-    cdf_plot(emergingness_data, indicator="emergingness")
-    cdf_plot(emergingness_data, indicator="patent_count")
+    #emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
+    #cdf_plot(emergingness_data, indicator="emergingness", fig_title="cluster value")
+    #cdf_plot(emergingness_data, indicator="patent_count", fig_title="cluster size")
 
     ### Plot 4 & 5: violin plots
-    violin_plots_time_series()
+    #violin_plots_time_series()
 
     ### Plot 6: network subgraph
-    network_draw_subgraph()
+    #network_draw_subgraph()
 
     ### Plot 7 & 8: scatterplots
-    df = pd.read_csv("output_tables/assignee_df.csv")
-    scatterplot(df, "count", "normalised impact",
-                xlim=(0, df["count"].max()),
-                ylim=(0, df["normalised impact"].max()),
+    assignee_df = pd.read_csv("output_tables/test/assignee_df.csv")
+    scatterplot(assignee_df, "count", "normalised impact",
+                xlim=(0, assignee_df["count"].max()),
+                ylim=(0, assignee_df["normalised impact"].max()),
+                x_title="Assignee patent count",
+                y_title="Normalised impact",
                 focus="unzoomed")
-    scatterplot(df, "count", "normalised impact",
-                xlim=(0, np.percentile(df["count"], 99)),
-                ylim=(0, np.percentile(df["normalised impact"], 99)),
+    scatterplot(assignee_df, "count", "normalised impact",
+                xlim=(0, np.percentile(assignee_df["count"], 99)),
+                ylim=(0, np.percentile(assignee_df["normalised impact"], 99)),
+                x_title="Assignee patent count",
+                y_title="Normalised impact",
                 focus="zoomed")
-    scatterplot(df, "influence", "impact",
-                xlim=(0, df["influence"].max()),
-                ylim=(0, df["impact"].max()),
+    scatterplot(assignee_df, "influence", "impact",
+                xlim=(0, assignee_df["influence"].max()),
+                ylim=(0, assignee_df["impact"].max()),
+                x_title="Assignee influence",
+                y_title="Assignee impact",
                 focus="unzoomed")
-    scatterplot(df, "influence", "impact",
-                xlim=(0, np.percentile(df["influence"], 99.5)),
-                ylim=(0, np.percentile(df["impact"], 99.5)),
+    scatterplot(assignee_df, "influence", "impact",
+                xlim=(0, np.percentile(assignee_df["influence"], 99.5)),
+                ylim=(0, np.percentile(assignee_df["impact"], 99.5)),
+                x_title="Assignee influence",
+                y_title="Assignee impact",
                 focus="zoomed")
 
