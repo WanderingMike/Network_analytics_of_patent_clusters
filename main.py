@@ -1,87 +1,4 @@
-from network_analysis import *
-from ML import *
-
-
-def search_abstract(abstract, concepts):
-    """
-    Takes a list of words or ideas and looks for them in the patent abstract. Use Term Frequency to normalise.
-    :param value: patent dictionary value
-    :param concepts: words to find in patent abstract
-    """
-
-    abstract_cleaned = abstract.translate(str.maketrans('', '', string.punctuation))
-    abstract_lower = abstract_cleaned.lower()
-    abstract_tokenised = abstract_lower.split(' ')
-    references_count = 0
-    
-    for concept in concepts:
-        first_word = concept[0]
-        for word_loc in range(len(abstract_tokenised)):
-            if abstract_tokenised[word_loc] == first_word:
-                extracted_token = abstract_tokenised[word_loc:word_loc+len(concept)]
-                if ' '.join(extracted_token) == ' '.join(concept):
-                    references_count += 1
-
-    return 100*references_count/len(abstract_tokenised)  # abstract is ~400 words, 1-2 cyberwords: ~1/100
-
-
-def check_category(categories):
-    lst_cat = ['B60R25/104',
-             'B01J2219/00704',
-             'B60R25/2072',
-             'A63G31/16',
-             'B60R25/406',
-             'A63B21/0455',
-             'A63B2208/0209',
-             'C12N2310/321',
-             'C12N15/70',
-             'C12N2310/16',
-             'A47J37/1266',
-             'B41J29/38',
-             'B32B7/12',
-             'A23L33/135',
-             'H01F2005/027',
-             'A47G2029/145',
-             'A44C5/0007',
-             'B32B2307/42',
-             'B32B2307/4023',
-             'Y02A40/22',
-             'E05B73/0005',
-             'E05F15/684',
-             'A61B1/0669',
-             'B32B29/02',
-             'G07D7/0032',
-             'E05B45/005',
-             'G01F1/007',
-             'G01R22/06',
-            'B32B9/045']
-    return [x for x in categories if x in lst_cat]
-
-
-def finding_topical_patents(tensor_patent, tensor_patent_cpc_sub, keywords):
-    """
-    Finds all patents that contain at least of one the keywords.
-    :param tensor_patent: tensor which contains patent abstracts
-    :param keywords: list of words to search for
-    """
-    concepts = [words.split(' ') for words in keywords]
-
-    topical_patents = dict()
-    
-    for patent, value in tensor_patent.items():
-        
-        try:
-            reference_count = search_abstract(value["abstract"], concepts)
-            answer = check_category(tensor_patent_cpc_sub[patent])
-            if reference_count != 0 and len(answer) > 0:
-                print("#"*30)
-                print(answer)
-                print(value["abstract"])
-                topical_patents[patent] = reference_count
-        except:
-            continue
-
-    return topical_patents
+from functions.functions_main import *
 
 
 def managerial_layer():
@@ -139,40 +56,17 @@ def managerial_layer():
 
         else:
 
-            topical_patents = finding_topical_patents(tensors["patent"], tensors["patent_cpc_sub"], keywords)
+            topical_patents = finding_topical_patents(tensors["patent"], keywords)
             save_pickle("data/topical_patents.pkl", topical_patents)
-        input("hey") 
+
         print("6. Unfolding network ({})".format(datetime.now()))
         unfold_network(cpc_time_series, tensors, topical_patents)
 
 
-def publish_ranking(graph, node_name, node_descriptions):
-    """
-    Creates ranked dataset of neighbouring graph nodes
-    :param graph: query graph
-    :param node_name: assignee or CPC ID
-    :param node_descriptions: dataset with all adequate node descriptions
-    :return: ranking as a pandas dataframe
-    """
-
-    ranking = pd.DataFrame.from_dict(graph[node_name], orient="index")
-
-    # header
-    print("#"*50)
-    print(node_name)
-
-    # ranking
-    ranking = pd.merge(ranking, node_descriptions, how='left', left_index=True, right_on='id')
-    ranking.sort_values(by=["weight"], inplace=True, ascending=False)
-    print(ranking)
-
-    return ranking
-
-
-def inspect_network():
+def inspect_network(name):
     """Prints most important technologies per assignee or most important companies per technology."""
 
-    graph = load_pickle("data/network.pkl")
+    graph = load_pickle("data/{}".format(name))
     cluster_descriptions = pd.read_csv("data/patentsview_data/cpc_subgroup.tsv", sep='\t', header=0,
                                        names=['id', 'desc'])
     assignee_descriptions = pd.read_csv("data/patentsview_data/assignee.tsv", sep='\t', header=0,
@@ -201,13 +95,62 @@ def inspect_network():
         loop = input("Would you like to continue? (y or n)  ")
 
 
+def display_topical_abstracts():
+    """This function is useful when trying to understand the technologies index and curating the keywords list.
+    Given a set of CPC subgroups, this function prints all topical patents that were linked to these subgroups."""
+
+    topical_patents = load_pickle("data/topical_patents.pkl")
+    print("Loading required tensors")
+    tensor_patent_cpc_sub = load_pickle("data/tensors/patent_cpc_sub.pkl")
+    tensor_patent = load_pickle("data/tensors/patent.pkl")
+
+    subgroup_set = input("Set of comma-separated subgroups: ").split(",")
+    for patent, reference_count in topical_patents.items():
+        if reference_count > 0:
+            if find_intersection(tensor_patent_cpc_sub[patent], subgroup_set) > 0:
+                print("#"*30)
+                print(patent)
+                print(tensor_patent[patent]["abstract"])
+
+
+def curate_ranking():
+    """Develop new rankings"""
+
+    df_name = input("Which dataframe? \n (1) Technologies\n (2) Companies")
+    filter_var = input("Filter on variable: ")
+    filter_order = input(" (1) Ascending, (2) Descending")
+    min_val = input("Variable - Minimum value (separated by white space)").split()
+
+    if df_name == 1:
+        df = pd.read_csv("output_tables/clusters_df.csv", index_col=0, header=0)
+    else:
+        df = pd.read_csv("output_tables/assignees_df.csv", index_col=0, header=0)
+
+    df = df[df[min_val[0]] > int(min_val[1])]
+    df.sort_values(filter_var, inplace=True, ascending=True if filter_order == 1 else False)
+
+
+def interaction():
+    """Displays menu and runs appropriate functions according to user wishes"""
+
+    ans = input("Would you like to: \n"
+                   "(1) Create a new graph\n" +
+                   "(2) Inspect an assignee or a technology\n" +
+                   "(3) Find abstract of topical patents pertaining to a group of technologies\n" +
+                   "(4) Publish a new index ranking\n")
+
+    if ans == '1':
+        managerial_layer()
+    elif ans == '2':
+        network_name = input("Network file name: ")
+        inspect_network(network_name)
+    elif ans == '3':
+        display_topical_abstracts()
+    elif ans == '4':
+        curate_ranking()
+    else:
+        print("Invalid input")
+
+
 if __name__ == "__main__":
     managerial_layer()
-    #inspect_network()
-    # if (answer:=input("Would you like to create (1) or load (2)")) == 1:
-    #     managerial_layer()
-    # elif answer == 2:
-    #     #network_name = input("")
-    #     inspect_network()
-    # else:
-    #     print("Invalid input")

@@ -14,15 +14,15 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
                                        sep='\t',
                                        header=0,
                                        names=['subgroup', 'desc'])
-
-    clusters_df = pd.DataFrame(columns=['subgroup', 'count', 'emergingness', 'delta', 'tech index', 'data'])
     
     # CPC
-    clusters_df['subgroup'] = topical_clusters.keys()
+    clusters_df = pd.DataFrame(list(topical_clusters.items()), columns=['subgroup', 'citations'])
     # desc
     clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='subgroup', right_on='subgroup')
     # count
     clusters_df['count'] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
+    # citations
+    clusters_df["citations"] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
     end_year = job_config.data_upload_date.year
     clusters_df['emergingness'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
@@ -138,7 +138,6 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
                                                    full_tensors["patent"])
         save_pickle("data/topical_clusters.pkl", topical_clusters)
         save_pickle("data/topical_assignees.pkl", topical_assignees)
-
 
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
