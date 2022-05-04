@@ -2,14 +2,13 @@ from network_analysis import *
 from ML import *
 
 
-def search_abstract(value, concepts):
+def search_abstract(abstract, concepts):
     """
     Takes a list of words or ideas and looks for them in the patent abstract. Use Term Frequency to normalise.
     :param value: patent dictionary value
     :param concepts: words to find in patent abstract
     """
 
-    abstract = value["abstract"]
     abstract_cleaned = abstract.translate(str.maketrans('', '', string.punctuation))
     abstract_lower = abstract_cleaned.lower()
     abstract_tokenised = abstract_lower.split(' ')
@@ -26,7 +25,40 @@ def search_abstract(value, concepts):
     return 100*references_count/len(abstract_tokenised)  # abstract is ~400 words, 1-2 cyberwords: ~1/100
 
 
-def finding_topical_patents(tensor_patent, keywords):
+def check_category(categories):
+    lst_cat = ['B60R25/104',
+             'B01J2219/00704',
+             'B60R25/2072',
+             'A63G31/16',
+             'B60R25/406',
+             'A63B21/0455',
+             'A63B2208/0209',
+             'C12N2310/321',
+             'C12N15/70',
+             'C12N2310/16',
+             'A47J37/1266',
+             'B41J29/38',
+             'B32B7/12',
+             'A23L33/135',
+             'H01F2005/027',
+             'A47G2029/145',
+             'A44C5/0007',
+             'B32B2307/42',
+             'B32B2307/4023',
+             'Y02A40/22',
+             'E05B73/0005',
+             'E05F15/684',
+             'A61B1/0669',
+             'B32B29/02',
+             'G07D7/0032',
+             'E05B45/005',
+             'G01F1/007',
+             'G01R22/06',
+            'B32B9/045']
+    return [x for x in categories if x in lst_cat]
+
+
+def finding_topical_patents(tensor_patent, tensor_patent_cpc_sub, keywords):
     """
     Finds all patents that contain at least of one the keywords.
     :param tensor_patent: tensor which contains patent abstracts
@@ -39,8 +71,12 @@ def finding_topical_patents(tensor_patent, keywords):
     for patent, value in tensor_patent.items():
         
         try:
-            reference_count = search_abstract(value, concepts)
-            if reference_count != 0:
+            reference_count = search_abstract(value["abstract"], concepts)
+            answer = check_category(tensor_patent_cpc_sub[patent])
+            if reference_count != 0 and len(answer) > 0:
+                print("#"*30)
+                print(answer)
+                print(value["abstract"])
                 topical_patents[patent] = reference_count
         except:
             continue
@@ -103,9 +139,9 @@ def managerial_layer():
 
         else:
 
-            topical_patents = finding_topical_patents(tensors["patent"], keywords)
+            topical_patents = finding_topical_patents(tensors["patent"], tensors["patent_cpc_sub"], keywords)
             save_pickle("data/topical_patents.pkl", topical_patents)
-
+        input("hey") 
         print("6. Unfolding network ({})".format(datetime.now()))
         unfold_network(cpc_time_series, tensors, topical_patents)
 

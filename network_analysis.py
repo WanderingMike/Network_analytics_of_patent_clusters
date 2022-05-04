@@ -32,7 +32,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
 
     # technology index
     for index, row in clusters_df.iterrows():
-        row['tech index'], row["data"] = calculate_technology_index(row["subgroup"], cpc_time_series[row["subgroup"]])
+        clusters_df.at[index, 'tech index'], clusters_df.at[index, 'data'] = calculate_technology_index(row['subgroup'], cpc_time_series[row['subgroup']])
 
     return clusters_df
 
@@ -55,7 +55,7 @@ def assignee_index(topical_assignees, tensor_assignee):
 
     # emergingness
     lambda_function = lambda row: sum(topical_assignees[row['ID']]['emergingness']) / row['count']
-    assignee_df['emergingness'] = assignee_df.apply(function, axis=1)
+    assignee_df['emergingness'] = assignee_df.apply(lambda_function, axis=1)
 
     return assignee_df
 
@@ -147,8 +147,10 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
    
     # Indices
     print(f'6.5 Calculating Technology Index ({datetime.now()})')
-
     clusters_df = technology_index(topical_clusters, cpc_time_series, full_tensors["cpc_sub_patent"])
+    print(clusters_df)
+    clusters_df.sort_values("tech index", inplace=True, ascending=False)
+    clusters_df.to_markdown("output_tables/technologies_index.md")
 
     print(f'6.6 Calculating Assignee Index ({datetime.now()})')
     assignee_df = assignee_index(topical_assignees, full_tensors["assignee"])
@@ -157,7 +159,7 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
     assignee_df = network_indices(cpc_nodes, assignee_nodes, edges, assignee_df)
     
     # Output
-    print(f'6.10 Writing to output files ({datetime.now()})')
+    print(f'6.8 Writing to output files ({datetime.now()})')
     clusters_df.to_csv("output_tables/clusters_df.csv")
     assignee_df.to_csv("output_tables/assignee_df.csv")
 

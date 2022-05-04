@@ -55,9 +55,10 @@ def get_edge_data(topical_assignees):
 
 
 def calculate_technology_index(cpc_subgroup, padding):
-    '''Calculates the technology index for every cpc subgroup
+    """Calculates the technology index for a specific cpc_subgroup
     :param cpc_subgroup: subgroup ID
-    :param padding: dataset with only the required timeseries of the specific cpc subgroup'''
+    :param padding: dataset with only the required timeseries of the specific cpc subgroup
+    """
     
     value = list()
     data_aggregate = list()
@@ -89,6 +90,7 @@ def calculate_technology_index(cpc_subgroup, padding):
 
             data_aggregate.append([n_1["emergingness"], n["emergingness"], n_1["patent_count"], n["patent_count"]])
             value.append(growth_em * growth_count_penalised)
+            print(value)
 
         except Exception as e:
             print(cpc_subgroup, e)

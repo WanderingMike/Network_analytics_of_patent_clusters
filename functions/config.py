@@ -49,7 +49,7 @@ class MlConfig:
         self.data_upload_date = datetime(2021, 6, 30)
         self.prediction_timeframe_years = 5
         self.load_network = False
-        self.load_topical_patents = True
+        self.load_topical_patents = False
         self.load_main = True
         self.load_df_final = True
         self.load_classifier = True
@@ -58,14 +58,11 @@ class MlConfig:
         self.keyphrases = [['allowlist',
                             'antimalware',
                             'antispyware',
-                            'antivirus',
                             'asymmetric key',
                             'attack signature',
                             'blocklist',
                             'blue team',
-                            'bot',
                             'botnet',
-                            'bug',
                             'ciphertext',
                             'computer forensics',
                             'computer security incident',
@@ -76,6 +73,7 @@ class MlConfig:
                             'cryptographic',
                             'cryptology',
                             'cyber incident',
+                            'cyber incidents',
                             'cybersecurity',
                             'cyber security',
                             'cyberspace',
@@ -92,27 +90,31 @@ class MlConfig:
                             'encrypt',
                             'encrypted',
                             'encryption',
-                            'firewall',
                             'hacker',
+                            'hackers',
                             'hashing',
                             'keylogger',
                             'malware',
                             'malicious code',
                             'network resilience',
                             'password',
+                            'passwords',
                             'pen test',
                             'pentest',
                             'phishing',
                             'private key',
+                            'private keys',
                             'public key',
+                            'public keys',
                             'red team',
                             'rootkit',
                             'spoofing',
                             'spyware',
                             'symmetric key',
+                            'symmetric keys'
                             'systems security analysis',
                             'threat actor',
-                            'trojan',
+                            'threat actors',
                             'white team']]
 
 
