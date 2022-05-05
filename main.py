@@ -78,18 +78,16 @@ def inspect_network(name):
 
         # Print ranking?
         selection = input("Give company or cluster ID\n")
-        if len(selection) == 36:
-            ranking = publish_ranking(graph, selection, cluster_descriptions)
-        else:
-            ranking = publish_ranking(graph, selection, assignee_descriptions)
+        try:
+            if len(selection) == 36:
+                ranking = publish_ranking(graph, selection, cluster_descriptions)
+            else:
+                ranking = publish_ranking(graph, selection, assignee_descriptions)
+        except:
+            continue
 
         # Save ranking?
-        save = input("Would you like to save your ranking? Give address if yes.\n")
-        if save:
-            try:
-                ranking.to_csv("{}".format(save))
-            except:
-                print("Folder address not found.\n")
+        save_ranking(ranking)
 
         # Continue?
         loop = input("Would you like to continue? (y or n)  ")
@@ -104,40 +102,57 @@ def display_topical_abstracts():
     tensor_patent_cpc_sub = load_pickle("data/tensors/patent_cpc_sub.pkl")
     tensor_patent = load_pickle("data/tensors/patent.pkl")
 
-    subgroup_set = input("Set of comma-separated subgroups: ").split(",")
-    for patent, reference_count in topical_patents.items():
-        if reference_count > 0:
-            if find_intersection(tensor_patent_cpc_sub[patent], subgroup_set) > 0:
-                print("#"*30)
-                print(patent)
-                print(tensor_patent[patent]["abstract"])
+    loop = 'y'
+    while loop == 'y':
+        subgroup_set = input("Set of comma-separated subgroups: ").split(",")
+        for patent, reference_count in topical_patents.items():
+            if reference_count > 0:
+                try:
+                    if find_intersection(tensor_patent_cpc_sub[patent], subgroup_set) > 0:
+                        print("#"*30)
+                        print(patent)
+                        print(tensor_patent[patent]["abstract"])
+                except:
+                    continue
+
+        # Continue?
+        loop = input("Would you like to continue? (y or n)  ")
 
 
 def curate_ranking():
     """Develop new rankings"""
 
-    df_name = input("Which dataframe? \n (1) Technologies\n (2) Companies")
-    filter_var = input("Filter on variable: ")
-    filter_order = input(" (1) Ascending, (2) Descending")
-    min_val = input("Variable - Minimum value (separated by white space)").split()
+    loop = 'y'
+    while loop == 'y':
 
-    if df_name == 1:
-        df = pd.read_csv("output_tables/clusters_df.csv", index_col=0, header=0)
-    else:
-        df = pd.read_csv("output_tables/assignees_df.csv", index_col=0, header=0)
+        df_name = input("Which dataframe? \n (1) Technologies\n (2) Companies\n")
+        if df_name == "1":
+            df = pd.read_csv("output_tables/clusters_df.csv", index_col=0, header=0)
+        else:
+            df = pd.read_csv("output_tables/assignee_df.csv", index_col=0, header=0)
+        print(df)
 
-    df = df[df[min_val[0]] > int(min_val[1])]
-    df.sort_values(filter_var, inplace=True, ascending=True if filter_order == 1 else False)
+        filter_var = input("Filter on variable: ")
+        filter_order = input("(1) Ascending, (2) Descending: ")
+        min_val = input("Variable - Minimum value (separated by white space): ").split()
+
+        df = df[df[min_val[0]] > float(min_val[1])]
+        df.sort_values(filter_var, inplace=True, ascending=True if filter_order == 1 else False)
+        print(df)
+        save_ranking(df)
+
+        # Continue?
+        loop = input("Would you like to continue? (y or n)  ")
 
 
 def interaction():
     """Displays menu and runs appropriate functions according to user wishes"""
 
     ans = input("Would you like to: \n"
-                   "(1) Create a new graph\n" +
-                   "(2) Inspect an assignee or a technology\n" +
-                   "(3) Find abstract of topical patents pertaining to a group of technologies\n" +
-                   "(4) Publish a new index ranking\n")
+                "(1) Create a new graph\n" +
+                "(2) Inspect an assignee or a technology\n" +
+                "(3) Find abstract of topical patents pertaining to a group of technologies\n" +
+                "(4) Publish a new index ranking\n")
 
     if ans == '1':
         managerial_layer()
@@ -153,4 +168,4 @@ def interaction():
 
 
 if __name__ == "__main__":
-    managerial_layer()
+    display_topical_abstracts()

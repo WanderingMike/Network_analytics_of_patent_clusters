@@ -2,6 +2,15 @@ from network_analysis import *
 from ML import *
 
 
+def save_ranking(ranking):
+    save = input("Would you like to save your ranking? Give address if yes.\n")
+    if save:
+        try:
+            ranking.to_markdown("output_tables/{}".format(save))
+        except:
+            print("Folder address not found.\n")
+
+
 def search_abstract(abstract, concepts):
     """
     Takes a list of words or ideas and looks for them in the patent abstract. Use Term Frequency to normalise.
@@ -63,7 +72,7 @@ def publish_ranking(graph, node_name, node_descriptions):
     print(node_name)
 
     # ranking
-    ranking = pd.merge(ranking, node_descriptions, how='left', left_index=True, right_on='id')
+    ranking = pd.merge(ranking, node_descriptions, how='left', left_index=True, right_on='id').reset_index(drop=True)
     ranking.sort_values(by=["weight"], inplace=True, ascending=False)
     print(ranking)
 
