@@ -90,15 +90,17 @@ def calculate_technology_index(cpc_subgroup, padding):
 
             data_aggregate.append([n_1["emergingness"], n["emergingness"], n_1["patent_count"], n["patent_count"]])
             value.append(growth_em * growth_count_penalised)
+            print("#"*30)
+            print(data_aggregate)
             print(value)
 
         except Exception as e:
             print(cpc_subgroup, e)
 
     if len(value) >= 1:
-        return sum(value)/len(value), data_aggregate
+        return sum(value)/len(value)
     else:
-        return None, None
+        return None
 
 
 def get_assignee_data(cluster, patent, patent_value, assignee, topical_assignees):
@@ -186,6 +188,7 @@ def find_topical_clusters(topical_patents, tensor_patent_cpc_sub):
                 if group not in cpc_subgroups.keys():
                     cpc_subgroups[group] = value
                 else:
+                    print("Adding to group {} - {} - +{}".format(group, cpc_subgroups[group], value))
                     cpc_subgroups[group] += value
 
         except Exception as e:
