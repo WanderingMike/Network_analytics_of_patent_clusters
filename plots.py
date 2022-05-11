@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
+from functions.functions_plots import *
+import pandas as pd
 plt.rcParams["font.family"] = "Times New Roman"
 hfont = {'fontname': 'Times New Roman'}
 font_size = 18
-
-from functions.functions_plots import *
-import pandas as pd
 sns.set(font="Times New Roman")
 
 
@@ -21,7 +19,7 @@ def trivariate_heatmap(load=False):
         return list(set(answer))
 
     if load:
-        final_df = load_pickle("plots/source/heatmap_df.pkl")
+        final_df = load_pickle("data/plots/heatmap_df.pkl")
     else:
         df = pd.read_pickle("data/dataframes/filled_df.pkl")
         df = df[["date", "forward_citations", "MF"]]
@@ -36,7 +34,7 @@ def trivariate_heatmap(load=False):
 
         final_df = df.groupby(["Mainclass", "year"], as_index=False).mean()
         final_df = final_df.pivot(index="Mainclass", columns='year', values='forward_citations')
-        save_pickle("plots/source/heatmap_df.pkl", final_df)
+        save_pickle("data/plots/heatmap_df.pkl", final_df)
 
     # Draw a heatmap with the numeric values in each cell
     f, ax = plt.subplots(figsize=(9, 6))
@@ -50,7 +48,8 @@ def trivariate_heatmap(load=False):
 
 
 def cdf_plot(data_series, indicator, fig_title):
-    """Builds a cumulative distribution function for all topical clusters.
+    """
+    Builds a cumulative distribution function for all topical clusters.
     :param data_series: main dataset with the value of each cluster and its patent count
     :param indicator: independent variable of the cdf
     :param fig_title: title of figure
@@ -75,6 +74,8 @@ def cdf_plot(data_series, indicator, fig_title):
 
 def violin_graph(data, indicator, ylim, fig_title):
     """Draws a violin graph time-series
+    :param indicator: graph file name
+    :param fig_title: figure title
     :param data: data distribution
     :param ylim: plot y axis limit
     """
@@ -159,47 +160,65 @@ def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
     plt.close()
 
 
+def interaction(numbers):
+
+    for number in numbers:
+
+        if number == 1:
+            ### Plot 1: Trivariate heatmap
+            trivariate_heatmap(load=True)
+
+        elif number == 2:
+            ### Plot 2 & 3: cumulative distribution functions
+            emergingness_data = cdf_data()
+            save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
+            emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
+            cdf_plot(emergingness_data, indicator="emergingness", fig_title="cluster value")
+            cdf_plot(emergingness_data, indicator="patent_count", fig_title="cluster size")
+
+        elif number == 3:
+            ### Plot 4 & 5: violin plots
+            violin_plots_time_series()
+
+        elif number == 4:
+            ### Plot 6: network subgraph
+            network_draw_subgraph()
+
+        elif number == 5:
+            ### Plot 7 & 8: scatterplots
+            assignee_df = pd.read_csv("output_tables/test/assignee_df.csv")
+            scatterplot(assignee_df, "count", "normalised impact",
+                        xlim=(0, assignee_df["count"].max()),
+                        ylim=(0, assignee_df["normalised impact"].max()),
+                        x_title="Assignee patent count",
+                        y_title="Normalised impact",
+                        focus="unzoomed")
+            scatterplot(assignee_df, "count", "normalised impact",
+                        xlim=(0, np.percentile(assignee_df["count"], 99)),
+                        ylim=(0, np.percentile(assignee_df["normalised impact"], 99)),
+                        x_title="Assignee patent count",
+                        y_title="Normalised impact",
+                        focus="zoomed")
+            scatterplot(assignee_df, "influence", "impact",
+                        xlim=(0, assignee_df["influence"].max()),
+                        ylim=(0, assignee_df["impact"].max()),
+                        x_title="Assignee influence",
+                        y_title="Assignee impact",
+                        focus="unzoomed")
+            scatterplot(assignee_df, "influence", "impact",
+                        xlim=(0, np.percentile(assignee_df["influence"], 99.5)),
+                        ylim=(0, np.percentile(assignee_df["impact"], 99.5)),
+                        x_title="Assignee influence",
+                        y_title="Assignee impact",
+                        focus="zoomed")
+
+
 if __name__ == "__main__":
-    ### Plot 1: Trivariate heatmap
-    #trivariate_heatmap(load=True)
-
-    ### Plot 2 & 3: cumulative distribution functions
-    # emergingness_data = cdf_data()
-    # save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
-    #emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
-    #cdf_plot(emergingness_data, indicator="emergingness", fig_title="cluster value")
-    #cdf_plot(emergingness_data, indicator="patent_count", fig_title="cluster size")
-
-    ### Plot 4 & 5: violin plots
-    violin_plots_time_series()
-
-    ### Plot 6: network subgraph
-    #network_draw_subgraph()
-
-    ### Plot 7 & 8: scatterplots
-    assignee_df = pd.read_csv("output_tables/test/assignee_df.csv")
-    scatterplot(assignee_df, "count", "normalised impact",
-                xlim=(0, assignee_df["count"].max()),
-                ylim=(0, assignee_df["normalised impact"].max()),
-                x_title="Assignee patent count",
-                y_title="Normalised impact",
-                focus="unzoomed")
-    scatterplot(assignee_df, "count", "normalised impact",
-                xlim=(0, np.percentile(assignee_df["count"], 99)),
-                ylim=(0, np.percentile(assignee_df["normalised impact"], 99)),
-                x_title="Assignee patent count",
-                y_title="Normalised impact",
-                focus="zoomed")
-    scatterplot(assignee_df, "influence", "impact",
-                xlim=(0, assignee_df["influence"].max()),
-                ylim=(0, assignee_df["impact"].max()),
-                x_title="Assignee influence",
-                y_title="Assignee impact",
-                focus="unzoomed")
-    scatterplot(assignee_df, "influence", "impact",
-                xlim=(0, np.percentile(assignee_df["influence"], 99.5)),
-                ylim=(0, np.percentile(assignee_df["impact"], 99.5)),
-                x_title="Assignee influence",
-                y_title="Assignee impact",
-                focus="zoomed")
+    plot_numbers = input("Which plots would you like to create?\n"
+                         "1) Trivariate heatmap\n"
+                         "2) Cumulative distribution functions\n"
+                         "3) Violin plots\n"
+                         "4) Network subgraph\n"
+                         "5) Scatterplots")
+    interaction(plot_numbers.split())
 

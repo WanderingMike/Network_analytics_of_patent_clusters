@@ -12,8 +12,8 @@ def managerial_layer():
 
     if job_config.load_main:
 
-        cpc_time_series = load_pickle("data/clusters.pkl")
-        tensors = load_pickle("data/tensors.pkl")
+        cpc_time_series = load_pickle("data/ultimate/clusters.pkl")
+        tensors = load_pickle("data/ultimate/tensors.pkl")
 
     else:
 
@@ -40,8 +40,8 @@ def managerial_layer():
 
         cpc_time_series, tensors["patent"] = run_ml(tensors)
 
-        save_pickle("data/clusters.pkl", cpc_time_series)
-        save_pickle("data/tensors.pkl", tensors)
+        save_pickle("data/ultimate/clusters.pkl", cpc_time_series)
+        save_pickle("data/ultimate/tensors.pkl", tensors)
 
     print("3. Finished preparing data ({})".format(datetime.now()))
 
@@ -52,12 +52,12 @@ def managerial_layer():
         print("5. Finding topical patents ({})".format(datetime.now()))
         if job_config.load_topical_patents:
 
-            topical_patents = load_pickle("data/topical_patents.pkl")
+            topical_patents = load_pickle("data/ultimate/topical_patents.pkl")
 
         else:
 
             topical_patents = finding_topical_patents(tensors["patent"], keywords)
-            save_pickle("data/topical_patents.pkl", topical_patents)
+            save_pickle("data/ultimate/topical_patents.pkl", topical_patents)
 
         print("6. Unfolding network ({})".format(datetime.now()))
         unfold_network(cpc_time_series, tensors, topical_patents)
@@ -97,7 +97,7 @@ def display_topical_abstracts():
     """This function is useful when trying to understand the technologies index and curating the keywords list.
     Given a set of CPC subgroups, this function prints all topical patents that were linked to these subgroups."""
 
-    topical_patents = load_pickle("data/topical_patents.pkl")
+    topical_patents = load_pickle("data/ultimate/topical_patents.pkl")
     print("Loading required tensors")
     tensor_patent_cpc_sub = load_pickle("data/tensors/patent_cpc_sub.pkl")
     tensor_patent = load_pickle("data/tensors/patent.pkl")

@@ -191,8 +191,10 @@ def make_tensors():
 
 if __name__ == "__main__":
         
-    list_file_column_names("data/patentsview_data/uspatentcitation.tsv")
-    make_tensors()
+    list_file_column_names("data/patentsview_data/cpc_current.tsv")
+    list_file_column_names("data/patentsview_data/cpc_subgroup.tsv")
+
+    #make_tensors()
 
     # name = "patent_cpc_main"
     # config = tensors_config[name]

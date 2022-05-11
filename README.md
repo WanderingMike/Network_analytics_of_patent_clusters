@@ -1,4 +1,4 @@
-TECH-RANK 
+Network Dynamics of Patent Clusters
 =============================================
 
 ## Goal
@@ -15,17 +15,14 @@ Investors can customise the algorithm by indicating which external factors --suc
 
 ------
 ## Documents
-For more information please refer to:
-- [the short paper](../docs/_static/TechRank_shortpaper.pdf) (it does not investigate the inclusion of exogenous factors)
-- [the master thesis](TechRank_thesis.pdf)
+For more information please refer to [our paper](../docs/_static/TechRank_shortpaper.pdf). Mathematical formulas are substantiated and the system is applied to a use case in cybersecurity technology monitoring.
 
 
 ------
 ## Code
 
 The code comes in the form of `py` files: 
-- the _py files_ contain the functions needed in the notebook and the declaration of the classes;
-- the _notebooks_ explain all the steps.
+- the _py files_ contain the function.
 
 **Data**:
 [Patentsview](https://www.patentsview.org).
@@ -33,9 +30,6 @@ The data is freely available from the bulk data download page (https://patentsvi
 
 **Classes** :
 We work with 3 dataclasses: `Companies`, `Technologies` and `Investors`.
-
-**Documentation**:
-We create the documentation in HTML using [Sphinx](https://www.sphinx-doc.org/en/master/).
 
 
 ------
@@ -46,12 +40,13 @@ Short description of the files:
 | File name        | Short Description  |  
 | ------------- |:-------------:| 
 | data_preprocessing.py                   	| Creates Machine-Learning inputs from the dictionaries created in tensor_deployment.py |
+| main.py					| Runs the entire system and processes high-level system outputs |
 | ML.py						| Applies classification algorithms to determine forward citation count & applies NLP to abstracts |
 | network_analysis.py				| Builds the network of CPC clusters and assignees |
-| main.py					| Runs the entire system and processes high-level system outputs |
 | tensor_deployment.py				| Loads and flattens data frames into lightweight dictionaries |
-| functions/config_tensor_deployment.py		| Configuration file for tensor formatting |
+| functions/config.py				| Configuration file for tensor formatting |
 | functions/functions_data_preprocessing.py	| Contains functions that compute the indicators for the ML algorithms |
+| functions/functions_main.py			| Contains functions to find topical patents and create ranked lists of technologies and companies  |
 | functions/functions_ML.py			| Contains the NLP keyword extraction and topic modeling functions |
 | functions/functions_network_analysis.py	| Contains network-construction functions |
 | functions/functions_tensor_deployment.py 	| Contains functions to load tsv files and reduce their size |
@@ -67,8 +62,10 @@ Short description of the files:
 
 | File name        | Short Description  | Columns |  Last updated |
 | ------------- |:-------------:|-------------:|-------------:|
+| application.tsv | Information on the applications for granted patent | id, patent_id, series_code, number, country, date |
 | assignee.tsv | Disambiguated assignee data for granted patents and pre-granted applications | id, type, name_first, name_last, organization | 08.10.2021 |
 | cpc_current.tsv | Current CPC classification data for all patents | uuid, patent_id, section_id, subsection_id, group_id, subgroup_id, category, sequence | 08.10.2021 |
+| cpc_subgroup.tsv | CPC subgroup names | id, title |
 | otherreference.tsv | Non-patent citations mentioned in patents (e.g. articles, papers, etc.) | uuid, patent_id, text, sequence | 08.10.2021 |
 | patent.tsv | Data on granted patents | id, type, number, country, date, abstract, title, kind, num_claims, filename, withdrawn | 08.10.2021 |
 | patent_assignee.tsv | Metadata table for many-to-many relationships between patents and assignees | patent_id, assignee_id, location_id | 08.10.2021 |

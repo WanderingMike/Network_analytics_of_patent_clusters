@@ -14,7 +14,7 @@ def save_ranking(ranking):
 def search_abstract(abstract, concepts):
     """
     Takes a list of words or ideas and looks for them in the patent abstract. Use Term Frequency to normalise.
-    :param value: patent dictionary value
+    :param abstract: patent abstract
     :param concepts: words to find in patent abstract
     """
 

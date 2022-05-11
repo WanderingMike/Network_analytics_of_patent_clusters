@@ -122,9 +122,9 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
     if job_config.load_network:
         
         print(f'6.1 Loading topical clusters ({datetime.now()})')
-        topical_clusters = load_pickle("data/topical_clusters.pkl")
+        topical_clusters = load_pickle("data/ultimate/topical_clusters.pkl")
         print(f'6.2 Loading topical assignees ({datetime.now()})')
-        topical_assignees = load_pickle("data/topical_assignees.pkl")
+        topical_assignees = load_pickle("data/ultimate/topical_assignees.pkl")
 
     else:
 
@@ -137,8 +137,8 @@ def unfold_network(cpc_time_series, full_tensors, topical_patents):
                                                    cpc_time_series,
                                                    full_tensors["patent_assignee"],
                                                    full_tensors["patent"])
-        save_pickle("data/topical_clusters.pkl", topical_clusters)
-        save_pickle("data/topical_assignees.pkl", topical_assignees)
+        save_pickle("data/ultimate/topical_clusters.pkl", topical_clusters)
+        save_pickle("data/ultimate/topical_assignees.pkl", topical_assignees)
 
     print("6.4 Getting nodes and edges ({})".format(datetime.now()))
     cpc_nodes = get_cpc_nodes(topical_clusters, cpc_time_series)
