@@ -14,7 +14,15 @@ plots/
 previous_scripts/
 venv/
 .bash_history
+.gitignore
 .motd_shown
+main.pyc
 michael.tsesmelis@gpulogin.lambda.armasuisse.ch
 testing.py
+Untitled.ipynb
+run_main.sh
+run_network.sh
+run_plots.sh
+run_tensor_deployment.sh
+run_test.sh
 
