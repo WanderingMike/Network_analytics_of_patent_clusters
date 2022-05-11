@@ -59,8 +59,11 @@ def assignee_index(topical_assignees, tensor_assignee):
 
 
 def impact_index(node, network):
-    """Calculates the impact value used in the impact and normalised impact indices.
-    :return: impact value, number of shared patents to find normalised impact"""
+    """
+    Calculates the impact value used in the impact and normalised impact indices.
+    :return: impact value, number of shared patents to find normalised impact
+    """
+
     name = node[0]
     assignee_value = node[1]['weight']
     impact = 0
