@@ -21,8 +21,6 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
     clusters_df = pd.merge(clusters_df, cluster_descriptions, how='left', left_on='subgroup', right_on='subgroup')
     # count
     clusters_df['count'] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
-    # citations
-    clusters_df["citations"] = clusters_df['subgroup'].apply(lambda x: len(tensors_cpc_sub_patent[x]))
     # emergingness
     end_year = job_config.data_upload_date.year
     clusters_df['emergingness'] = clusters_df['subgroup'].apply(lambda x: cpc_time_series[x][end_year]['emergingness'])
@@ -32,7 +30,7 @@ def technology_index(topical_clusters, cpc_time_series, tensors_cpc_sub_patent):
 
     # technology index
     for index, row in clusters_df.iterrows():
-        clusters_df.at[index, 'tech index'], clusters_df.at[index, 'data'] = calculate_technology_index(row['subgroup'], cpc_time_series[row['subgroup']])
+        clusters_df.at[index, 'tech index'] = calculate_technology_index(row['subgroup'], cpc_time_series[row['subgroup']])
 
     return clusters_df
 

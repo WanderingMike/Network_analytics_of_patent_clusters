@@ -49,7 +49,7 @@ class MlConfig:
         self.data_upload_date = datetime(2021, 6, 30)
         self.prediction_timeframe_years = 5
         self.load_network = False
-        self.load_topical_patents = False
+        self.load_topical_patents = True
         self.load_main = True
         self.load_df_final = True
         self.load_classifier = True
