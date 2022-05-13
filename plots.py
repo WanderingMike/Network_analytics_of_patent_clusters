@@ -42,8 +42,8 @@ def trivariate_heatmap(load=False):
     plt.subplots_adjust(top=0.9)
     fig_title = "Average forward citation count per mainclass category per year"
     plt.suptitle(fig_title, fontsize=font_size)
-    plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.png")
-    plt.show()
+    plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.{}".format(image_format), dpi=400)
+    # plt.show()
     plt.close()
 
 
@@ -67,8 +67,9 @@ def cdf_plot(data_series, indicator, fig_title):
     plt.legend(labels=["CDF"])
     plt.xlabel(fig_title)
     plt.ylabel("share of clusters")
-    plt.savefig("plots/cdf_{}.png".format(indicator), bbox_inches='tight')
-    plt.show()
+    plot_name = "plots/{}/cdf_{}.{}".format(image_format, indicator, image_format)
+    plt.savefig(plot_name, dpi=400, bbox_inches='tight')
+    # plt.show()
     plt.close()
 
 
@@ -94,16 +95,15 @@ def violin_graph(data, indicator, ylim, fig_title):
     plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title),
                  fontsize=font_size+4,
                  **hfont)
-    plt.savefig("plots/violin_plot_{}_query_full.png".format(indicator), bbox_inches='tight')
-    plt.show()
+    plot_name = "plots/{}/violin_plot_{}_query_full.{}".format(image_format, indicator, image_format)
+    plt.savefig(plot_name, dpi=400, bbox_inches='tight')
+    # plt.show()
     plt.close()
 
 
-def violin_plots_time_series():
+def violin_plots_time_series(cpc_time_series, topical_clusters):
     """Builds a time-series of violin plots for patent count and patent value"""
 
-    cpc_time_series = load_pickle("data/clusters.pkl")
-    topical_clusters = pd.read_csv("output_tables/test/clusters_df.csv")["CPC"].tolist()
     topical_clusters_time_series = {group: cpc_time_series[group] for group in topical_clusters}
 
     df_emergingness = prepare_violin_plot_df(cpc_time_series, topical_clusters_time_series, "emergingness")
@@ -127,10 +127,10 @@ def network_draw_subgraph():
     subnetwork = network.subgraph(most_connected)
     print(subnetwork.edges())
     nx.draw(subnetwork)
-    plt.show()
+    # plt.show()
     nx.draw_networkx_labels(subnetwork, pos=nx.spring_layout(network))
     nx.draw_networkx_edges(subnetwork, pos=nx.circular_layout(network))
-    plt.show()
+    # plt.show()
 
 
 def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
@@ -151,18 +151,27 @@ def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
     g.set_axis_labels(x_title, y_title, fontsize=12)
     g.plot_joint(sns.scatterplot, size=df["count"], sizes=(30, 120),
                  color="g", alpha=.6, legend=False)
-    g.plot_marginals(sns.rugplot, height=1, color="g", alpha=.6)
+    # g.plot_marginals(sns.rugplot, height=1, color="g", alpha=.6)
 
     plt.subplots_adjust(top=0.9)
     plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=font_size, **hfont)
-    plt.savefig("plots/scatterplot_{}_vs_{}_{}.png".format(x, y, focus), bbox_inches='tight')
-    plt.show()
+    plot_name = "plots/{}/scatterplot_{}_vs_{}_{}.{}".format(image_format, x, y, focus, image_format)
+    plt.savefig(plot_name, bbox_inches='tight', dpi=400)
+    # plt.show()
     plt.close()
 
 
 def interaction(numbers):
+    """Runs appropriate functions based on user request"""
+
+    if len({2, 3}.intersection(numbers)) != 0:
+        clusters_df = pd.read_csv("output_tables/clusters_df.csv")
+        topical_clusters = clusters_df["subgroup"].tolist()
+        cpc_time_series = load_pickle("data/ultimate/clusters.pkl")
 
     for number in numbers:
+
+        print("Plot {}".format(number))
 
         if number == 1:
             ### Plot 1: Trivariate heatmap
@@ -170,15 +179,15 @@ def interaction(numbers):
 
         elif number == 2:
             ### Plot 2 & 3: cumulative distribution functions
-            emergingness_data = cdf_data()
+            emergingness_data = cdf_data(cpc_time_series, topical_clusters)
             save_pickle("data/plots/emergingness_data.pkl", data=emergingness_data)
-            emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
+            # emergingness_data = load_pickle("data/plots/emergingness_data.pkl")
             cdf_plot(emergingness_data, indicator="emergingness", fig_title="cluster value")
             cdf_plot(emergingness_data, indicator="patent_count", fig_title="cluster size")
 
         elif number == 3:
             ### Plot 4 & 5: violin plots
-            violin_plots_time_series()
+            violin_plots_time_series(cpc_time_series, topical_clusters)
 
         elif number == 4:
             ### Plot 6: network subgraph
@@ -186,7 +195,7 @@ def interaction(numbers):
 
         elif number == 5:
             ### Plot 7 & 8: scatterplots
-            assignee_df = pd.read_csv("output_tables/test/assignee_df.csv")
+            assignee_df = pd.read_csv("output_tables/assignee_df.csv")
             scatterplot(assignee_df, "count", "normalised impact",
                         xlim=(0, assignee_df["count"].max()),
                         ylim=(0, assignee_df["normalised impact"].max()),
@@ -212,6 +221,8 @@ def interaction(numbers):
                         y_title="Assignee impact",
                         focus="zoomed")
 
+        print("Finished plot {}".format(number))
+
 
 if __name__ == "__main__":
     plot_numbers = input("Which plots would you like to create?\n"
@@ -219,6 +230,7 @@ if __name__ == "__main__":
                          "2) Cumulative distribution functions\n"
                          "3) Violin plots\n"
                          "4) Network subgraph\n"
-                         "5) Scatterplots")
-    interaction(plot_numbers.split())
+                         "5) Scatterplots\n")
+    image_format = input("Image format (pdf, png, jpeg,...): ")
+    interaction([int(num) for num in plot_numbers.split()])
 
