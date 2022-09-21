@@ -1,6 +1,9 @@
+import matplotlib.pyplot as plt
+
 from functions.functions_plots import *
 import pandas as pd
 plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.size"] = 22
 hfont = {'fontname': 'Times New Roman'}
 font_size = 18
 sns.set(font="Times New Roman")
@@ -40,10 +43,17 @@ def trivariate_heatmap(load=False):
     f, ax = plt.subplots(figsize=(9, 6))
     sns.heatmap(final_df, cmap="Greys", center=3, linewidths=.5, ax=ax)
     plt.subplots_adjust(top=0.9)
-    fig_title = "Average forward citation count per mainclass category per year"
-    plt.suptitle(fig_title, fontsize=font_size)
-    plt.savefig("plots/heatmap_year_vs_mainclass_vs_citation_count.{}".format(image_format), dpi=400)
-    # plt.show()
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=16)
+    #fig_title = "Average forward citation count per mainclass category per year"
+    #plt.suptitle(fig_title, fontsize=font_size)
+    plt.xticks(fontsize=16)
+    plt.yticks(rotation=0, fontsize=16)
+    plt.xlabel("year", fontsize=22)
+    plt.ylabel("section", fontsize=22)
+    plt.locator_params(axis='x', nbins=16)
+    plt.savefig("plots/{0}/heatmap_year_vs_mainclass_vs_citation_count.{0}".format(image_format), dpi=400)
+    plt.show()
     plt.close()
 
 
@@ -63,13 +73,15 @@ def cdf_plot(data_series, indicator, fig_title):
 
     plt.plot(x_axis, y_axis)
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("Cumulative Distribution Function for {}".format(fig_title), fontsize=font_size)
-    plt.legend(labels=["CDF"])
-    plt.xlabel(fig_title)
-    plt.ylabel("share of clusters")
-    plot_name = "plots/{}/cdf_{}.{}".format(image_format, indicator, image_format)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    #plt.suptitle("Cumulative Distribution Function for {}".format(fig_title), fontsize=font_size)
+    plt.legend(labels=["CDF"], fontsize=22, loc="lower right")
+    plt.xlabel(fig_title, fontsize=22)
+    plt.ylabel("share of clusters", fontsize=22)
+    plot_name = "plots/{0}/cdf_{1}.{0}".format(image_format, indicator)
     plt.savefig(plot_name, dpi=400, bbox_inches='tight')
-    # plt.show()
+    plt.show()
     plt.close()
 
 
@@ -88,16 +100,22 @@ def violin_graph(data, indicator, ylim, fig_title):
     # Draw a nested violinplot and split the violins for easier comparison
     sns.violinplot(data=data, x="year", y="cluster value", hue="type",
                    split=True, inner="quart", linewidth=1,
-                   palette={"query": "b", "full": ".85"})
+                   palette={"full": "b", "query": ".85"})
+
     sns.despine(left=True)
 
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title),
-                 fontsize=font_size+4,
-                 **hfont)
-    plot_name = "plots/{}/violin_plot_{}_query_full.{}".format(image_format, indicator, image_format)
+    #plt.suptitle("Violin plots depicting the probability density for {}".format(fig_title),
+    #             fontsize=font_size+4,
+    #             **hfont)
+    plot_name = "plots/{0}/violin_plot_{1}_query_full.{0}".format(image_format, indicator)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.xlabel("year", fontsize=22)
+    plt.ylabel("cluster value", fontsize=22)
+    ax.legend(bbox_to_anchor=(1.14, 1.18), title="selected patents", title_fontsize=20, fontsize=16)
     plt.savefig(plot_name, dpi=400, bbox_inches='tight')
-    # plt.show()
+    plt.show()
     plt.close()
 
 
@@ -145,19 +163,18 @@ def scatterplot(df, x, y, xlim, ylim, x_title, y_title, focus):
     """
 
     sns.set_theme(style="white", color_codes=True, font="Times New Roman")
-
     # Use JointGrid directly to draw a custom plot
     g = sns.JointGrid(data=df, x=x, y=y, space=0, ratio=17, xlim=xlim, ylim=ylim)
-    g.set_axis_labels(x_title, y_title, fontsize=12)
+    g.set_axis_labels(x_title, y_title, fontsize=16)
     g.plot_joint(sns.scatterplot, size=df["count"], sizes=(30, 120),
                  color="g", alpha=.6, legend=False)
-    # g.plot_marginals(sns.rugplot, height=1, color="g", alpha=.6)
 
     plt.subplots_adjust(top=0.9)
-    plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=font_size, **hfont)
-    plot_name = "plots/{}/scatterplot_{}_vs_{}_{}.{}".format(image_format, x, y, focus, image_format)
+
+    #plt.suptitle("{} vs {}".format(x_title, y_title), fontsize=font_size, **hfont)
+    plot_name = "plots/{0}/scatterplot_{1}_vs_{2}_{3}.{0}".format(image_format, x, y, focus)
     plt.savefig(plot_name, bbox_inches='tight', dpi=400)
-    # plt.show()
+    plt.show()
     plt.close()
 
 

@@ -190,25 +190,4 @@ def make_tensors():
 
 
 if __name__ == "__main__":
-        
-    list_file_column_names("data/patentsview_data/cpc_current.tsv")
-    list_file_column_names("data/patentsview_data/cpc_subgroup.tsv")
-
-    #make_tensors()
-
-    # name = "patent_cpc_main"
-    # config = tensors_config[name]
-    # single_tensor = parallelisation(name,
-    #                                 config["dataset"],
-    #                                 config["leading_column"],
-    #                                 config["remaining_columns"],
-    #                                 config["tensor_value_format"])
-    # try:
-    #     print(single_tensor["G01S7/4914"])
-    # except:
-    #     pass
-    # try:
-    #     print(single_tensor["10000000"])
-    # except:
-    #     print("Hello")
-    # clean_patent()
+    make_tensors()

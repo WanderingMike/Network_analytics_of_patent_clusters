@@ -82,7 +82,7 @@ def create_time_series_df():
     df_patent_count = pd.DataFrame(index=topical_clusters_time_series.keys(), columns=[2018, 2019, 2020, 2021])
 
     df_emergingness = fill_df(df_emergingness, "emergingness", topical_clusters_time_series)
-    df_patent_count = fill_df(df_patent_count,"patent_count", topical_clusters_time_series)
+    df_patent_count = fill_df(df_patent_count, "patent_count", topical_clusters_time_series)
 
     print(df_emergingness)
     print(df_patent_count)
@@ -97,4 +97,6 @@ def fill_df(df, indicator, cpc_time_series):
         df[year] = df.index.map(lambda x: cpc_time_series[x][year][indicator])
 
     return df
+
+create_time_series_df()
 
