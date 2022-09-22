@@ -105,10 +105,10 @@ python3 main.py
 ```
 
 The Managerial layer allows you to:
-1) create a new graph (required when using this library the first time). 
-2) inspect what graph nodes are linked to a specific technology or company. 
-3) display abstracts of topical patents to tweak the keyword selection.
-4) create rankings based on the five indicators mentioned above
+- create a new graph (required when using this library the first time). 
+- inspect what graph nodes are linked to a specific technology or company. 
+- display abstracts of topical patents to tweak the keyword selection.
+- create rankings based on the five indicators mentioned above
 
 To generate plots depicting the statistical distribution of the data among other graphs:
 ```
