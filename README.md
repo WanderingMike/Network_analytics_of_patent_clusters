@@ -85,12 +85,14 @@ Short description of the files:
 
 ------
 ## How to run
-Place all Patentsview tsv files into the ``data/patentsview`` folder.
+Place all Patentsview tsv files into the ``data/patentsview_data`` folder.
 
 Load these datasets into lighter dictionaries:
-``python3 tensor_deployment.py``
+```
+python3 tensor_deployment.py
+```
 
-Change job configurations under ``functions/config.py``, ``class MlConfig``:
+Change job configurations under ``functions/config.py``, under ``class MlConfig``:
 - number of CPU cores (self.number_of_cores)
 - machine learning maximum search time (self.ml_search_time). 6-12 hours is 
 - size of dataframe fed to the machine learning classifiers (self.size_dataframe_train). 15'000 is a good number.
@@ -98,10 +100,17 @@ Change job configurations under ``functions/config.py``, ``class MlConfig``:
 - keywords specifying the industry (self.keyphrases). Several keyword lists can be given, and each search runs on the same labeled set of patents outputed by the machine learning phase.
 
 Run Managerial layer:
-``python3 main.py``
+```
+python3 main.py
+```
 
 The Managerial layer allows you to:
-- (i) create a new graph (required when using this library the first time). 
-- (ii) inspect what graph nodes are linked to a specific technology or company. 
-- (iii) display abstracts of topical patents to tweak the keyword selection.
-- (iv) create rankings based on the five indicators mentioned above
+1) create a new graph (required when using this library the first time). 
+2) inspect what graph nodes are linked to a specific technology or company. 
+3) display abstracts of topical patents to tweak the keyword selection.
+4) create rankings based on the five indicators mentioned above
+
+To generate plots depicting the statistical distribution of the data among other graphs:
+```
+python3 plots.py
+```
